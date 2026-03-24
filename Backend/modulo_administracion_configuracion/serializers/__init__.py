@@ -1,0 +1,1 @@
+from .moneda import MonedaSerializer
