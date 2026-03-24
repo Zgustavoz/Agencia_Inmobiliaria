@@ -1,0 +1,185 @@
+### Login
+POST http://localhost:8000/gestion_usuarios/auth/login/
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin123#"
+}
+
+### Registro
+POST http://localhost:8000/gestion_usuarios/auth/registro/
+Content-Type: application/json
+
+{
+  "username": "cliente2",
+  "email": "gustavopro078@gmail.com",
+  "nombres": "Juan",
+  "apellidos": "Perez",
+  "telefono": "70000000",
+  "password": "Test1234#",
+  "password2": "Test1234#"
+}
+
+### Refresh token
+POST http://localhost:8000/gestion_usuarios/auth/refresh/
+Content-Type: application/json
+
+### Logout
+POST http://localhost:8000/gestion_usuarios/auth/logout/
+Content-Type: application/json
+
+### Recuperar password
+POST http://localhost:8000/gestion_usuarios/auth/recuperar-password/
+Content-Type: application/json
+
+{
+  "email": "gustavopro078@gmail.com"
+}
+
+### Restablecer password
+POST http://localhost:8000/gestion_usuarios/auth/restablecer-password/uidb64/token/
+Content-Type: application/json
+
+{
+  "new_password": "NuevoPass123#"
+}
+
+### Listar usuarios
+GET http://localhost:8000/gestion_usuarios/usuarios/
+
+### Listar usuarios con filtros
+GET http://localhost:8000/gestion_usuarios/usuarios/?search=admin&estado=true&page=1
+
+### Obtener usuario por ID
+GET http://localhost:8000/gestion_usuarios/usuarios/1/
+
+### Crear usuario
+POST http://localhost:8000/gestion_usuarios/usuarios/
+Content-Type: application/json
+
+{
+  "username": "agente1",
+  "email": "agente1@gmail.com",
+  "nombres": "Pedro",
+  "apellidos": "Lopez",
+  "telefono": "71111111",
+  "password": "Test1234#",
+  "roles_ids": [1]
+}
+
+### Editar usuario
+PUT http://localhost:8000/gestion_usuarios/usuarios/2/
+Content-Type: application/json
+
+{
+  "username": "agente1",
+  "email": "agente1@gmail.com",
+  "nombres": "Pedro",
+  "apellidos": "Lopez Actualizado",
+  "telefono": "72222222",
+  "roles_ids": [1]
+}
+
+### Eliminar usuario
+DELETE http://localhost:8000/gestion_usuarios/usuarios/2/
+
+### Toggle estado usuario
+POST http://localhost:8000/gestion_usuarios/usuarios/2/toggle_estado/
+Content-Type: application/json
+
+### Me (usuario autenticado)
+GET http://localhost:8000/gestion_usuarios/usuarios/me/
+
+
+
+
+
+### Listar monedas
+GET http://localhost:8000/api/admin-config/monedas/
+Authorization: Bearer {{token}}
+
+### Obtener moneda por ID
+GET http://localhost:8000/api/admin-config/monedas/1/
+Authorization: Bearer {{token}}
+
+### Crear moneda - Boliviano
+POST http://localhost:8000/api/admin-config/monedas/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "BOB",
+  "nombre": "Boliviano",
+  "simbolo": "Bs.",
+  "estado": true
+}
+
+### Crear moneda - Dólar
+POST http://localhost:8000/api/admin-config/monedas/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "USD",
+  "nombre": "Dólar Americano",
+  "simbolo": "$",
+  "estado": true
+}
+
+### Crear moneda - Euro
+POST http://localhost:8000/api/admin-config/monedas/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "EUR",
+  "nombre": "Euro",
+  "simbolo": "€",
+  "estado": true
+}
+
+### Editar moneda (PUT - actualización completa)
+PUT http://localhost:8000/api/admin-config/monedas/1/
+Content-Type: application/json
+
+{
+  "codigo": "BOB",
+  "nombre": "Boliviano Actualizado",
+  "simbolo": "Bs.",
+  "estado": true
+}
+
+### Editar moneda parcial (PATCH - solo estado)
+PATCH http://localhost:8000/api/admin-config/monedas/1/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "estado": false
+}
+
+### Eliminar moneda
+DELETE http://localhost:8000/api/admin-config/monedas/1/
+Authorization: Bearer {{token}}
+
+
+
+### Error - Crear con campos vacíos
+POST http://localhost:8000/api/admin-config/monedas/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "",
+  "nombre": "",
+  "simbolo": "",
+  "estado": true
+}
+
+### Error - Moneda inexistente
+GET http://localhost:8000/api/admin-config/monedas/9999/
+Authorization: Bearer {{token}}
+
+### Error - Sin token
+GET http://localhost:8000/api/admin-config/monedas/
