@@ -1,3 +1,175 @@
-.venv
-.http
+# ============================================================
+# PYTHON / DJANGO
+# ============================================================
+
+# Archivos compilados / caches → NO subir
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Entornos virtuales → NO subir
 .env
+.venv/
+env/
+venv/
+ENV/
+
+# Archivos de configuración local → NO subir
+local_settings.py
+db.sqlite3
+
+# Archivos generados / media → NO subir
+media/
+# Static generado por collectstatic → normalmente NO subir
+staticfiles/
+# Si tienes CSS/JS base del proyecto, SÍ subir en 'static/'
+
+# Migraciones → OPCIONAL
+# */migrations/*.py
+# !*/migrations/__init__.py
+# Puedes subir migraciones iniciales si quieres que otros no las creen desde cero
+
+# Celery → NO subir
+celerybeat-schedule
+celerybeat.pid
+
+# Coverage / testing → NO subir
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# mypy → NO subir
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ============================================================
+# REACT + VITE
+# ============================================================
+
+# Dependencias y builds → NO subir
+node_modules/
+dist/
+dist-ssr/
+
+# Logs → NO subir
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor → NO subir
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Variables de entorno frontend → NO subir
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example  # SÍ subir para que otros sepan las variables necesarias
+
+# Cache → NO subir
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# ============================================================
+# FLUTTER / DART
+# ============================================================
+
+# Dependencias → NO subir
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Build → NO subir
+build/
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Android → NO subir archivos locales o keystores
+**/android/local.properties
+**/android/.gradle/
+**/android/captures/
+**/android/key.properties
+**/android/**/*.keystore
+**/android/**/*.jks
+
+# iOS → NO subir Pods ni archivos generados
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS → NO subir archivos generados
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/ephemeral/
+
+# Windows → NO subir archivos generados
+**/windows/flutter/generated_plugin_registrant.cc
+**/windows/flutter/generated_plugin_registrant.h
+**/windows/flutter/generated_plugins.cmake
+
+# Web → NO subir archivos generados
+**/web/flutter_service_worker.js
+**/web/flutter.js
+
+# Coverage → NO subir
+coverage/
+lcov.info
+
+# Código y assets → SÍ subir
+# Flutter: lib/, assets/
+# Django: apps/, templates/, static/ (archivos propios)
+# React: src/, public/ (archivos propios)
+
+# ============================================================
+# GENERAL
+# ============================================================
+
+# Sistema / temporales → NO subir
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Archivos sensibles → NO subir
+secrets/
+.vscode
+_DB
+comandosdocker.txt
