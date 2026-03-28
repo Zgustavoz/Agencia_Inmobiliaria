@@ -7,6 +7,7 @@ import axios from "axios";
 
 export const intanciaAxios = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_URL || "http://localhost:8080",
+  withCredentials: true, // PARA ENVIAR LAS COOKIES EN CADA PETICION, SI EL BACKEND LAS USA PARA LA AUTENTICACION
 
   // "TODO" PARA DENNIS.
   // TODO: AGREGAR CONFIG PARA LAS CORS, SI ES NECESARIO.
