@@ -1,1 +1,45 @@
 @import "tailwindcss";
+
+:root {
+	--font-display: "Manrope", sans-serif;
+	--font-body: "Inter", sans-serif;
+
+	--primary: #004ac6;
+	--primary-container: #2563eb;
+	--primary-fixed: #dbe1ff;
+	--on-primary-fixed: #00174b;
+	--secondary: #495c95;
+	--surface: #f7f9fb;
+	--surface-container-low: #f2f4f6;
+	--surface-container-high: #e6e8ea;
+	--surface-container-lowest: #ffffff;
+	--on-surface: #191c1e;
+	--on-surface-variant: #434655;
+	--outline: #737686;
+	--outline-variant: #c3c6d7;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--surface);
+	color: var(--on-surface);
+	font-family: var(--font-body);
+}
+
+.font-display {
+	font-family: var(--font-display);
+}
+
+.font-body {
+	font-family: var(--font-body);
+}
