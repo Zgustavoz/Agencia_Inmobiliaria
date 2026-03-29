@@ -1,28 +1,27 @@
 import { motion } from "motion/react"
 import { useAppForm } from "../../../shared/form"
 import { useFormRegister } from "../hook/useFormRegister"
-import { RegisterCard } from "../components/RegisterCard"
+import { RegisterClienteCard } from "../components/RegisterClienteCard"
 import { useRegisterMutation } from "../hook/useAuthMutation"
 
-export const RegisterPage = () => {
-  const registerMutation = useRegisterMutation()
-  const MotionDiv = motion.div
-  // const { defaultValueRegister, registerSchema } = useFormRegister("agent")
-  const { defaultValues, schema } = useFormRegister("profesional")
+export const RegisterClientePage = () => {
+  const registerMutation              = useRegisterMutation()
+  const MotionDiv                     = motion.div
+  const { defaultValues, schema } = useFormRegister("cliente")
 
   const form = useAppForm({
-    defaultValues: defaultValues.defaultValues,
+    defaultValues,
     validators: {
       onChange: schema,
     },
     onSubmit: async ({ value }) => {
       await registerMutation.mutateAsync({
-        username: value.username,
-        email: value.email,
-        nombres: value.nombres,
+        username:  value.username,
+        email:     value.email,
+        nombres:   value.nombres,
         apellidos: value.apellidos,
-        telefono: value.telefono,
-        password: value.password,
+        telefono:  value.telefono,
+        password:  value.password,
         password2: value.confirmPassword,
       })
     },
@@ -34,14 +33,16 @@ export const RegisterPage = () => {
         <div className="absolute -left-24 top-6 h-72 w-72 rounded-full bg-(--primary)/12 blur-3xl" />
         <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-(--secondary)/10 blur-3xl" />
       </div>
-
       <MotionDiv
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.45 }}
         className="relative z-10 mx-auto max-w-6xl"
       >
-        <RegisterCard form={form} serverError={registerMutation.error?.response?.data} />
+        <RegisterClienteCard
+          form={form}
+          serverError={registerMutation.error?.response?.data}
+        />
       </MotionDiv>
     </main>
   )
