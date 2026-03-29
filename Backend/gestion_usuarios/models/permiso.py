@@ -12,4 +12,4 @@ class Permiso(models.Model):
         ordering = ['nombre']
 
     def __str__(self):
-        return self.nombre
+        return str(self.nombre)
