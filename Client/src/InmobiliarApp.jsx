@@ -3,6 +3,8 @@ import { UsuarioPage } from "./App/Gestion-administracion/gestion-usuario/page/U
 import { LoginPage } from "./App/auth/page/LoginPage"
 import { RegisterPage } from "./App/auth/page/RegisterPage"
 import { PublicLayout } from "./shared/ui"
+import { RegisterClientePage } from "./App/auth/page/RegisterClientePage"
+import { ClientPage } from "./App/auth/page/ClientPage"
 
 function InmobiliarApp() {
 
@@ -17,10 +19,17 @@ function InmobiliarApp() {
         <Route path="auth">
           <Route index element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
+          <Route path="register-client" element={<RegisterClientePage />} />
         </Route>
 
         {/* ruta para el dashboard (opcional) */}
         <Route>
+        </Route>
+
+        {/* Rutas para los clientes  */}
+        <Route path="client">
+          <Route index element={<ClientPage />} />
+          <Route path="become-agent" element={<RegisterPage />}/>
         </Route>
 
         {/* el resto para los modulos, esto se construirá avanzando con el tiempo */}

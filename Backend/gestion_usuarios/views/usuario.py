@@ -16,9 +16,6 @@ class UsuarioPagination(PageNumberPagination):
 
 class UsuarioViewSet(BaseViewSet):
     modulo             = 'Usuarios'
-    queryset           = Usuario.objects.all().prefetch_related(
-        Prefetch('roles', queryset=Rol.objects.all())
-    ).order_by('-creado_en')
     serializer_class   = UsuarioSerializer
     permission_classes = [EsAdminOSoloLectura]
     pagination_class   = UsuarioPagination
