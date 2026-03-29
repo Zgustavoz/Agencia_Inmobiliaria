@@ -69,8 +69,8 @@ export const LoginCard = ({ form, serverError }) => {
 
       <p className="mt-5 text-center text-sm text-(--on-surface-variant)">
         ¿No tienes cuenta?{" "}
-        <Link to="/auth/register" className="font-semibold text-(--primary) hover:underline">
-          Crear cuenta profesional
+        <Link to="/auth/register-client" className="font-semibold text-(--primary) hover:underline">
+          registrarse
         </Link>
       </p>
     </MotionSection>

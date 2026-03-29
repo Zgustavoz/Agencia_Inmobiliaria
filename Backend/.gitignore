@@ -3,6 +3,8 @@
 
 # Archivos compilados / caches 
 __pycache__/
+*.cpython-313
+*.pyc
 *.py[cod]
 *$py.class
 *.so
