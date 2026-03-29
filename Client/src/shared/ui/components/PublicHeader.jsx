@@ -5,7 +5,7 @@ import { Link, NavLink } from "react-router"
 const navLinks = [
   { to: "/", label: "Inicio" },
   { to: "/auth", label: "Ingresar" },
-  { to: "/auth/register", label: "Registro" },
+  { to: "/auth/register-client", label: "Registro" },
 ]
 
 export const PublicHeader = () => {
