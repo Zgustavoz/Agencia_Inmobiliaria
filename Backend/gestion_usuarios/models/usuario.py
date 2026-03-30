@@ -36,7 +36,11 @@ class Usuario(AbstractBaseUser):
     ultimo_acceso   = models.DateTimeField(blank=True, null=True)
     creado_en       = models.DateTimeField(auto_now_add=True)
     actualizado_en  = models.DateTimeField(auto_now=True)
-
+    ci              = models.CharField(max_length=20, blank=True, null=True)
+    direccion       = models.CharField(max_length=255, blank=True, null=True)
+    ocupacion       = models.CharField(max_length=100, blank=True, null=True)
+    fecha_nacimiento = models.DateField(blank=True, null=True) 
+    
     roles    = models.ManyToManyField(Rol,     through='UsuarioRol',    related_name='usuarios', blank=True)
 
     objects = UsuarioManager()

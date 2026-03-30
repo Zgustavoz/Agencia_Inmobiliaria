@@ -14,8 +14,9 @@ from django.conf import settings
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.utils import timezone
-from ..serializers import CustomTokenObtainPairSerializer, RegistroSerializer
+from ..serializers import CustomTokenObtainPairSerializer, RegistroSerializer, UsuarioSerializer
 from ..models import Usuario
+from rest_framework import generics, permissions
 
 def set_auth_cookies(response, access_token, refresh_token=None):
     access_lifetime  = int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
@@ -58,8 +59,9 @@ class LoginView(TokenObtainPairView):
         return response
 
 
-class RegistroView(APIView):
-    permission_classes = [AllowAny]
+class RegistroView(generics.CreateAPIView):
+    serializer_class = UsuarioSerializer
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = RegistroSerializer(data=request.data)
