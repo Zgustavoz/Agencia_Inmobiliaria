@@ -43,3 +43,24 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Configuración local del SDK (MUY IMPORTANTE)
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+metadata
+
+# Archivos de propiedades locales de Android
+android/local.properties
+android/key.properties
+*.keystore
+*.jks
+
+# Si llegas a usar variables de entorno para la API del Backend
+.env
+
+# Ignorar builds de Flutter
+mobile/build/
+Mobile/build/
+.dart_tool/
+**/build/
