@@ -15,3 +15,11 @@ class UploadImageView(APIView):
         data = CloudinaryService.upload_image(file, folder="test")
 
         return Response(data)
+    
+    def delete(self, request):
+        public_id = request.data.get("public_id")
+        if not public_id:
+            return Response({"error": "No se proporcionó public_id"}, status=400)
+
+        result = CloudinaryService.delete_image(public_id)
+        return Response(result)
