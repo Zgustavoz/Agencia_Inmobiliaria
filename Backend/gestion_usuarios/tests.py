@@ -21,10 +21,10 @@ if response.status_code == 200:
     try:
         # Buscar la imagen
         image_paths = [
-            "./shared/z1.png",
-            "../shared/z1.png",
-            Path(__file__).parent / "shared" / "z1.png",
-            Path(__file__).parent.parent / "shared" / "z1.png"
+            "./shared/z2.png",
+            "../shared/z2.png",
+            Path(__file__).parent / "shared" / "z2.png",
+            Path(__file__).parent.parent / "shared" / "z2.png"
         ]
         
         image_path = None
