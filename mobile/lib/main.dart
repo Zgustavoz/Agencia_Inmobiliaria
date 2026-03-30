@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // <--- AÑADE ESTO
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 
@@ -14,11 +15,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Architect HQ',
-      theme: ThemeData(
-        fontFamily: 'Inter', // Si instalas la fuente luego
-        useMaterial3: true,
-      ),
-      // Definimos rutas para navegar más fácil entre el grupo
+
+      // --- CONFIGURACIÓN DE IDIOMA PARA EL CALENDARIO ---
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es', 'ES'), // Español
+      ],
+
+      // --------------------------------------------------
+      theme: ThemeData(fontFamily: 'Inter', useMaterial3: true),
+
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginScreen(),

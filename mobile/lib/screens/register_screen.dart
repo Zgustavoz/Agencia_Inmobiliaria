@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert'; // Para convertir los datos a JSON
+import 'package:http/http.dart' as http; // Para hacer la petición al servidor
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -9,6 +11,94 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   String selectedRole = "Agent"; // Estado para el selector de rol
+  final TextEditingController _nombresCtrl = TextEditingController();
+  final TextEditingController _apellidosCtrl = TextEditingController();
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _telefonoCtrl = TextEditingController();
+  final TextEditingController _usernameCtrl = TextEditingController();
+  final TextEditingController _passwordCtrl = TextEditingController();
+  final TextEditingController _confirmPasswordCtrl = TextEditingController();
+  final TextEditingController _ciCtrl = TextEditingController();
+  final TextEditingController _direccionCtrl = TextEditingController();
+  final TextEditingController _ocupacionCtrl = TextEditingController();
+  final TextEditingController _fechaNacCtrl = TextEditingController();
+
+  Future<void> registrarUsuario() async {
+    // 1. Verificación básica en el Frontend
+    if (_passwordCtrl.text != _confirmPasswordCtrl.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden')),
+      );
+      return; // Detiene la ejecución aquí
+    }
+
+    if (_passwordCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('La contraseña no puede estar vacía')),
+      );
+      return;
+    }
+
+    final url = Uri.parse(
+      'http://localhost:8000/gestion_usuarios/auth/registro/',
+    );
+    // Nota: Usa 'http://10.0.2.2:8000' si estás en el emulador de Android.
+    // Si estás en web o con el servidor local expuesto, 'localhost' está bien.
+
+    List<int> rolesIds = selectedRole == "Admin" ? [1] : [2];
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "username": _usernameCtrl.text,
+          "email": _emailCtrl.text,
+          "password": _passwordCtrl.text,
+          "password2":
+              _confirmPasswordCtrl.text, // <-- Ahora sí coincide el nombre
+          "nombres": _nombresCtrl.text,
+          "apellidos": _apellidosCtrl.text,
+          "telefono": _telefonoCtrl.text,
+          "ci": _ciCtrl.text,
+          "direccion": _direccionCtrl.text,
+          "ocupacion": _ocupacionCtrl.text,
+          "fecha_nacimiento": _fechaNacCtrl.text,
+          "roles_ids": rolesIds,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print("¡Usuario creado con éxito!");
+        // Aquí podrías navegar al login o mostrar un mensaje de éxito
+      } else {
+        print("Error del servidor: ${response.body}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al registrar: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      print("Error de conexión: $e");
+    }
+  }
+
+  Future<void> _seleccionarFecha(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000), // Fecha inicial al abrir
+      firstDate: DateTime(1920), // Fecha mínima
+      lastDate: DateTime.now(), // No pueden nacer en el futuro
+      locale: const Locale("es", "ES"), // Para que salga en español
+    );
+
+    if (picked != null) {
+      setState(() {
+        // Formateamos la fecha a AAAA-MM-DD para que Django no llore
+        _fechaNacCtrl.text =
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,20 +170,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             Row(
               children: [
-                Expanded(child: _buildInput("Nombres", "Ej. Juan")),
+                Expanded(
+                  child: _buildInput(
+                    "Nombres",
+                    "Ej. Juan",
+                    controller: _nombresCtrl,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildInput("Apellidos", "Ej. Pérez")),
+                Expanded(
+                  child: _buildInput(
+                    "Apellidos",
+                    "Ej. Pérez",
+                    controller: _apellidosCtrl,
+                  ),
+                ),
               ],
             ),
             _buildInput(
               "Email",
               "profesional@architect.com",
               icon: Icons.email_outlined,
+              controller: _emailCtrl,
             ),
             _buildInput(
               "Teléfono",
               "+591 ...",
               icon: Icons.phone_android,
+              controller: _telefonoCtrl,
               helper: "Teléfono inválido",
               isError: false,
             ),
@@ -102,18 +206,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             /// --- SECCIÓN: PERFIL Y CREDENCIALES ---
             _buildSectionTitle("PERFIL Y CREDENCIALES", "Acceso al sistema"),
-            _buildInput("Usuario", "jperez_pro", icon: Icons.person_outline),
+            _buildInput(
+              "Usuario",
+              "jperez_pro",
+              icon: Icons.person_outline,
+              controller: _usernameCtrl,
+            ),
             _buildInput(
               "Contraseña",
               "••••••••",
               icon: Icons.lock_outline,
               isPassword: true,
+              controller: _passwordCtrl, // Este ya estaba bien
             ),
             _buildInput(
               "Confirmar Contraseña",
               "••••••••",
               icon: Icons.lock_reset,
               isPassword: true,
+              controller: _confirmPasswordCtrl, // <--- AÑADE ESTA LÍNEA AQUÍ
             ),
 
             const SizedBox(height: 32),
@@ -127,23 +238,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
               "CI (Cédula de Identidad)",
               "1234567 LP",
               icon: Icons.badge_outlined,
+              controller: _ciCtrl,
             ),
             _buildInput(
               "Dirección",
               "Calle Ficticia #123",
               icon: Icons.location_on_outlined,
+              controller: _direccionCtrl,
               helper: "Selecciona una dirección válida",
             ),
             _buildInput(
               "Ocupación",
               "Arquitecto / Ingeniero",
               icon: Icons.work_outline,
+              controller: _ocupacionCtrl,
               helper: "Requerido",
             ),
-            _buildInput(
-              "Fecha de Nacimiento",
-              "DD/MM/AAAA",
-              icon: Icons.calendar_today_outlined,
+            GestureDetector(
+              onTap: () =>
+                  _seleccionarFecha(context), // Abre el calendario al tocar
+              child: AbsorbPointer(
+                // Evita que salga el teclado físico
+                child: _buildInput(
+                  "Fecha de Nacimiento",
+                  "Selecciona tu fecha",
+                  icon: Icons.calendar_today_outlined,
+                  controller: _fechaNacCtrl,
+                  helper: "Formato requerido: AAAA-MM-DD",
+                ),
+              ),
             ),
 
             const SizedBox(height: 40),
@@ -166,7 +289,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ],
               ),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: registrarUsuario,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
@@ -220,12 +343,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool isPassword = false,
     String? helper,
     bool isError = false,
+    TextEditingController? controller, // <--- AÑADIMOS ESTA LÍNEA
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // TU DISEÑO SIGUE IGUAL AQUÍ
           Text(
             label,
             style: const TextStyle(
@@ -236,6 +361,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 8),
           TextField(
+            controller:
+                controller, // <--- AÑADIMOS ESTA LÍNEA (CONECTA EL DISEÑO CON EL BACKEND)
             obscureText: isPassword,
             decoration: InputDecoration(
               prefixIcon: icon != null
