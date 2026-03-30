@@ -19,8 +19,12 @@ ALLOWED_HOSTS = ['*']
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 
-CSRF_TRUSTED_ORIGINS = [ FRONTEND_URL ]
-
+CSRF_TRUSTED_ORIGINS = [
+    FRONTEND_URL,
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost:*', # <--- Permite cualquier puerto de localhost para Flutter Web
+]
 # ── Apps ──────────────────────────────────────────────────────
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -133,13 +137,14 @@ SIMPLE_JWT = {
 
 # ── CORS ──────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
-
+CORS_ALLOW_ALL_ORIGINS = True 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept', 'accept-encoding', 'authorization',
     'content-type', 'dnt', 'origin', 'user-agent',
     'x-csrftoken', 'x-requested-with',
 ]
+
 
 # ── Email ─────────────────────────────────────────────────────
 EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
