@@ -5,3 +5,4 @@ from .auth    import (
     LoginView, RegistroView, RefreshView,
     LogoutView, PasswordResetView, RestablecerPasswordView
 )
+from .cloudinary import UploadImageView

@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import dj_database_url
+import cloudinary 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,12 +34,13 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 LOCAL_APPS = [
     'gestion_usuarios',
     'modulo_administracion_configuracion',
-    
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -163,3 +165,10 @@ TIME_ZONE     = 'America/La_Paz'
 USE_I18N      = True
 USE_TZ        = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ── Cloudinary ───────────────────────────────────────────────
+cloudinary.config(
+    cloud_name = config('CLOUDINARY_CLOUD_NAME'),
+    api_key    = config('CLOUDINARY_API_KEY'),
+    api_secret = config('CLOUDINARY_API_SECRET'),
+)
