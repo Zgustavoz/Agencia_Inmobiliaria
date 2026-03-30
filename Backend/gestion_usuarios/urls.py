@@ -7,12 +7,13 @@ from .views import (
     LogoutView, PasswordResetView, RestablecerPasswordView,
     UploadImageView
 )
+from .views.actividad_sistema import ActividadSistemaViewSet  #JOSe agrego esto para la bitacora
 
 router = DefaultRouter()
 router.register('roles',    RolViewSet,     basename='roles')
 router.register('permisos', PermisoViewSet, basename='permisos')
 router.register('usuarios', UsuarioViewSet, basename='usuarios')
-
+router.register('bitacora', ActividadSistemaViewSet, basename='bitacora') #JOSe agrego esto para la bitacora
 
 urlpatterns = [
     path('',                                      include(router.urls)),
