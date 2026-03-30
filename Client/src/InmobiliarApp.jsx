@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router"
 import { UsuarioPage } from "./App/Gestion-administracion/gestion-usuario/page/UsuarioPage"
 import { LoginPage } from "./App/auth/page/LoginPage"
 import { RegisterPage } from "./App/auth/page/RegisterPage"
+import { BitacoraPage } from "./App/Bitacora/page/BitacoraPage"
 import { PublicLayout } from "./shared/ui"
 
 function InmobiliarApp() {
@@ -22,6 +23,9 @@ function InmobiliarApp() {
         {/* ruta para el dashboard (opcional) */}
         <Route>
         </Route>
+
+        {/* ruta para la bitácora */}
+        <Route path="bitacora" element={<BitacoraPage />} />
 
         {/* el resto para los modulos, esto se construirá avanzando con el tiempo */}
 
