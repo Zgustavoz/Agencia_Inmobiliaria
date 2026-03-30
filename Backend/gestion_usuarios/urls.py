@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     RolViewSet, PermisoViewSet, UsuarioViewSet,
     LoginView, RegistroView, RefreshView,
-    LogoutView, PasswordResetView, RestablecerPasswordView
+    LogoutView, PasswordResetView, RestablecerPasswordView,
+    UploadImageView
 )
 
 router = DefaultRouter()
@@ -21,4 +22,5 @@ urlpatterns = [
     path('auth/logout/',                          LogoutView.as_view(),             name='logout'),
     path('auth/recuperar-password/',              PasswordResetView.as_view(),      name='recuperar_password'),
     path('auth/restablecer-password/<uidb64>/<token>/', RestablecerPasswordView.as_view(), name='restablecer_password'),
+    path("upload-image/", UploadImageView.as_view()),
 ]
