@@ -17,6 +17,8 @@ from django.utils import timezone
 from ..serializers import CustomTokenObtainPairSerializer, RegistroSerializer
 from ..models import Usuario
 
+from ..services.bitacora import BitacoraService  #JOSe agrego esto para la bitacora
+
 def set_auth_cookies(response, access_token, refresh_token=None):
     access_lifetime  = int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
     refresh_lifetime = int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())
@@ -53,6 +55,16 @@ class LoginView(TokenObtainPairView):
         user.es_online     = True
         user.save(update_fields=['ultimo_acceso', 'es_online'])
 
+        # --- BITÁCORA LOGIN ---
+        BitacoraService.registrar(
+            request=request,
+            modulo='Seguridad',
+            entidad='Usuario',
+            id_entidad=user.id,
+            accion='LOGIN',
+            detalle=f"El usuario {user.username} inició sesión correctamente.",
+            user=user  # <--- ¡ESTO ES LO QUE SOLUCIONA EL NULL!
+        )
         response = Response({'message': 'Login exitoso'}, status=status.HTTP_200_OK)
         set_auth_cookies(response, access_token, refresh_token)
         return response
@@ -65,6 +77,18 @@ class RegistroView(APIView):
         serializer = RegistroSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        # --- BITÁCORA LOGIN ---
+        BitacoraService.registrar(
+            request=request,
+            modulo='Seguridad',
+            entidad='Usuario',
+            id_entidad=user.id,
+            accion='REGISTRO',
+            detalle=f"Nuevo usuario registrado: {user.username} ({user.email})",
+            user=user
+        )
+
         return Response({
             'message': 'Usuario registrado exitosamente',
             'user': {
@@ -105,8 +129,24 @@ class LogoutView(APIView):
 
     def post(self, request):
         if request.user and request.user.is_authenticated:
+
+            # Guardamos datos antes de cerrar
+            user_id = request.user.id
+            username = request.user.username
+            
             request.user.es_online = False
             request.user.save(update_fields=['es_online'])
+
+        # --- BITÁCORA LOGOUT ---
+            BitacoraService.registrar(
+                request=request,
+                modulo='Seguridad',
+                entidad='Usuario',
+                id_entidad=user_id,
+                accion='LOGOUT',
+                detalle=f"El usuario {username} cerró sesión."
+            )
+        
         response = Response({'message': 'Sesión cerrada'}, status=status.HTTP_200_OK)
         response.delete_cookie('access_token')
         response.delete_cookie('refresh_token')
