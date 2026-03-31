@@ -18,13 +18,13 @@ function InmobiliarApp() {
       <Route element={<PublicLayout />}>
         {/* ruta principal, para la pagina de incio para la web */}
         <Route path="/" element={<Navigate to="/auth" replace />} />
+        <Route path="reset-password/:uid/:token" element={<ResetPasswordPage />} />
 
         {/* ruta para el auth, como login o registro */}
         <Route path="auth">
           <Route index element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="register-client" element={<RegisterClientePage />} />
-          <Route path="reset-password/:uid/:token" element={<ResetPasswordPage />} />
         </Route>
 
         {/* ruta para el dashboard (opcional) */}
