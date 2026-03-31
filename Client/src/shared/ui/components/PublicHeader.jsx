@@ -5,7 +5,7 @@ import { Link, NavLink } from "react-router"
 import { LoginModal } from "./LoginModal"
 
 const navLinks = [
-  { to: "/", label: "Inicio" },
+  { to: "/client", label: "Inicio" },
 ]
 
 export const PublicHeader = () => {
@@ -20,7 +20,7 @@ export const PublicHeader = () => {
       className="fixed inset-x-0 top-0 z-50 border-b border-(--outline-variant)/30 bg-(--surface-container-lowest)/90 backdrop-blur-xl"
     >
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 md:px-8">
-        <Link to="/" className="inline-flex items-center gap-2">
+        <Link to="/client" className="inline-flex items-center gap-2">
           <span className="rounded-md bg-(--primary-fixed) p-2 text-(--primary)">
             <Building2 size={16} />
           </span>
