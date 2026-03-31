@@ -4,6 +4,9 @@ import { LoginPage } from "./App/auth/page/LoginPage"
 import { RegisterPage } from "./App/auth/page/RegisterPage"
 import { PublicLayout } from "./shared/ui"
 import { RegisterClientePage } from "./App/auth/page/RegisterClientePage"
+import { DashboardPage } from "./App/Gestion-administracion/dashboard/page/Dashboard"
+import { Dashboard } from "./App/Gestion-administracion/Dashboard"
+import { RolPage } from "./App/Gestion-administracion/gestion-rol/page/RolPage"
 import { ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage"
 
 function InmobiliarApp() {
@@ -17,13 +20,16 @@ function InmobiliarApp() {
 
         {/* ruta para el auth, como login o registro */}
         <Route path="auth">
-          <Route index element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route path="register-client" element={<RegisterClientePage />} />
+            <Route index element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
+            <Route path="register-client" element={<RegisterClientePage />} />
         </Route>
 
         {/* ruta para el dashboard (opcional) */}
-        <Route>
+        <Route path="/dashboard" element={<Dashboard />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="usuarios" element={<UsuarioPage />} />
+            <Route path="roles" element={<RolPage />} />
         </Route>
 
         {/* Rutas para los clientes  */}

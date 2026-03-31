@@ -1,1 +1,2 @@
-from .moneda import MonedaListCreateView, MonedaDetailView
+""" index """
+from .moneda import MonedaViewSet

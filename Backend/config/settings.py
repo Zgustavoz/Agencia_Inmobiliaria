@@ -19,8 +19,12 @@ ALLOWED_HOSTS = ['*']
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 
-CSRF_TRUSTED_ORIGINS = [ FRONTEND_URL ]
-
+CSRF_TRUSTED_ORIGINS = [
+    FRONTEND_URL,
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost:*', # <--- Permite cualquier puerto de localhost para Flutter Web
+]
 # ── Apps ──────────────────────────────────────────────────────
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -79,25 +83,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # ── Base de datos ─────────────────────────────────────────────
 # # Local
-# DATABASES = {
-#     'default': {
-#         'ENGINE':   'django.db.backends.postgresql',
-#         'NAME':     config('DB_NAME'),
-#         'USER':     config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST':     config('DB_HOST', default='localhost'),
-#         'PORT':     config('DB_PORT', default='5432'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE':   'django.db.backends.postgresql',
+        'NAME':     config('DB_NAME'),
+        'USER':     config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST':     config('DB_HOST', default='localhost'),
+        'PORT':     config('DB_PORT', default='5432'),
+    }
+}
 
 # Producción
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=config('DATABASE_URL'),
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
 
 # ── Auth ──────────────────────────────────────────────────────
 AUTH_USER_MODEL = 'gestion_usuarios.Usuario'
@@ -133,13 +137,14 @@ SIMPLE_JWT = {
 
 # ── CORS ──────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
-
+CORS_ALLOW_ALL_ORIGINS = True 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept', 'accept-encoding', 'authorization',
     'content-type', 'dnt', 'origin', 'user-agent',
     'x-csrftoken', 'x-requested-with',
 ]
+
 
 # ── Email ─────────────────────────────────────────────────────
 EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
