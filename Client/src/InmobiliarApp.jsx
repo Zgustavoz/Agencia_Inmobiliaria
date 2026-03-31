@@ -4,7 +4,7 @@ import { LoginPage } from "./App/auth/page/LoginPage"
 import { RegisterPage } from "./App/auth/page/RegisterPage"
 import { PublicLayout } from "./shared/ui"
 import { RegisterClientePage } from "./App/auth/page/RegisterClientePage"
-import { ClientPage } from "./App/auth/page/ClientPage"
+import { ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage"
 
 function InmobiliarApp() {
 
@@ -28,7 +28,7 @@ function InmobiliarApp() {
 
         {/* Rutas para los clientes  */}
         <Route path="client">
-          <Route index element={<ClientPage />} />
+          <Route index element={<ClientHomePage />} />
           <Route path="become-agent" element={<RegisterPage />} />
         </Route>
 
