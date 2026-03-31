@@ -82,7 +82,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ── Base de datos ─────────────────────────────────────────────
-# Local
+# # Local
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.postgresql',
@@ -176,4 +176,5 @@ cloudinary.config(
     cloud_name = config('CLOUDINARY_CLOUD_NAME'),
     api_key    = config('CLOUDINARY_API_KEY'),
     api_secret = config('CLOUDINARY_API_SECRET'),
+    secure= True
 )

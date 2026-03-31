@@ -1,4 +1,5 @@
 import cloudinary.uploader
+from cloudinary.exceptions import Error as CloudinaryError
 
 
 class CloudinaryService:
@@ -8,10 +9,14 @@ class CloudinaryService:
         if not file:
             raise ValueError("No se proporcionó archivo")
 
-        result = cloudinary.uploader.upload(
-            file,
-            folder=folder
-        )
+        try:
+            result = cloudinary.uploader.upload(
+                file,
+                folder=folder
+            )
+        except CloudinaryError as exc:
+            # Convertimos errores del SDK en errores de dominio para responder 4xx desde la API.
+            raise ValueError(f"Error de Cloudinary: {exc}") from exc
 
         return {
             "url": result.get("secure_url"),

@@ -35,7 +35,7 @@ function InmobiliarApp() {
         {/* Rutas para los clientes  */}
         <Route path="cliente">
           <Route index element={<ClientPage />} />
-          <Route path="become-agent" element={<RegisterPage />}/>
+          <Route path="become-agent" element={<RegisterPage />} />
         </Route>
 
         {/* el resto para los modulos, esto se construirá avanzando con el tiempo */}

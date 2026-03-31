@@ -1,64 +1,25 @@
-# pylint: disable=C0114,C0115,C0116
+# pylint: disable=C0114,C0115,C0116,E1101
 from rest_framework import serializers
+from django.contrib.auth.password_validation import validate_password
 from ..models import Usuario, Rol
 
 class RegistroSerializer(serializers.ModelSerializer):
-    # Campos virtuales (no están en la BD)
-    password2 = serializers.CharField(write_only=True, required=False, allow_blank=True)
-    roles_ids = serializers.ListField(
-        child=serializers.IntegerField(), 
-        write_only=True, 
-        required=False
+    password  = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password]
     )
+    password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
-        model = Usuario
+        model  = Usuario
         fields = [
-            'username', 'email', 'password', 'password2', 
-            'nombres', 'apellidos', 'ci', 'telefono', 
-            'direccion', 'ocupacion', 'fecha_nacimiento', 
-            'roles_ids', 
+            'username', 'email', 'nombres', 'apellidos',
+            'telefono', 'password', 'password2',
         ]
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
 
-    # --- UN SOLO VALIDATE ---
-    def validate(self, data):
-        pw1 = data.get('password')
-        pw2 = data.get('password2')
-
-        # Si el frontend manda password2, verificamos que coincidan
-        if pw1 and pw2 and pw1 != pw2:
-            raise serializers.ValidationError({"password2": "Las contraseñas no coinciden."})
-        return data
-
-    # --- UN SOLO CREATE ---
-    def create(self, validated_data):
-        # Usamos pop seguro para campos que no van a la tabla Usuario
-        validated_data.pop('password2', None) 
-        roles_ids = validated_data.pop('roles_ids', [])
-        
-        # Extraemos la password para encriptarla
-        password = validated_data.pop('password', None)
-        
-        # Creamos la instancia del usuario
-        usuario = Usuario(**validated_data)
-        
-        if password:
-            usuario.set_password(password)
-        
-        usuario.save()
-        
-        # Asignamos roles si vienen en el JSON
-        if roles_ids:
-            usuario.roles.set(roles_ids)
-            
-        return usuario
-
-    # --- VALIDACIONES DE UNICIDAD ---
     def validate_email(self, value):
-        if value and Usuario.objects.filter(email=value).exists():
+        if Usuario.objects.filter(email=value).exists():
             raise serializers.ValidationError('Ya existe una cuenta con este email')
         return value
 
@@ -66,3 +27,70 @@ class RegistroSerializer(serializers.ModelSerializer):
         if Usuario.objects.filter(username=value).exists():
             raise serializers.ValidationError('Este username ya está en uso')
         return value
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({'password': 'Las contraseñas no coinciden'})
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        password = validated_data.pop('password')
+        user     = Usuario.objects.create_user(password=password, **validated_data)
+
+        # Asignar rol Cliente por defecto
+        try:
+            rol_cliente = Rol.objects.get(nombre='Cliente')
+            user.roles.set([rol_cliente])
+        except Rol.DoesNotExist:
+            pass
+
+        return user
+
+
+class RegistroAgenteSerializer(serializers.ModelSerializer):
+    password_hash = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password]
+    )
+    role = serializers.ChoiceField(
+        choices=['agent', 'admin'],
+        default='agent',
+        required=False
+    )
+    foto_url = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+
+    class Meta:
+        model = Usuario
+        fields = [
+            'username', 'email', 'nombres', 'apellidos',
+            'telefono', 'password_hash', 'foto_url', 'role',
+        ]
+
+    def validate_email(self, value):
+        if Usuario.objects.filter(email=value).exists():
+            raise serializers.ValidationError('Ya existe una cuenta con este email')
+        return value
+
+    def validate_username(self, value):
+        if Usuario.objects.filter(username=value).exists():
+            raise serializers.ValidationError('Este username ya está en uso')
+        return value
+
+    def create(self, validated_data):
+        role = validated_data.pop('role', 'agent')
+        password = validated_data.pop('password_hash')
+        user = Usuario.objects.create_user(password=password, **validated_data)
+
+        role_name = 'Administrador' if role == 'admin' else 'Agente'
+        try:
+            rol = Rol.objects.get(nombre=role_name)
+            user.roles.set([rol])
+            if role == 'admin':
+                user.es_admin = True
+                user.save(update_fields=['es_admin'])
+        except Rol.DoesNotExist:
+            pass
+
+        return user

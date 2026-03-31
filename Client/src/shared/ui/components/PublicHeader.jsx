@@ -1,14 +1,15 @@
 import { motion } from "motion/react"
 import { Building2 } from "lucide-react"
+import { useState } from "react"
 import { Link, NavLink } from "react-router"
+import { LoginModal } from "./LoginModal"
 
 const navLinks = [
   { to: "/", label: "Inicio" },
-  { to: "/auth", label: "Ingresar" },
-  { to: "/auth/register-client", label: "Registro" },
 ]
 
 export const PublicHeader = () => {
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
   const MotionHeader = motion.header
 
   return (
@@ -28,7 +29,7 @@ export const PublicHeader = () => {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-3 md:gap-6">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -41,8 +42,18 @@ export const PublicHeader = () => {
               {link.label}
             </NavLink>
           ))}
+
+          <button
+            type="button"
+            onClick={() => setIsLoginOpen(true)}
+            className="rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-(--on-primary) transition hover:brightness-95"
+          >
+            Ingresar
+          </button>
         </nav>
       </div>
+
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </MotionHeader>
   )
 }
