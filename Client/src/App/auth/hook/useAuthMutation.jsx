@@ -1,15 +1,17 @@
 import { useMutation } from "@tanstack/react-query"
-import { loginRequest, registerRequest } from "../api/authApi"
+import { loginRequest, registerProfesionalRequest, registerRequest } from "../api/authApi"
 import { useNavigate } from "react-router"
 
-export const useLoginMutation = () => {
+export const useLoginMutation = (options = {}) => {
   const navigate = useNavigate()
+
   return useMutation({
     mutationFn: loginRequest,
-    onSuccess: () => {
-      navigate("/Client")
-      console.log("Login exitoso, redirigiendo a la página principal...")
-    }
+    onSuccess: (data, variables, context) => {
+      navigate("/client")
+      options.onSuccess?.(data, variables, context)
+    },
+    onError: options.onError,
   })
 }
 
@@ -22,5 +24,14 @@ export const useRegisterMutation = () => {
     onError: (error) => {
       console.error("Error en el registro:", { error })
     }
+  })
+}
+
+export const useRegisterProfesionalMutation = () => {
+  return useMutation({
+    mutationFn: registerProfesionalRequest,
+    onError: (error) => {
+      console.error("Error en el registro profesional:", { error })
+    },
   })
 }
