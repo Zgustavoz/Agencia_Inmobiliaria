@@ -3,7 +3,7 @@ import { motion } from "motion/react"
 import { Building2, Lock, User } from "lucide-react"
 import { Link } from "react-router"
 
-export const LoginCard = ({ form, serverError, onNavigate }) => {
+export const LoginCard = ({ form, serverError, onNavigate, onForgotPassword }) => {
   const MotionSection = motion.section
 
   return (
@@ -68,6 +68,16 @@ export const LoginCard = ({ form, serverError, onNavigate }) => {
           <p className="text-sm font-medium text-red-500">{serverError}</p>
         ) : null}
       </form>
+
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={onForgotPassword}
+          className="text-sm font-semibold text-(--primary) hover:underline transition"
+        >
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
 
       <p className="mt-5 text-center text-sm text-(--on-surface-variant)">
         ¿No tienes cuenta?{" "}

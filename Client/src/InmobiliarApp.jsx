@@ -8,6 +8,7 @@ import { DashboardPage } from "./App/Gestion-administracion/dashboard/page/Dashb
 import { Dashboard } from "./App/Gestion-administracion/Dashboard"
 import { RolPage } from "./App/Gestion-administracion/gestion-rol/page/RolPage"
 import { ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage"
+import { ResetPasswordPage } from "./App/auth/page/ResetPasswordPage"
 
 function InmobiliarApp() {
 
@@ -20,16 +21,17 @@ function InmobiliarApp() {
 
         {/* ruta para el auth, como login o registro */}
         <Route path="auth">
-            <Route index element={<LoginPage />} />
-            <Route path="register" element={<RegisterPage />} />
-            <Route path="register-client" element={<RegisterClientePage />} />
+          <Route index element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
+          <Route path="register-client" element={<RegisterClientePage />} />
+          <Route path="reset-password/:uid/:token" element={<ResetPasswordPage />} />
         </Route>
 
         {/* ruta para el dashboard (opcional) */}
         <Route path="/dashboard" element={<Dashboard />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="usuarios" element={<UsuarioPage />} />
-            <Route path="roles" element={<RolPage />} />
+          <Route index element={<DashboardPage />} />
+          <Route path="usuarios" element={<UsuarioPage />} />
+          <Route path="roles" element={<RolPage />} />
         </Route>
 
         {/* Rutas para los clientes  */}
