@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useLocation } from "react-router"
 import { motion } from "motion/react"
 import { X } from "lucide-react"
@@ -6,9 +6,11 @@ import { useAppForm } from "../../form"
 import { LoginCard } from "../../../App/auth/components/LoginCard"
 import { useFormLogin } from "../../../App/auth/hook/useFormLogin"
 import { useLoginMutation } from "../../../App/auth/hook/useAuthMutation"
+import { ForgotPasswordModal } from "../../../App/auth/components/ForgotPasswordModal"
 
 export const LoginModal = ({ isOpen, onClose }) => {
   const location = useLocation()
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false)
   const previousPathRef = useRef(location.pathname)
   const loginMutation = useLoginMutation({
     onSuccess: () => {
@@ -97,11 +99,17 @@ export const LoginModal = ({ isOpen, onClose }) => {
               form={form}
               serverError={loginMutation.error?.response?.data?.detail}
               onNavigate={() => onClose?.()}
+              onForgotPassword={() => setIsForgotPasswordOpen(true)}
             />
           </div>
 
         </div>
       </MotionDiv>
+
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
     </div>
   )
 }
