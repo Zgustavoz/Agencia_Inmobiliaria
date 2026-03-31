@@ -15,15 +15,19 @@ export const RegisterClientePage = () => {
       onChange: schema,
     },
     onSubmit: async ({ value }) => {
-      await registerMutation.mutateAsync({
-        username:  value.username,
-        email:     value.email,
-        nombres:   value.nombres,
-        apellidos: value.apellidos,
-        telefono:  value.telefono,
-        password:  value.password,
-        password2: value.confirmPassword,
-      })
+      try {
+        await registerMutation.mutateAsync({
+          username:  value.username,
+          email:     value.email,
+          nombres:   value.nombres,
+          apellidos: value.apellidos,
+          telefono:  value.telefono,
+          password:  value.password,
+          password2: value.confirmPassword,
+        })
+      } catch (error) {
+        console.log(error)
+      }
     },
   })
 
