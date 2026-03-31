@@ -14,7 +14,12 @@ from django.conf import settings
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.utils import timezone
-from ..serializers import CustomTokenObtainPairSerializer, RegistroSerializer, UsuarioSerializer
+from ..serializers import (
+    CustomTokenObtainPairSerializer,
+    RegistroSerializer,
+    RegistroAgenteSerializer,
+    UsuarioSerializer
+)
 from ..models import Usuario
 from rest_framework import generics, permissions
 
@@ -99,6 +104,26 @@ class RegistroView(generics.CreateAPIView):
                 'email':     user.email,
                 'nombres':   user.nombres,
                 'apellidos': user.apellidos,
+            }
+        }, status=status.HTTP_201_CREATED)
+
+
+class RegistroAgenteView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = RegistroAgenteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            'message': 'Profesional registrado exitosamente',
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'nombres': user.nombres,
+                'apellidos': user.apellidos,
+                'foto_url': user.foto_url,
             }
         }, status=status.HTTP_201_CREATED)
 

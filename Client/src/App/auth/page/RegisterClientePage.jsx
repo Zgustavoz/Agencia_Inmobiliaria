@@ -5,8 +5,8 @@ import { RegisterClienteCard } from "../components/RegisterClienteCard"
 import { useRegisterMutation } from "../hook/useAuthMutation"
 
 export const RegisterClientePage = () => {
-  const registerMutation              = useRegisterMutation()
-  const MotionDiv                     = motion.div
+  const registerMutation = useRegisterMutation()
+  const MotionDiv = motion.div
   const { defaultValues, schema } = useFormRegister("cliente")
 
   const form = useAppForm({
