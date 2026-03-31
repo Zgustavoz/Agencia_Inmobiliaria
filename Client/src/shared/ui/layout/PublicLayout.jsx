@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router"
 import { PublicHeader } from "../components/PublicHeader"
 
-const adminPathPatterns = ["/admin", "/gestion-administracion", "/dashboard/admin"]
+const adminPathPatterns = ["/admin", "/gestion-administracion", "/dashboard"]
 
 export const PublicLayout = () => {
   const location = useLocation()
