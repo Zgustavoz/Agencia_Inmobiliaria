@@ -1,7 +1,9 @@
-# pylint: disable=C0114,C0115,C0116,no-member,W0718
+# pylint: disable=C0114,C0115,C0116,no-member,W0718,E0213
 import traceback
-import threading
-from rest_framework import status
+
+# import threading
+import resend
+from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
@@ -9,11 +11,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.utils import timezone
+
+# ── Local / project imports ──
 from ..serializers import (
     CustomTokenObtainPairSerializer,
     RegistroSerializer,
@@ -21,7 +25,7 @@ from ..serializers import (
     UsuarioSerializer
 )
 from ..models import Usuario
-from rest_framework import generics, permissions
+
 
 from ..services.bitacora import BitacoraService  #JOSe agrego esto para la bitacora
 
@@ -160,7 +164,6 @@ class LogoutView(APIView):
             # Guardamos datos antes de cerrar
             user_id = request.user.id
             username = request.user.username
-            
             request.user.es_online = False
             request.user.save(update_fields=['es_online'])
 
@@ -173,7 +176,6 @@ class LogoutView(APIView):
                 accion='LOGOUT',
                 detalle=f"El usuario {username} cerró sesión."
             )
-        
         response = Response({'message': 'Sesión cerrada'}, status=status.HTTP_200_OK)
         response.delete_cookie('access_token')
         response.delete_cookie('refresh_token')
@@ -188,32 +190,27 @@ class PasswordResetView(APIView):
         if not email:
             return Response({'error': 'El email es requerido'}, status=400)
 
-        def send_reset_email(user, email):
-            try:
-                token     = default_token_generator.make_token(user)
-                uid       = urlsafe_base64_encode(force_bytes(user.pk))
-                reset_url = f"{settings.FRONTEND_URL}/restablecer-password/{uid}/{token}/"
-                send_mail(
-                    'Recuperación de Contraseña',
-                    f'Enlace para restablecer tu contraseña: {reset_url}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False,
-                )
-            except Exception:
-                traceback.print_exc()
 
+
+    def send_reset_email(user, email):
         try:
-            user   = Usuario.objects.get(email=email)
-            thread = threading.Thread(target=send_reset_email, args=(user, email))
-            thread.daemon = False
-            thread.start()
-            return Response({'message': 'Email enviado'}, status=200)
-        except Usuario.DoesNotExist:
-            return Response({'message': 'Email enviado'}, status=200)
+            resend.api_key = settings.RESEND_API_KEY
+            token     = default_token_generator.make_token(user)
+            uid       = urlsafe_base64_encode(force_bytes(user.pk))
+            reset_url = f"{settings.FRONTEND_URL}/restablecer-password/{uid}/{token}/"
+            resend.Emails.send({
+                "from": settings.DEFAULT_FROM_EMAIL,
+                "to": [email],
+                "subject": "Recuperación de Contraseña",
+                "html": f"""
+                    <h2>Recuperación de Contraseña</h2>
+                    <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
+                    <a href="{reset_url}">Restablecer contraseña</a>
+                    <p>Si no solicitaste esto, ignora este email.</p>
+                """,
+            })
         except Exception:
             traceback.print_exc()
-            return Response({'error': 'Error interno'}, status=500)
 
 
 class RestablecerPasswordView(APIView):
