@@ -1,7 +1,7 @@
 # pylint: disable=C0114,C0115,C0116,no-member,W0718,E0213
 import traceback
+import threading
 
-# import threading
 import resend
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
@@ -190,9 +190,21 @@ class PasswordResetView(APIView):
         if not email:
             return Response({'error': 'El email es requerido'}, status=400)
 
+        try:
+            user = Usuario.objects.get(email=email)
+            # Lanzar en hilo para no bloquear la respuesta
+            thread = threading.Thread(target=self.send_reset_email, args=(user, email))
+            thread.daemon = False
+            thread.start()
+        except Usuario.DoesNotExist:
+            pass  # No revelamos si el email existe o no
+        except Exception:
+            traceback.print_exc()
 
+        # Siempre responder 200 por seguridad
+        return Response({'message': 'Si el email existe, recibirás un enlace en breve'}, status=200)
 
-    def send_reset_email(user, email):
+    def send_reset_email(self, user, email):  # ← self agregado, dentro de la clase
         try:
             resend.api_key = settings.RESEND_API_KEY
             token     = default_token_generator.make_token(user)
