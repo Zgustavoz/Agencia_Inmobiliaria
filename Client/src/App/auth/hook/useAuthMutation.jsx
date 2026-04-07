@@ -23,8 +23,8 @@ export const useAuth = () => {
       const perfil = await obtenerPerfil()
       contextLogin(perfil)
       toast.success("¡Bienvenido!")
-      const esAdmin = perfil.es_admin || perfil.roles_info?.some(r => r.nombre === "Administrador")
-      navigate(esAdmin ? "/dashboard" : "/cliente")
+      const esAdmin = perfil.es_admin || perfil.roles_info?.some(r => r.nombre === "Administrador" || r.nombre === "empleado" )
+      navigate(esAdmin ? "/dashboard" : "/client")
     },
     onError: (error) => {
       toast.error(error?.response?.data?.detail || "Credenciales incorrectas")
