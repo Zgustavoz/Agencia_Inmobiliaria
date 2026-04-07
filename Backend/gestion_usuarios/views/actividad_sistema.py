@@ -4,6 +4,10 @@ from ..models.actividad_sistema import ActividadSistema
 from ..serializers.actividad_sistema_serializer import ActividadSistemaSerializer
 from ..permissions import EsAdmin # Usamos tu permiso de Admin
 
+
+#temporal para probar ruta de la bitacora
+from rest_framework.permissions import AllowAny
+
 class ActividadSistemaViewSet(mixins.ListModelMixin, 
                               mixins.RetrieveModelMixin, 
                               viewsets.GenericViewSet):
@@ -13,7 +17,7 @@ class ActividadSistemaViewSet(mixins.ListModelMixin,
     """
     queryset = ActividadSistema.objects.all().select_related('usuario')
     serializer_class = ActividadSistemaSerializer
-    permission_classes = [EsAdmin] # Solo el jefe puede ver esto
+    permission_classes = [AllowAny] # Solo el jefe puede ver esto
 
     def get_queryset(self):
         queryset = super().get_queryset()
