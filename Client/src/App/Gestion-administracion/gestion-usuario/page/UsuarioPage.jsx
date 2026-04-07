@@ -92,7 +92,7 @@ export const UsuarioPage = () => {
             className="w-full px-3 py-2 border border-(--outline-variant)/40 rounded-lg text-sm bg-(--surface) text-(--on-surface) focus:outline-none focus:ring-2 focus:ring-(--primary)"
           >
             <option value="">Todos los roles</option>
-            {roles.data?.results?.map(rol => (
+            {(roles.data?.results || roles.data || []).map(rol => (
               <option key={rol.id} value={rol.id}>{rol.nombre}</option>
             ))}
           </select>
