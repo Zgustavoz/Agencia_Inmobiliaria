@@ -19,13 +19,12 @@ function InmobiliarApp() {
       {/* ── Rutas públicas ── */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<ClientHomePage />} />
+        <Route path="restablecer-password/:uidb64/:token" element={<ResetPasswordPage />} />
 
         <Route path="auth">
           <Route index element={<LoginPage />} />
           <Route path="register"        element={<RegisterPage />} />
           <Route path="register-client" element={<RegisterClientePage />} />
-          <Route path="reset-password/:uidb64/:token" element={<ResetPasswordPage />} />
-
         </Route>
 
         <Route path="client">
