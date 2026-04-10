@@ -1,4 +1,4 @@
-# pylint: disable=C0114,C0115,C0116
+# pylint: disable=C0114,C0115,C0116,E1101
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from .rol import Rol
@@ -52,7 +52,7 @@ class Usuario(AbstractBaseUser):
         db_table = 'usuarios'
 
     def __str__(self):
-        return self.username
+        return str(self.username)
 
     @property
     def is_active(self):
