@@ -11,6 +11,7 @@ import { RolPage }             from "./App/Gestion-administracion/gestion-rol/pa
 import { ProtectedRoute }      from "./App/auth/components/ProtectedRoute"
 import { PublicLayout, NotFoundPage } from "./shared/ui"
 import {ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage"
+import { BitacoraPage } from "./App/Bitacora/page/BitacoraPage"
 
 function InmobiliarApp() {
   return (
@@ -39,6 +40,7 @@ function InmobiliarApp() {
           <Route index element={<DashboardPage />} />
           <Route path="usuarios" element={<ProtectedRoute requiredRoles={["Administrador","gestionar usuario"]}><UsuarioPage /></ProtectedRoute>} />
           <Route path="roles" element={<ProtectedRoute requiredRoles={["Administrador","gestionar roles"]}><RolPage /></ProtectedRoute>} />
+          <Route path="bitacora" element={<ProtectedRoute requiredRoles={["Administrador"]}><BitacoraPage /></ProtectedRoute>} />
           {/* <Route path="permisos" element={<ProtectedRoute requiredRoles={["Administrador"]}><PermisoPage /></ProtectedRoute>} /> */}
       </Route>
 
