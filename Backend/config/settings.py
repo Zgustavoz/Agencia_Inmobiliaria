@@ -152,7 +152,8 @@ CORS_ALLOW_HEADERS = [
 # EMAIL_PORT         = 587
 # EMAIL_USE_TLS      = True
 # EMAIL_HOST_USER    = 'resend'
-EMAIL_HOST_PASSWORD = config('RESEND_API_KEY', default='')
+RESEND_API_KEY = config('RESEND_API_KEY', default='')
+EMAIL_HOST_PASSWORD = RESEND_API_KEY
 DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
 # EMAIL_TIMEOUT      = 10
 
