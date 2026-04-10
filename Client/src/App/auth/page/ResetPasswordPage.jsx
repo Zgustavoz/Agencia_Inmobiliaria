@@ -6,7 +6,7 @@ import { useFormRestablecerPassword } from "../hook/useFormPassword"
 import { useRestablecerPasswordMutation } from "../hook/usePasswordMutation"
 
 export const ResetPasswordPage = () => {
-  const { uid, token } = useParams()
+  const { uidb64, token } = useParams()
   const navigate = useNavigate()
   const { defaultValues, schema } = useFormRestablecerPassword()
   const restablecerMutation = useRestablecerPasswordMutation()
@@ -16,7 +16,7 @@ export const ResetPasswordPage = () => {
     validators: { onChange: schema },
     onSubmit: async ({ value }) => {
       await restablecerMutation.mutateAsync({
-        uidb64: uid,
+        uidb64: uidb64,
         token: token,
         new_password: value.new_password,
       })
