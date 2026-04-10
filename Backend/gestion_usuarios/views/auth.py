@@ -3,6 +3,7 @@ import traceback
 import threading
 
 import resend
+from django.core.mail import send_mail
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -204,25 +205,57 @@ class PasswordResetView(APIView):
         # Siempre responder 200 por seguridad
         return Response({'message': 'Si el email existe, recibirás un enlace en breve'}, status=200)
 
-    def send_reset_email(self, user, email):  # ← self agregado, dentro de la clase
-        try:
-            resend.api_key = settings.RESEND_API_KEY
-            token     = default_token_generator.make_token(user)
-            uid       = urlsafe_base64_encode(force_bytes(user.pk))
-            reset_url = f"{settings.FRONTEND_URL}/restablecer-password/{uid}/{token}/"
-            resend.Emails.send({
-                "from": settings.DEFAULT_FROM_EMAIL,
-                "to": [email],
-                "subject": "Recuperación de Contraseña",
-                "html": f"""
-                    <h2>Recuperación de Contraseña</h2>
-                    <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-                    <a href="{reset_url}">Restablecer contraseña</a>
-                    <p>Si no solicitaste esto, ignora este email.</p>
-                """,
-            })
-        except Exception:
-            traceback.print_exc()
+    # def send_reset_email(self, user, email):  # ← self agregado, dentro de la clase
+    #     try:
+    #         resend.api_key = settings.RESEND_API_KEY
+    #         token     = default_token_generator.make_token(user)
+    #         uid       = urlsafe_base64_encode(force_bytes(user.pk))
+    #         reset_url = f"{settings.FRONTEND_URL}/restablecer-password/{uid}/{token}/"
+    #         resend.Emails.send({
+    #             "from": settings.DEFAULT_FROM_EMAIL,
+    #             "to": [email],
+    #             "subject": "Recuperación de Contraseña",
+    #             "html": f"""
+    #                 <h2>Recuperación de Contraseña</h2>
+    #                 <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
+    #                 <a href="{reset_url}">Restablecer contraseña</a>
+    #                 <p>Si no solicitaste esto, ignora este email.</p>
+    #             """,
+    #         })
+    #     except Exception:
+    #         traceback.print_exc()
+def send_reset_email(self, user, email):
+    try:
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        reset_url = (
+            f"{settings.FRONTEND_URL}"
+            f"/restablecer-password/{uid}/{token}/"
+        )
+
+        subject = "Recuperación de Contraseña"
+
+        message = f"""
+        Recuperación de Contraseña
+
+        Haz clic en el siguiente enlace para restablecer tu contraseña:
+
+        {reset_url}
+
+        Si no solicitaste esto, ignora este email.
+        """
+
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+
+    except Exception:
+        traceback.print_exc()
 
 
 class RestablecerPasswordView(APIView):

@@ -146,16 +146,29 @@ CORS_ALLOW_HEADERS = [
 ]
 
 
-# ── Email ─────────────────────────────────────────────────────
-# EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST         = 'smtp.resend.com'
-# EMAIL_PORT         = 587
-# EMAIL_USE_TLS      = True
-# EMAIL_HOST_USER    = 'resend'
-RESEND_API_KEY = config('RESEND_API_KEY', default='')
-EMAIL_HOST_PASSWORD = RESEND_API_KEY
-DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
-# EMAIL_TIMEOUT      = 10
+# # ── Email ─────────────────────────────────────────────────────
+# # EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
+# # EMAIL_HOST         = 'smtp.resend.com'
+# # EMAIL_PORT         = 587
+# # EMAIL_USE_TLS      = True
+# # EMAIL_HOST_USER    = 'resend'
+# RESEND_API_KEY = config('RESEND_API_KEY', default='')
+# EMAIL_HOST_PASSWORD = RESEND_API_KEY
+# DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
+# # EMAIL_TIMEOUT      = 10
+
+# ── Email SMTP Gmail ─────────────────────────────
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # ── Static ────────────────────────────────────────────────────
 STATIC_URL  = 'static/'
