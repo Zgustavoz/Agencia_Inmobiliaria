@@ -40,7 +40,7 @@ export const Sidebar = () => {
       icon:  Users,
       key:   "usuarios",
       subItems: [
-        { title: "Usuarios", path: "/dashboard/usuarios", icon: Users,  roles: ["Administrador"] },
+        { title: "Usuarios", path: "/dashboard/usuarios", icon: Users,  roles: ["Administrador","gestionar usuario"] },
         { title: "Roles",    path: "/dashboard/roles",    icon: Shield, roles: ["Administrador"] },
         { title: "Permisos", path: "/dashboard/permisos", icon: Key,    roles: ["Administrador"] },
       ],

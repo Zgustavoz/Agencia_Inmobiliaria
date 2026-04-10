@@ -1,16 +1,30 @@
-import axios from "axios";
-
-// PARA PODER CONECTAR CON EL BACKEND,
-// CREAR UN ARCHIVO .ENV EN LA RAIZ DEL PROYECTO Y AGREGAR LA VARIABLE VITE_APP_BASE_URL CON LA URL DE TU BACKEND
-// EJEMPLO: VITE_APP_BASE_URL=http://localhost:8080
-
+import axios from "axios"
 
 export const intanciaAxios = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_URL || "http://localhost:8080",
-  withCredentials: true, // PARA ENVIAR LAS COOKIES EN CADA PETICION, SI EL BACKEND LAS USA PARA LA AUTENTICACION
-
-  // "TODO" PARA DENNIS.
-  // TODO: AGREGAR CONFIG PARA LAS CORS, SI ES NECESARIO.
-  // TODO: CONFIGURAR LOS HEADERS, SI ES NECESARIO.
-  // TODO: CONFIGURAR LOS INTERCETORES (INTERCEPTORS).
+  baseURL:         import.meta.env.VITE_APP_BASE_URL || "http://localhost:8000",
+  withCredentials: true,
 })
+
+
+intanciaAxios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/auth/")
+    ) {
+      originalRequest._retry = true
+
+      try {
+        await intanciaAxios.post("/gestion_usuarios/auth/refresh/")
+        return intanciaAxios(originalRequest)
+      } catch {
+        // window.location.href = "/auth"
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
