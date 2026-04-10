@@ -83,25 +83,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # ── Base de datos ─────────────────────────────────────────────
 # # Local
-DATABASES = {
-    'default': {
-        'ENGINE':   'django.db.backends.postgresql',
-        'NAME':     config('DB_NAME'),
-        'USER':     config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST':     config('DB_HOST', default='localhost'),
-        'PORT':     config('DB_PORT', default='5432'),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE':   'django.db.backends.postgresql',
+#         'NAME':     config('DB_NAME'),
+#         'USER':     config('DB_USER'),
+#         'PASSWORD': config('DB_PASSWORD'),
+#         'HOST':     config('DB_HOST', default='localhost'),
+#         'PORT':     config('DB_PORT', default='5432'),
+#     }
+# }
 
 # Producción
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         default=config('DATABASE_URL'),
-#         conn_max_age=600,
-#         ssl_require=True
-#     )
-# }
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=False
+    )
+}
 
 # ── Auth ──────────────────────────────────────────────────────
 AUTH_USER_MODEL = 'gestion_usuarios.Usuario'
@@ -137,7 +137,7 @@ SIMPLE_JWT = {
 
 # ── CORS ──────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
-CORS_ALLOW_ALL_ORIGINS = True 
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept', 'accept-encoding', 'authorization',
@@ -147,14 +147,14 @@ CORS_ALLOW_HEADERS = [
 
 
 # ── Email ─────────────────────────────────────────────────────
-EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST         = 'smtp.resend.com'
-EMAIL_PORT         = 587
-EMAIL_USE_TLS      = True
-EMAIL_HOST_USER    = 'resend'
+# EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST         = 'smtp.resend.com'
+# EMAIL_PORT         = 587
+# EMAIL_USE_TLS      = True
+# EMAIL_HOST_USER    = 'resend'
 EMAIL_HOST_PASSWORD = config('RESEND_API_KEY', default='')
 DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
-EMAIL_TIMEOUT      = 10
+# EMAIL_TIMEOUT      = 10
 
 # ── Static ────────────────────────────────────────────────────
 STATIC_URL  = 'static/'

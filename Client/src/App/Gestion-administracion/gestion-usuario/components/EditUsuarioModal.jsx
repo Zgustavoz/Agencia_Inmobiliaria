@@ -110,7 +110,7 @@ export const EditUsuarioModal = ({ usuario, onClose }) => {
           <div>
             <label className="block text-sm font-medium text-(--on-surface) mb-2">Roles</label>
             <div className="flex flex-wrap gap-2">
-              {roles.data?.results?.map(rol => (
+              {(roles.data?.results || roles.data || []).map(rol => (
                 <button
                   key={rol.id} type="button"
                   onClick={() => handleRolToggle(rol.id)}
