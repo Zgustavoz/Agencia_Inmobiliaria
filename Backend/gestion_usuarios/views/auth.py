@@ -224,38 +224,38 @@ class PasswordResetView(APIView):
     #         })
     #     except Exception:
     #         traceback.print_exc()
-def send_reset_email(self, user, email):
-    try:
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
+    def send_reset_email(self, user, email):
+        try:
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-        reset_url = (
-            f"{settings.FRONTEND_URL}"
-            f"/restablecer-password/{uid}/{token}/"
-        )
+            reset_url = (
+                f"{settings.FRONTEND_URL}"
+                f"/restablecer-password/{uid}/{token}/"
+            )
 
-        subject = "Recuperación de Contraseña"
+            subject = "Recuperación de Contraseña"
 
-        message = f"""
-        Recuperación de Contraseña
+            message = f"""
+            Recuperación de Contraseña
 
-        Haz clic en el siguiente enlace para restablecer tu contraseña:
+            Haz clic en el siguiente enlace para restablecer tu contraseña:
 
-        {reset_url}
+            {reset_url}
 
-        Si no solicitaste esto, ignora este email.
-        """
+            Si no solicitaste esto, ignora este email.
+            """
 
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
 
-    except Exception:
-        traceback.print_exc()
+        except Exception:
+            traceback.print_exc()
 
 
 class RestablecerPasswordView(APIView):
