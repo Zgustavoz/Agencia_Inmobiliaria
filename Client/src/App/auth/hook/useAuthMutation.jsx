@@ -1,23 +1,86 @@
-import { useMutation } from "@tanstack/react-query"
-import { loginRequest, registerRequest } from "../api/authApi"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "react-router"
+import toast from "react-hot-toast"
+import {
+  loginRequest,
+  logoutRequest,
+  registerRequest,
+  recuperarPasswordRequest,
+  restablecerPasswordRequest,
+  obtenerPerfil,
+  registerProfesionalRequest,
+} from "../api/authApi"
+import { useAuth as useAuthContext } from "../context/AuthContext"
 
-export const useLoginMutation = () => {
-  return useMutation({
+export const useAuth = () => {
+  const queryClient                    = useQueryClient()
+  const navigate                       = useNavigate()
+  const { login: contextLogin, logout: contextLogout } = useAuthContext()
+
+  const login = useMutation({
     mutationFn: loginRequest,
-    onSuccess: () => {
-      console.log("Login exitoso, redirigiendo a la página principal...")
-    }
-  })
-}
-
-export const useRegisterMutation = () => {
-  return useMutation({
-    mutationFn: registerRequest,
-    onSuccess: () => {
-      console.log("Registro exitoso, redirigiendo a la página de inicio de sesión...")
+    onSuccess: async () => {
+      const perfil = await obtenerPerfil()
+      contextLogin(perfil)
+      toast.success("¡Bienvenido!")
+      const esAdmin = perfil.es_admin || perfil.roles_info?.some(r => r.nombre === "Administrador" || r.nombre === "empleado" )
+      navigate(esAdmin ? "/dashboard" : "/client")
     },
     onError: (error) => {
-      console.error("Error en el registro:", { error })
-    }
+      toast.error(error?.response?.data?.detail || "Credenciales incorrectas")
+    },
   })
+
+  const registro = useMutation({
+    mutationFn: registerRequest,
+    onSuccess: (data) => {
+      toast.success(data.message || "¡Cuenta creada correctamente!")
+      setTimeout(() => navigate("/auth"), 2000)
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.error || "Error al registrarse")
+    },
+  })
+
+  const recuperarPassword = useMutation({
+    mutationFn: ({ email }) => recuperarPasswordRequest(email),
+    onSuccess: (data) => toast.success(data.message || "Revisa tu email"),
+    onError:   () => toast.error("Error al solicitar recuperación"),
+  })
+
+  const restablecer = useMutation({
+    mutationFn: restablecerPasswordRequest,
+    onSuccess: (data) => {
+      toast.success(data.message || "Contraseña actualizada")
+      setTimeout(() => navigate("/auth"), 2000)
+    },
+    onError: () => toast.error("Error al restablecer contraseña"),
+  })
+
+  const logout = async () => {
+    try {
+      await logoutRequest()
+    } catch {
+      // si falla igual limpiamos
+    }
+    contextLogout()
+    queryClient.clear()
+    toast.success("Sesión cerrada")
+    navigate("/auth")
+  }
+
+  return { login, registro, recuperarPassword, restablecer, logout }
 }
+
+  export const useRegisterProfesionalMutation = () => {
+    return useMutation({
+      mutationFn: registerProfesionalRequest,
+      onError: (error) => {
+        console.error("Error en el registro profesional:", { error })
+      },
+    })
+  }
+
+// ── Exports individuales para compatibilidad con lo que ya tenías ──
+export const useLoginMutation    = () => useAuth().login
+export const useRegisterMutation = () => useAuth().registro

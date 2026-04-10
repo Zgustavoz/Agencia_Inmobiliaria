@@ -11,6 +11,7 @@ import {
   UserRound,
 } from "lucide-react"
 import { Link } from "react-router"
+import { uploadAuthImageRequest } from "../api/authApi"
 
 export const RegisterCard = ({ form, serverError }) => {
   const Form = form
@@ -226,6 +227,18 @@ export const RegisterCard = ({ form, serverError }) => {
                         label="Fecha de Nacimiento"
                         type="date"
                         placeholder="1990-01-01"
+                      />
+                    )
+                  }}
+                </Form.AppField>
+                <Form.AppField name="fotoUrl">
+                  {(FieldApi) => {
+                    return (
+                      <FieldApi.ImageUploadField
+                        label="Foto de Perfil"
+                        multiple={false}
+                        onUpload={(file) => uploadAuthImageRequest(file, "users/profiles")}
+                        helperText="Sube una foto profesional para tu perfil"
                       />
                     )
                   }}

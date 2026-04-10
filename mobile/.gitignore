@@ -64,3 +64,4 @@ mobile/build/
 Mobile/build/
 .dart_tool/
 **/build/
+linux/flutter/generated_*
