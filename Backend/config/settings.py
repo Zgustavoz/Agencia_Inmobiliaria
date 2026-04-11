@@ -83,25 +83,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # ── Base de datos ─────────────────────────────────────────────
 # # Local
-# DATABASES = {
-#     'default': {
-#         'ENGINE':   'django.db.backends.postgresql',
-#         'NAME':     config('DB_NAME'),
-#         'USER':     config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST':     config('DB_HOST', default='localhost'),
-#         'PORT':     config('DB_PORT', default='5432'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE':   'django.db.backends.postgresql',
+        'NAME':     config('DB_NAME'),
+        'USER':     config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST':     config('DB_HOST', default='localhost'),
+        'PORT':     config('DB_PORT', default='5432'),
+    }
+}
 
 # Producción
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=config('DATABASE_URL'),
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
 
 # ── Auth ──────────────────────────────────────────────────────
 AUTH_USER_MODEL = 'gestion_usuarios.Usuario'
@@ -116,6 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ── REST Framework ────────────────────────────────────────────
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'gestion_usuarios.authentication.CookieJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (

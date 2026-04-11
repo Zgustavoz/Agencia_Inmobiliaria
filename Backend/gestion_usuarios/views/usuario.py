@@ -8,17 +8,25 @@ from ..models import Usuario, Rol
 from ..serializers import UsuarioSerializer
 from ..permissions import EsAdminOSoloLectura
 from .base import BaseViewSet
+from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
 
 class UsuarioPagination(PageNumberPagination):
     page_size              = 10
     page_size_query_param  = 'page_size'
     max_page_size          = 50
 
+class IsSelf(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Permite la acción si el usuario que hace la petición es el mismo dueño del perfil
+        return obj.id == request.user.id
+    
 class UsuarioViewSet(BaseViewSet):
     modulo             = 'Usuarios'
     serializer_class   = UsuarioSerializer
-    permission_classes = [EsAdminOSoloLectura]
+    permission_classes = [IsAuthenticated, EsAdminOSoloLectura | IsSelf]
     pagination_class   = UsuarioPagination
+    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = Usuario.objects.all().prefetch_related('roles').distinct()
