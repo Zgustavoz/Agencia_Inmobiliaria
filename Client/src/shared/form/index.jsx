@@ -4,6 +4,7 @@ import { BotonSubmitField } from "./components/BotonSubmitField";
 import { SelectField } from "./components/SelectField";
 import { CheckboxField } from "./components/CheckboxField";
 import { GoogleAddressAutocompleteField } from "./components/GoogleAddressAutocompleteField";
+import { ImageUploadField } from "./components/ImageUploadField";
 
 export const {
   fieldContext,
@@ -20,6 +21,7 @@ export const {
     SelectField,
     CheckboxField,
     GoogleAddressAutocompleteField,
+    ImageUploadField,
   },
   formComponents: {
     // botones para confirmar la información que esta en el form

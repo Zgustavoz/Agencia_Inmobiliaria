@@ -2,16 +2,15 @@ import { motion } from "motion/react"
 import { useAppForm } from "../../../shared/form"
 import { useFormRegister } from "../hook/useFormRegister"
 import { RegisterCard } from "../components/RegisterCard"
-import { useRegisterMutation } from "../hook/useAuthMutation"
+import { useRegisterProfesionalMutation } from "../hook/useAuthMutation"
 
 export const RegisterPage = () => {
-  const registerMutation = useRegisterMutation()
+  const registerMutation = useRegisterProfesionalMutation()
   const MotionDiv = motion.div
-  // const { defaultValueRegister, registerSchema } = useFormRegister("agent")
   const { defaultValues, schema } = useFormRegister("profesional")
 
   const form = useAppForm({
-    defaultValues: defaultValues.defaultValues,
+    defaultValues,
     validators: {
       onChange: schema,
     },
@@ -23,7 +22,8 @@ export const RegisterPage = () => {
         apellidos: value.apellidos,
         telefono: value.telefono,
         password: value.password,
-        password2: value.confirmPassword,
+        fotoUrl: value.fotoUrl,
+        role: value.role,
       })
     },
   })

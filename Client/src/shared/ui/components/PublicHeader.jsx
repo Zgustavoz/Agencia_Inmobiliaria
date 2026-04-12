@@ -1,14 +1,15 @@
 import { motion } from "motion/react"
 import { Building2 } from "lucide-react"
+import { useState } from "react"
 import { Link, NavLink } from "react-router"
+import { LoginModal } from "./LoginModal"
 
 const navLinks = [
-  { to: "/", label: "Inicio" },
-  { to: "/auth", label: "Ingresar" },
-  { to: "/auth/register-client", label: "Registro" },
+  { to: "/client", label: "Inicio" },
 ]
 
 export const PublicHeader = () => {
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
   const MotionHeader = motion.header
 
   return (
@@ -19,7 +20,7 @@ export const PublicHeader = () => {
       className="fixed inset-x-0 top-0 z-50 border-b border-(--outline-variant)/30 bg-(--surface-container-lowest)/90 backdrop-blur-xl"
     >
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 md:px-8">
-        <Link to="/" className="inline-flex items-center gap-2">
+        <Link to="/client" className="inline-flex items-center gap-2">
           <span className="rounded-md bg-(--primary-fixed) p-2 text-(--primary)">
             <Building2 size={16} />
           </span>
@@ -28,7 +29,7 @@ export const PublicHeader = () => {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-3 md:gap-6">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -41,8 +42,18 @@ export const PublicHeader = () => {
               {link.label}
             </NavLink>
           ))}
+
+          <button
+            type="button"
+            onClick={() => setIsLoginOpen(true)}
+            className="rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-(--on-primary) transition hover:brightness-95"
+          >
+            Ingresar
+          </button>
         </nav>
       </div>
+
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </MotionHeader>
   )
 }
