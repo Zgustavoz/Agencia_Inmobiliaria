@@ -28,3 +28,12 @@ intanciaAxios.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+intanciaAxios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token"); // Verifica que este sea el nombre que usas
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
