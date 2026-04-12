@@ -1,1 +1,1 @@
-from .moneda import MonedaListCreateView, MonedaDetailView
+from .moneda import MonedaViewSet
