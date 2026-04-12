@@ -11,7 +11,7 @@ class Rol(models.Model):
         through='RolPermiso',
         related_name='roles',
         blank=True
-    )
+    ) 
 
     class Meta:
         db_table = 'roles'
