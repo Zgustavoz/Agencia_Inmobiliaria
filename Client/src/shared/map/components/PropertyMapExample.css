@@ -1,0 +1,289 @@
+.property-map-page {
+  width: 100%;
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+.property-map-header {
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.property-map-header h1 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.property-map-header p {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.property-map-canvas {
+  flex: 1;
+  min-height: 420px;
+}
+
+.property-map-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.property-map-sidepanel {
+  border-left: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.property-map-sidepanel h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.property-selected-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.property-selected-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.property-selected-type {
+  margin: 4px 0;
+  color: #334155;
+  font-size: 0.85rem;
+}
+
+.property-selected-price {
+  margin: 2px 0 8px;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.property-selected-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #334155;
+  font-size: 0.85rem;
+}
+
+.property-selected-description {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.property-map-list {
+  margin-top: 14px;
+}
+
+.property-map-list h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+.property-list-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.property-list-item span {
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.property-list-item small {
+  color: #334155;
+}
+
+.property-list-item.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+@media (max-width: 1024px) {
+  .property-map-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(360px, 1fr) auto;
+  }
+
+  .property-map-sidepanel {
+    border-left: 0;
+    border-top: 1px solid #e2e8f0;
+  }
+}
+
+/* Estilos para marcadores de propiedades */
+.property-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: white;
+  border: 3px solid #667eea;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.property-marker:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+}
+
+.marker-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-icon {
+  font-size: 1.5rem;
+  margin-bottom: 2px;
+}
+
+.marker-label {
+  font-size: 0.65rem;
+  color: #667eea;
+  text-align: center;
+}
+
+/* Estilos para popups de propiedades */
+.property-popup {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  padding: 16px;
+  border-radius: 8px;
+  max-width: 300px;
+}
+
+.property-popup h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.property-type {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  color: #718096;
+  background: #f7fafc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.property-price {
+  margin: 8px 0;
+  font-size: 1.25rem;
+  color: #667eea;
+  font-weight: 700;
+}
+
+.property-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+.property-details span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f7fafc;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.property-description {
+  margin: 12px 0;
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.4;
+}
+
+.view-button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.view-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.view-button:active {
+  transform: translateY(0);
+}
+
+/* Popup de Mapbox customizado */
+.mapboxgl-popup-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border: none;
+  padding: 0;
+}
+
+.mapboxgl-popup-close-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: #f7fafc;
+  border: none;
+  border-radius: 4px;
+  font-size: 20px;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mapboxgl-popup-close-button:hover {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.mapboxgl-popup-tip {
+  border-top-color: white;
+}

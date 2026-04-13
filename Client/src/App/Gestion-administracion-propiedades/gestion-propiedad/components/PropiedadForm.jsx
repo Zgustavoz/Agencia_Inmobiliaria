@@ -39,14 +39,17 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
         tipo_inmueble: propiedadAEditar.tipo_inmueble || "Luxury Villa",
         id_modalidad: propiedadAEditar.id_modalidad || 1,
         modalidad_operacion: propiedadAEditar.modalidad_operacion || "Para Rentar",
-        // Extraemos IDs si vienen como objetos desde Django
         zona: propiedadAEditar.zona?.id_zona || propiedadAEditar.zona || "",
         moneda: propiedadAEditar.moneda?.id_moneda || propiedadAEditar.moneda || "",
         precio: propiedadAEditar.precio || "",
+        expensas: propiedadAEditar.expensas || 0,
         superficie_total_m2: propiedadAEditar.superficie_total_m2 || "",
+        superficie_construida_m2: propiedadAEditar.superficie_construida_m2 || "",
+        ambientes: propiedadAEditar.ambientes || 0,
         dormitorios: propiedadAEditar.dormitorios || 0,
         banos: propiedadAEditar.banos || 0,
-        // ... añade cualquier otro campo que necesites
+        garajes: propiedadAEditar.garajes || 0,
+        amoblado: propiedadAEditar.amoblado || false,
       });
     }
   }, [propiedadAEditar]);
@@ -98,6 +101,7 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
   data.append("titulo", formData.titulo);
   data.append("descripcion", formData.descripcion);
   data.append("precio", formData.precio || 0);
+  data.append("expensas", formData.expensas || 0);
   data.append("tipo_inmueble", formData.tipo_inmueble);
   data.append("zona", formData.zona); 
   data.append("moneda", formData.moneda);
@@ -106,7 +110,10 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
   data.append("ambientes", formData.ambientes || 0);
   data.append("dormitorios", formData.dormitorios || 0);
   data.append("banos", formData.banos || 0);
+  data.append("garajes", formData.garajes || 0);
   data.append("superficie_total_m2", formData.superficie_total_m2 || 0);
+  data.append("superficie_construida_m2", formData.superficie_construida_m2 || 0);
+  data.append("amoblado", formData.amoblado);
 
   selectedFiles.forEach((file) => {
     data.append("imagenes_input", file);
@@ -197,7 +204,7 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
           {/* Sección 2: Key Features (Ambientes, Baños, etc) */}
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-100">
             <h3 className="text-[#0052CC] text-[10px] font-black uppercase tracking-widest mb-6">Caracterizticas Clave</h3>
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-neutral-50 p-4 rounded-xl text-center">
                 <Bed className="mx-auto mb-2 text-blue-500" size={20} />
                 <label className="text-[10px] font-bold text-neutral-400 uppercase block">Dormitorios</label>
@@ -210,9 +217,28 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
               </div>
               <div className="bg-neutral-50 p-4 rounded-xl text-center">
                 <Maximize className="mx-auto mb-2 text-blue-500" size={20} />
-                <label className="text-[10px] font-bold text-neutral-400 uppercase block">Metros cuadrados</label>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase block">M² Total</label>
                 <input name="superficie_total_m2" type="number" value={formData.superficie_total_m2} onChange={handleChange} className="bg-transparent text-center font-bold text-neutral-800 outline-none w-full" placeholder="8400" />
               </div>
+              <div className="bg-neutral-50 p-4 rounded-xl text-center">
+                <Maximize className="mx-auto mb-2 text-blue-500" size={20} />
+                <label className="text-[10px] font-bold text-neutral-400 uppercase block">M² Construidos</label>
+                <input name="superficie_construida_m2" type="number" value={formData.superficie_construida_m2} onChange={handleChange} className="bg-transparent text-center font-bold text-neutral-800 outline-none w-full" placeholder="7000" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase block mb-2">Garajes</label>
+                <input name="garajes" type="number" value={formData.garajes} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm font-bold outline-none" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase block mb-2">Ambientes</label>
+                <input name="ambientes" type="number" value={formData.ambientes} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm font-bold outline-none" />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center">
+              <input name="amoblado" type="checkbox" checked={formData.amoblado} onChange={handleChange} className="w-4 h-4 rounded cursor-pointer" />
+              <label className="text-[10px] font-bold text-neutral-400 uppercase ml-2">Amoblado</label>
             </div>
           </div>
         </div>
@@ -287,6 +313,19 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
               <input 
                 name="precio" 
                 value={formData.precio}
+                type="number" 
+                onChange={handleChange} 
+                className="w-full p-3 bg-neutral-50 border-none rounded-xl text-xs font-bold outline-none" 
+                placeholder="0.00" 
+              />
+            </div>
+
+            {/* EXPENSAS */}
+            <div>
+              <label className="text-[10px] font-bold text-neutral-400 uppercase">Expensas/Mantenimiento</label>
+              <input 
+                name="expensas" 
+                value={formData.expensas}
                 type="number" 
                 onChange={handleChange} 
                 className="w-full p-3 bg-neutral-50 border-none rounded-xl text-xs font-bold outline-none" 
