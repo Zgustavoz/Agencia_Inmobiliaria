@@ -43,6 +43,7 @@ function InmobiliarApp() {
           <Route path="roles" element={<ProtectedRoute requiredRoles={["Administrador","gestionar roles"]}><RolPage /></ProtectedRoute>} />
           <Route path="bitacora" element={<ProtectedRoute requiredRoles={["Administrador"]}><BitacoraPage /></ProtectedRoute>} />
           <Route path="inmuebles" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><PropiedadPage /></ProtectedRoute>} />
+           <Route path="ver-propiedas" element={<ProtectedRoute requiredRoles={["Administrador"]}><PropertyMapExample /></ProtectedRoute>} />
           {/* <Route path="permisos" element={<ProtectedRoute requiredRoles={["Administrador"]}><PermisoPage /></ProtectedRoute>} /> */}
       </Route>
 
