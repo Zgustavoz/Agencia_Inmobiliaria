@@ -1,4 +1,4 @@
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Building2, Home, Key } from "lucide-react";
 import { usePropiedades } from "../hooks/usePropiedades";
 import { PropiedadTable } from "../components/PropiedadTable";
@@ -10,7 +10,7 @@ export const PropiedadPage = () => {
   const [inputValue, setInputValue] = useState("");
   const [search, setSearch] = useState("");
   const [propiedadSeleccionada, setPropiedadSeleccionada] = useState(null);
-  
+
   // PASO 1: Extraemos stats de la llamada al hook
   const { propiedades, isLoading, stats, refetch } = usePropiedades(search);
 
@@ -24,27 +24,27 @@ export const PropiedadPage = () => {
     setViewMode("form");
   };
   useEffect(() => {
-      const handler = setTimeout(() => {
-        setSearch(inputValue);
-      }, 500);
-      return () => clearTimeout(handler);
-    }, [inputValue]);
+    const handler = setTimeout(() => {
+      setSearch(inputValue);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [inputValue]);
 
-    // EL CAMBIO CLAVE: 
-    // No bloquees TODA la página si solo estamos buscando
-    if (isLoading && viewMode === "list" && search === "") return <Loading />;
+  // EL CAMBIO CLAVE: 
+  // No bloquees TODA la página si solo estamos buscando
+  if (isLoading && viewMode === "list" && search === "") return <Loading />;
   return (
     <div className="p-8 bg-[#F8F9FB] min-h-screen font-sans text-neutral-600">
       {viewMode === "list" ? (
         <div className="max-w-[1400px] mx-auto">
-          
+
           {/* Header */}
           <div className="flex justify-between items-end mb-10">
             <div>
               <h1 className="text-3xl font-bold text-neutral-800 tracking-tight">Inventario de Propiedades</h1>
               <div className="flex gap-4 mt-2">
-                 <span className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-2 py-1 rounded">Portfolio</span>
-                 <span className="text-[10px] font-black uppercase text-neutral-400">Market Insights(proximamente )</span>
+                <span className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-2 py-1 rounded">Portfolio</span>
+                <span className="text-[10px] font-black uppercase text-neutral-400">Market Insights(proximamente )</span>
               </div>
             </div>
             <button onClick={handleCreateNew} className="bg-[#0052CC] hover:bg-[#0041a3] text-white px-7 py-3 rounded-lg font-bold text-sm shadow-xl shadow-blue-100 flex items-center gap-2 transition-all active:scale-95">
@@ -91,9 +91,9 @@ export const PropiedadPage = () => {
               <h2 className="text-sm font-bold text-neutral-800">Portfolio Actual</h2>
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-300" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="Search listings..." 
+                <input
+                  type="text"
+                  placeholder="Search listings..."
                   className="w-full pl-10 pr-4 py-2 bg-neutral-50 border-none rounded-lg text-xs font-medium focus:ring-2 focus:ring-blue-100 outline-none"
                   value={inputValue} // <--- Usa el estado rápido
                   onChange={(e) => setInputValue(e.target.value)}
@@ -106,10 +106,10 @@ export const PropiedadPage = () => {
           </div>
         </div>
       ) : (
-        <PropiedadForm 
+        <PropiedadForm
           propiedadAEditar={propiedadSeleccionada}
-          onCancel={() => setViewMode("list")} 
-          onSuccess={() => { setViewMode("list"); refetch(); }} 
+          onCancel={() => setViewMode("list")}
+          onSuccess={() => { setViewMode("list"); refetch(); }}
         />
       )}
     </div>
