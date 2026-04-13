@@ -45,6 +45,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'gestion_usuarios',
     'modulo_administracion_configuracion',
+    'modulo_inmuebles',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -137,7 +138,7 @@ SIMPLE_JWT = {
 
 # ── CORS ──────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept', 'accept-encoding', 'authorization',
