@@ -11,4 +11,5 @@ urlpatterns = [
     path('health/', health, name='health'),
     path('gestion_usuarios/', include('gestion_usuarios.urls')),
     path('api/admin-config/', include('modulo_administracion_configuracion.urls')),
+    path('api/inmuebles/', include('modulo_inmuebles.urls')),
 ]

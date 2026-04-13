@@ -8,7 +8,8 @@ import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "
 import { useState, useEffect } from "react"
 import { useAuth } from "../../../auth/context/AuthContext"
 import { useAuth as useAuthHook } from "../../../auth/hook/useAuthMutation"
-
+import { LogoutButton } from "../button/LogoutButton"
+ 
 export const Sidebar = () => {
   const location           = useLocation()
   const { user, tieneAcceso } = useAuth()
@@ -227,14 +228,8 @@ export const Sidebar = () => {
                 </div>
               </div>
             )}
-            <button
-              type="button"
-              onClick={() => logout()}
-              className="flex items-center w-full px-3 py-2.5 rounded-lg text-sm text-(--on-surface-variant) hover:bg-(--error-container) hover:text-(--on-error-container) transition-colors"
-            >
-              <LogOut className="w-4 h-4 shrink-0" />
-              {expanded && <span className="ml-3 font-medium">Cerrar sesión</span>}
-            </button>
+
+            <LogoutButton/>
           </div>
 
         </m.div>
