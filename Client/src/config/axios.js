@@ -13,7 +13,8 @@ intanciaAxios.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes("/auth/")
+      !originalRequest.url.includes("/auth/") &&
+      !originalRequest.url.includes("/me/")
     ) {
       originalRequest._retry = true
 

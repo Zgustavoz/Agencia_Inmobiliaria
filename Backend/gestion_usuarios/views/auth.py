@@ -61,9 +61,9 @@ class LoginView(TokenObtainPairView):
         access_token  = serializer.validated_data['access']
         refresh_token = serializer.validated_data['refresh']
 
-        user               = serializer.user
+        user = serializer.user
         user.ultimo_acceso = timezone.now()
-        user.es_online     = True
+        user.es_online = True
         user.save(update_fields=['ultimo_acceso', 'es_online'])
 
         # --- BITÁCORA LOGIN ---
@@ -74,9 +74,23 @@ class LoginView(TokenObtainPairView):
             id_entidad=user.id,
             accion='LOGIN',
             detalle=f"El usuario {user.username} inició sesión correctamente.",
-            user=user  # <--- ¡ESTO ES LO QUE SOLUCIONA EL NULL!
+            user=user
         )
-        response = Response({'message': 'Login exitoso'}, status=status.HTTP_200_OK)
+
+        # AQUI ESTA EL CAMBIO: Enviamos el JSON que Flutter sí puede leer
+        response = Response({
+            'message': 'Login exitoso',
+            'token': access_token,  # <-- Enviamos el token
+            'user': {               # <-- Enviamos los datos del usuario
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'nombres': user.nombres,
+                'apellidos': user.apellidos,
+                'telefono': getattr(user, 'telefono', ''),
+            }
+        }, status=status.HTTP_200_OK)
+
         set_auth_cookies(response, access_token, refresh_token)
         return response
 
