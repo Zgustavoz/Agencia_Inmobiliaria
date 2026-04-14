@@ -54,7 +54,7 @@ export const Sidebar = () => {
       key:   "propiedades",
       subItems: [
         { title: "Inmuebles", path: "/dashboard/inmuebles", icon: Building2, roles: ["Administrador", "Agente"] },
-        { title: "Ver propiedas", path: "/dashboard/ver-propiedas", icon: Building2, roles: ["Administrador"] },
+        { title: "Ver propiedas", path: "/dashboard/ver-propiedades", icon: Building2, roles: ["Administrador"] },
       ],
     },
   ]
