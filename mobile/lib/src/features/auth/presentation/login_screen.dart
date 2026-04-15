@@ -26,7 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/gestion_usuarios/auth/login/'),
+        Uri.parse(
+          'https://agencia-inmobiliaria-7982.onrender.com/gestion_usuarios/auth/login/',
+        ),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'username': username, 'password': password}),
       );
