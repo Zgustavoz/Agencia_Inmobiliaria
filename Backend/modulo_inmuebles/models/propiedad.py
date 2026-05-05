@@ -27,6 +27,10 @@ class Propiedad(models.Model):
     superficie_total_m2 = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     superficie_construida_m2 = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     
+    # Ubicación Geográfica
+    latitud = models.DecimalField(max_digits=18, decimal_places=15, null=True, blank=True)
+    longitud = models.DecimalField(max_digits=18, decimal_places=15, null=True, blank=True)
+
     # Detalles
     ambientes = models.IntegerField(default=0)
     dormitorios = models.IntegerField(default=0)
