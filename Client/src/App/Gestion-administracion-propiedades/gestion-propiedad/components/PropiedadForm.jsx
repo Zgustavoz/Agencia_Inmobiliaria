@@ -1,13 +1,19 @@
-import { useState, useEffect } from "react";
-import { Save, Upload, X, MapPin, Home, DollarSign, Maximize, Bed, Bath, Layers } from "lucide-react";
-import { createPropiedad,updatePropiedad } from "../api/propiedadApi";
+import { useState, useEffect, useRef } from "react";
+import { Save, Upload, X, MapPin, Home, DollarSign, Maximize, Bed, Bath, Layers, Map as MapIcon } from "lucide-react";
+import { createPropiedad, updatePropiedad } from "../api/propiedadApi";
 import { getZonas, getMonedas } from "../api/dataMaestraApi";
+import MapContainer from "../../../../shared/map/components/MapContainer";
+import mapboxgl from 'mapbox-gl';
 
-export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
+export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [zonas, setZonas] = useState([]);
   const [monedas, setMonedas] = useState([]);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
 
   const [formData, setFormData] = useState({
     codigo_propiedad: "",
@@ -27,7 +33,23 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
     banos: 0,
     garajes: 0,
     amoblado: false,
+    latitud: "",
+    longitud: "",
   });
+
+  // Manejar previews de imágenes nuevas
+  useEffect(() => {
+    if (selectedFiles.length === 0) {
+      setPreviews([]);
+      return;
+    }
+
+    const objectUrls = selectedFiles.map(file => URL.createObjectURL(file));
+    setPreviews(objectUrls);
+
+    // Free memory when component unmounts
+    return () => objectUrls.forEach(url => URL.revokeObjectURL(url));
+  }, [selectedFiles]);
 
   //para editar mande los datos al formulario
   useEffect(() => {
@@ -50,7 +72,10 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
         banos: propiedadAEditar.banos || 0,
         garajes: propiedadAEditar.garajes || 0,
         amoblado: propiedadAEditar.amoblado || false,
+        latitud: propiedadAEditar.latitud || "",
+        longitud: propiedadAEditar.longitud || "",
       });
+      setExistingImages(propiedadAEditar.imagenes || []);
     }
   }, [propiedadAEditar]);
   useEffect(() => {
@@ -96,7 +121,7 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
   setIsSaving(true);
   const data = new FormData();
   
-  // Llenado de datos (se mantiene igual)
+  // Llenado de datos
   data.append("codigo_propiedad", formData.codigo_propiedad);
   data.append("titulo", formData.titulo);
   data.append("descripcion", formData.descripcion);
@@ -114,6 +139,8 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
   data.append("superficie_total_m2", formData.superficie_total_m2 || 0);
   data.append("superficie_construida_m2", formData.superficie_construida_m2 || 0);
   data.append("amoblado", formData.amoblado);
+  data.append("latitud", formData.latitud);
+  data.append("longitud", formData.longitud);
 
   selectedFiles.forEach((file) => {
     data.append("imagenes_input", file);
@@ -141,6 +168,128 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
     setIsSaving(false);
   }
 };
+
+  const onMapClick = (e) => {
+    const { lng, lat } = e.lngLat;
+    setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
+    
+    if (markerRef.current) {
+      markerRef.current.setLngLat([lng, lat]);
+    } else {
+      markerRef.current = new mapboxgl.Marker({ color: '#0052CC', draggable: true })
+        .setLngLat([lng, lat])
+        .addTo(mapRef.current);
+      
+      markerRef.current.on('dragend', () => {
+        const { lng, lat } = markerRef.current.getLngLat();
+        setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
+      });
+    }
+  };
+
+  const onMapLoad = (map) => {
+    mapRef.current = map;
+    
+    // 1. MODO EDICIÓN: Si ya tiene coordenadas en el formData, posicionar marcador y DIRIGIRSE allí
+    if (formData.latitud && formData.longitud) {
+      const lng = parseFloat(formData.longitud);
+      const lat = parseFloat(formData.latitud);
+      
+      console.log("Modo Edición: Dirigiendo mapa a", lat, lng);
+
+      if (markerRef.current) markerRef.current.remove();
+
+      markerRef.current = new mapboxgl.Marker({ color: '#0052CC', draggable: true })
+        .setLngLat([lng, lat])
+        .addTo(map);
+      
+      markerRef.current.on('dragend', () => {
+        const { lng, lat } = markerRef.current.getLngLat();
+        setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
+      });
+
+      // Asegurar que el mapa se mueva a la posición con un pequeño delay para que el contenedor esté listo
+      setTimeout(() => {
+        map.resize();
+        map.flyTo({ 
+          center: [lng, lat], 
+          zoom: 16, 
+          essential: true,
+          duration: 2000 
+        });
+      }, 500);
+    } 
+    // 2. MODO CREACIÓN...
+    else if (!propiedadAEditar && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setFormData(prev => ({ ...prev, latitud: latitude, longitud: longitude }));
+        
+        if (markerRef.current) markerRef.current.remove();
+        
+        markerRef.current = new mapboxgl.Marker({ color: '#0052CC', draggable: true })
+          .setLngLat([longitude, latitude])
+          .addTo(map);
+        
+        markerRef.current.on('dragend', () => {
+          const { lng, lat } = markerRef.current.getLngLat();
+          setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
+        });
+          
+        map.flyTo({ center: [longitude, latitude], zoom: 14 });
+      }, (err) => {
+        console.warn("No se pudo obtener la ubicación automáticamente:", err.message);
+      });
+    }
+
+    // 3. Escuchar geolocate...
+    map.on('geolocate', (e) => {
+      const { longitude, latitude } = e.coords;
+      setFormData(prev => ({ ...prev, latitud: latitude, longitud: longitude }));
+      
+      if (markerRef.current) {
+        markerRef.current.setLngLat([longitude, latitude]);
+      } else {
+        markerRef.current = new mapboxgl.Marker({ color: '#0052CC', draggable: true })
+          .setLngLat([longitude, latitude])
+          .addTo(map);
+        
+        markerRef.current.on('dragend', () => {
+          const { lng, lat } = markerRef.current.getLngLat();
+          setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
+        });
+      }
+    });
+  };
+
+  const goToSavedLocation = () => {
+    if (mapRef.current && formData.latitud && formData.longitud) {
+      const lng = parseFloat(formData.longitud);
+      const lat = parseFloat(formData.latitud);
+      
+      // Asegurar que el marcador exista y esté en la posición correcta
+      if (markerRef.current) {
+        markerRef.current.setLngLat([lng, lat]);
+      } else {
+        markerRef.current = new mapboxgl.Marker({ color: '#0052CC', draggable: true })
+          .setLngLat([lng, lat])
+          .addTo(mapRef.current);
+        
+        markerRef.current.on('dragend', () => {
+          const { lng, lat } = markerRef.current.getLngLat();
+          setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
+        });
+      }
+
+      mapRef.current.resize();
+      mapRef.current.flyTo({
+        center: [lng, lat],
+        zoom: 16,
+        essential: true,
+        duration: 1500
+      });
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto bg-[#F8F9FB] min-h-screen p-6 font-sans text-neutral-600">
@@ -187,7 +336,7 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-neutral-400 mb-1 block">Listado de Estados</label>
-                  <select name="modalidad_operacion" onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm outline-none">
+                  <select name="modalidad_operacion" value={formData.modalidad_operacion} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm outline-none">
                     <option value="Para Rentar">Para Rentar</option>
                     <option value="Para Vender">Para Vender</option>
                   </select>
@@ -241,22 +390,90 @@ export const PropiedadForm = ({ onCancel, onSuccess,propiedadAEditar }) => {
               <label className="text-[10px] font-bold text-neutral-400 uppercase ml-2">Amoblado</label>
             </div>
           </div>
+
+          {/* Sección 3: Mapa de Ubicación */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-100">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-[#0052CC] text-[10px] font-black uppercase tracking-widest">Ubicación Exacta</h3>
+              <div className="flex gap-4 items-center">
+                <div className="flex gap-4 text-[10px] font-bold text-neutral-400">
+                  <span>LAT: {formData.latitud || '---'}</span>
+                  <span>LNG: {formData.longitud || '---'}</span>
+                </div>
+                {formData.latitud && formData.longitud && (
+                  <button 
+                    type="button"
+                    onClick={goToSavedLocation}
+                    className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-[#0052CC] rounded-full text-[10px] font-bold hover:bg-blue-100 transition-colors"
+                  >
+                    <MapPin size={12} />
+                    Ver en Mapa
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="h-[400px] rounded-2xl overflow-hidden border border-neutral-100 relative">
+              <MapContainer 
+                onLoad={onMapLoad}
+                onMapClick={onMapClick}
+                center={formData.longitud && formData.latitud ? [formData.longitud, formData.latitud] : undefined}
+                zoom={formData.latitud ? 15 : undefined}
+              />
+              {!formData.latitud && (
+                <div className="absolute inset-0 bg-black/5 flex items-center justify-center pointer-events-none">
+                  <div className="bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                    <MapPin className="text-blue-500" size={16} />
+                    <span className="text-xs font-bold">Click en el mapa para marcar ubicación</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Columna Derecha: Multimedia y Ubicación */}
         <div className="space-y-6">
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-100">
             <h3 className="text-[#0052CC] text-[10px] font-black uppercase tracking-widest mb-6">Galeria de fotos</h3>
-            <div className="border-2 border-dashed border-neutral-100 rounded-2xl p-10 text-center hover:bg-neutral-50 cursor-pointer relative">
+            <div className="border-2 border-dashed border-neutral-100 rounded-2xl p-10 text-center hover:bg-neutral-50 cursor-pointer relative mb-4">
                <Upload className="mx-auto text-neutral-300 mb-2" />
                <p className="text-xs font-bold text-neutral-400 uppercase">Cargar Imagenes</p>
                <input type="file" multiple className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => setSelectedFiles([...selectedFiles, ...Array.from(e.target.files)])} />
             </div>
-            <div className="mt-4 flex gap-2 flex-wrap">
-              {selectedFiles.map((f, i) => (
-                <div key={i} className="text-[10px] bg-neutral-100 px-2 py-1 rounded-md">{f.name.substring(0,10)}...</div>
-              ))}
-            </div>
+            
+            {/* Previsualización de Imágenes Nuevas */}
+            {previews.length > 0 && (
+              <div className="mb-4">
+                <p className="text-[10px] font-bold text-neutral-400 uppercase mb-2">Nuevas Imágenes</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {previews.map((url, i) => (
+                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden group">
+                      <img src={url} alt={`preview ${i}`} className="w-full h-full object-cover" />
+                      <button 
+                        onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))}
+                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Imágenes Existentes (Modo Edición) */}
+            {existingImages.length > 0 && (
+              <div>
+                <p className="text-[10px] font-bold text-neutral-400 uppercase mb-2">Imágenes Actuales</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {existingImages.map((img, i) => (
+                    <div key={img.id_imagen || i} className="aspect-square rounded-lg overflow-hidden border border-neutral-100">
+                      <img src={img.url_imagen} alt={`actual ${i}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           {/* Columna Derecha: Location & Finance */}
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-100">
