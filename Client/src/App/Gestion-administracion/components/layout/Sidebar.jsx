@@ -1,73 +1,141 @@
-import { Link, useLocation } from "react-router"
+import { Link, useLocation } from "react-router";
 import {
-  LayoutDashboard, Users, Shield, LogOut,
-  ChevronRight, Menu, X, Key, ChevronDown, Building2,
-  HistoryIcon
-} from "lucide-react"
-import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "motion/react"
-import { useState, useEffect } from "react"
-import { useAuth } from "../../../auth/context/AuthContext"
-import { useAuth as useAuthHook } from "../../../auth/hook/useAuthMutation"
-import { LogoutButton } from "../button/LogoutButton"
- 
-export const Sidebar = () => {
-  const location           = useLocation()
-  const { user, tieneAcceso } = useAuth()
-  const { logout }         = useAuthHook()
-  const shouldReduceMotion = useReducedMotion()
+  LayoutDashboard,
+  Users,
+  Shield,
+  LogOut,
+  ChevronRight,
+  Menu,
+  X,
+  Key,
+  ChevronDown,
+  Building2,
+  HistoryIcon,
+  Database,
+  RefreshCcw, // Para "Restaurar"
+} from "lucide-react";
+import {
+  AnimatePresence,
+  LazyMotion,
+  domAnimation,
+  m,
+  useReducedMotion,
+} from "motion/react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../../../auth/context/AuthContext";
+import { useAuth as useAuthHook } from "../../../auth/hook/useAuthMutation";
+import { LogoutButton } from "../button/LogoutButton";
 
-  const [isOpen,       setIsOpen]       = useState(true)
-  const [isMobile,     setIsMobile]     = useState(false)
-  const [mobileOpen,   setMobileOpen]   = useState(false)
-  const [openSubmenus, setOpenSubmenus] = useState({})
+export const Sidebar = () => {
+  const location = useLocation();
+  const { user, tieneAcceso } = useAuth();
+  const { logout } = useAuthHook();
+  const shouldReduceMotion = useReducedMotion();
+
+  const [isOpen, setIsOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openSubmenus, setOpenSubmenus] = useState({});
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-      setIsOpen(window.innerWidth >= 768)
-    }
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
+      setIsMobile(window.innerWidth < 768);
+      setIsOpen(window.innerWidth >= 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const menuItems = [
     {
       title: "Dashboard",
-      path:  "/dashboard",
-      icon:  LayoutDashboard,
+      path: "/dashboard",
+      icon: LayoutDashboard,
     },
     {
       title: "Gestión Usuarios",
-      icon:  Users,
-      key:   "usuarios",
+      icon: Users,
+      key: "usuarios",
       subItems: [
-        { title: "Usuarios", path: "/dashboard/usuarios", icon: Users,  roles: ["Administrador","gestionar usuario"] },
-        { title: "Roles",    path: "/dashboard/roles",    icon: Shield, roles: ["Administrador"] },
-        { title: "Permisos", path: "/dashboard/permisos", icon: Key,    roles: ["Administrador"] },
-        { title: "Bitacora", path: "/dashboard/bitacora", icon: HistoryIcon,    roles: ["Administrador"] },
+        {
+          title: "Usuarios",
+          path: "/dashboard/usuarios",
+          icon: Users,
+          roles: ["Administrador", "gestionar usuario"],
+        },
+        {
+          title: "Roles",
+          path: "/dashboard/roles",
+          icon: Shield,
+          roles: ["Administrador"],
+        },
+        {
+          title: "Permisos",
+          path: "/dashboard/permisos",
+          icon: Key,
+          roles: ["Administrador"],
+        },
+        {
+          title: "Bitacora",
+          path: "/dashboard/bitacora",
+          icon: HistoryIcon,
+          roles: ["Administrador"],
+        },
       ],
     },
     {
       title: "Propiedades",
-      icon:  Building2,
-      key:   "propiedades",
+      icon: Building2,
+      key: "propiedades",
       subItems: [
-        { title: "Inmuebles", path: "/dashboard/inmuebles", icon: Building2, roles: ["Administrador", "Agente"] },
-        { title: "Ver propiedas", path: "/dashboard/ver-propiedades", icon: Building2, roles: ["Administrador"] },
+        {
+          title: "Inmuebles",
+          path: "/dashboard/inmuebles",
+          icon: Building2,
+          roles: ["Administrador", "Agente"],
+        },
+        {
+          title: "Ver propiedas",
+          path: "/dashboard/ver-propiedades",
+          icon: Building2,
+          roles: ["Administrador"],
+        },
       ],
     },
-  ]
+    {
+      title: "Mantenimiento",
+      icon: Database,
+      key: "mantenimiento",
+      subItems: [
+        {
+          title: "Guardar Respaldo",
+          path: "/dashboard/backups",
+          icon: Database,
+          roles: ["Administrador"],
+        },
+        {
+          title: "Restaurar Datos",
+          path: "/dashboard/restaurar", // Asegúrate de crear esta ruta en InmobiliarApp
+          icon: RefreshCcw,
+          roles: ["Administrador"],
+        },
+      ],
+    },
+  ];
 
-  const toggleSubmenu  = (key) => setOpenSubmenus(prev => ({ ...prev, [key]: !prev[key] }))
-  const closeMobile    = () => { if (isMobile) setMobileOpen(false) }
-  const isActive       = (path) => location.pathname === path
+  const toggleSubmenu = (key) =>
+    setOpenSubmenus((prev) => ({ ...prev, [key]: !prev[key] }));
+  const closeMobile = () => {
+    if (isMobile) setMobileOpen(false);
+  };
+  const isActive = (path) => location.pathname === path;
   const isParentActive = (item) =>
     item.path
       ? location.pathname === item.path
-      : item.subItems?.some(s => location.pathname === s.path) ?? false
+      : (item.subItems?.some((s) => location.pathname === s.path) ?? false);
 
-  const expanded = isMobile ? mobileOpen : isOpen
+  const expanded = isMobile ? mobileOpen : isOpen;
 
   return (
     <>
@@ -84,14 +152,14 @@ export const Sidebar = () => {
       <LazyMotion features={domAnimation}>
         <m.div
           animate={{
-            width: isMobile
-              ? mobileOpen ? 260 : 0
-              : isOpen ? 260 : 72,
+            width: isMobile ? (mobileOpen ? 260 : 0) : isOpen ? 260 : 72,
           }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: "easeInOut" }}
+          transition={{
+            duration: shouldReduceMotion ? 0 : 0.25,
+            ease: "easeInOut",
+          }}
           className="fixed md:relative bg-(--surface-container-lowest) h-full flex flex-col z-40 border-r border-(--outline-variant)/20 overflow-hidden"
         >
-
           {/* Header */}
           <div className="flex items-center justify-between px-4 h-16 border-b border-(--outline-variant)/20 shrink-0">
             <div className="flex items-center gap-3 min-w-0">
@@ -99,9 +167,18 @@ export const Sidebar = () => {
                 <Building2 className="w-4 h-4 text-(--on-primary)" />
               </div>
               {expanded && (
-                <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="min-w-0">
-                  <p className="text-sm font-semibold text-(--on-surface) truncate leading-tight">Inmobiliaria</p>
-                  <p className="text-xs text-(--on-surface-variant) truncate leading-tight">@{user?.username}</p>
+                <m.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="min-w-0"
+                >
+                  <p className="text-sm font-semibold text-(--on-surface) truncate leading-tight">
+                    Inmobiliaria
+                  </p>
+                  <p className="text-xs text-(--on-surface-variant) truncate leading-tight">
+                    @{user?.username}
+                  </p>
                 </m.div>
               )}
             </div>
@@ -111,7 +188,10 @@ export const Sidebar = () => {
                 onClick={() => setIsOpen(!isOpen)}
                 className="text-(--on-surface-variant) hover:text-(--on-surface) transition ml-2 shrink-0"
               >
-                <m.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <m.div
+                  animate={{ rotate: isOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <ChevronRight size={16} />
                 </m.div>
               </button>
@@ -121,10 +201,10 @@ export const Sidebar = () => {
           {/* Nav */}
           <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
             {menuItems.map((item) => {
-              const Icon    = item.icon
-              const hasSub  = !!item.subItems
-              const active  = isParentActive(item)
-              const subOpen = openSubmenus[item.key]
+              const Icon = item.icon;
+              const hasSub = !!item.subItems;
+              const active = isParentActive(item);
+              const subOpen = openSubmenus[item.key];
 
               return (
                 <div key={item.title}>
@@ -141,8 +221,13 @@ export const Sidebar = () => {
                       <Icon className="w-4 h-4 shrink-0" />
                       {expanded && (
                         <>
-                          <span className="ml-3 font-medium flex-1 text-left">{item.title}</span>
-                          <m.div animate={{ rotate: subOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                          <span className="ml-3 font-medium flex-1 text-left">
+                            {item.title}
+                          </span>
+                          <m.div
+                            animate={{ rotate: subOpen ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
                             <ChevronDown className="w-3.5 h-3.5 opacity-50" />
                           </m.div>
                         </>
@@ -159,7 +244,9 @@ export const Sidebar = () => {
                       }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
-                      {expanded && <span className="ml-3 font-medium">{item.title}</span>}
+                      {expanded && (
+                        <span className="ml-3 font-medium">{item.title}</span>
+                      )}
                     </Link>
                   )}
 
@@ -175,8 +262,8 @@ export const Sidebar = () => {
                       >
                         <div className="ml-3 mt-0.5 mb-0.5 pl-4 border-l border-(--outline-variant)/30 space-y-0.5">
                           {item.subItems.map((sub) => {
-                            const SubIcon      = sub.icon
-                            const puedeAcceder = tieneAcceso(sub.roles || [])
+                            const SubIcon = sub.icon;
+                            const puedeAcceder = tieneAcceso(sub.roles || []);
 
                             return puedeAcceder ? (
                               <Link
@@ -201,14 +288,14 @@ export const Sidebar = () => {
                                 <SubIcon className="w-3.5 h-3.5 shrink-0" />
                                 <span className="ml-2.5">{sub.title}</span>
                               </div>
-                            )
+                            );
                           })}
                         </div>
                       </m.div>
                     )}
                   </AnimatePresence>
                 </div>
-              )
+              );
             })}
           </nav>
 
@@ -222,19 +309,22 @@ export const Sidebar = () => {
                   </span>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-medium text-(--on-surface) truncate">{user.username}</p>
+                  <p className="text-xs font-medium text-(--on-surface) truncate">
+                    {user.username}
+                  </p>
                   <p className="text-xs text-(--on-surface-variant) truncate">
-                    {user.es_admin ? "Administrador" : user.roles?.[0] || "Usuario"}
+                    {user.es_admin
+                      ? "Administrador"
+                      : user.roles?.[0] || "Usuario"}
                   </p>
                 </div>
               </div>
             )}
 
-            <LogoutButton/>
+            <LogoutButton />
           </div>
-
         </m.div>
       </LazyMotion>
     </>
-  )
-}
+  );
+};
