@@ -187,3 +187,9 @@ cloudinary.config(
     api_secret = config('CLOUDINARY_API_SECRET'),
     secure= True
 )
+
+# ── Cloudflare R2 (Backups) ──────────────────────────────────
+R2_ACCESS_KEY_ID     = config('R2_ACCESS_KEY_ID')
+R2_SECRET_ACCESS_KEY = config('R2_SECRET_ACCESS_KEY')
+R2_BUCKET_NAME       = config('R2_BUCKET_NAME')
+R2_ENDPOINT_URL     = config('R2_ENDPOINT_URL')
