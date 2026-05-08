@@ -7,7 +7,12 @@ class ClienteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cliente
-        fields = '__all__'
+        fields = [
+            'id_cliente', 'codigo_cliente', 'tipo_documento', 'nro_documento',
+            'nombres', 'apellidos', 'fecha_nacimiento', 'email', 'telefono',
+            'whatsapp', 'direccion', 'ocupacion', 'origen', 'observaciones',
+            'estado_cliente', 'creado_por', 'creado_por_nombre', 'creado_en', 'actualizado_en'
+        ]
         read_only_fields = ('creado_en', 'actualizado_en', 'creado_por')
 
     def create(self, validated_data):
