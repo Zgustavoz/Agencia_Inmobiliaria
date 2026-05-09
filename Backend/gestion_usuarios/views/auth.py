@@ -129,7 +129,7 @@ class RegistroView(generics.CreateAPIView):
 
 class RegistroAgenteView(APIView):
     permission_classes = [AllowAny]
-
+    
     def post(self, request):
         serializer = RegistroAgenteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
