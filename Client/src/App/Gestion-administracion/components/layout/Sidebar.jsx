@@ -70,11 +70,17 @@ export const Sidebar = () => {
           icon: Shield,
           roles: ["Administrador"],
         },
-        {
-          title: "Permisos",
-          path: "/dashboard/permisos",
-          icon: Key,
-          roles: ["Administrador"],
+        // {
+        //   title: "Permisos",
+        //   path: "/dashboard/permisos",
+        //   icon: Key,
+        //   roles: ["Administrador"],
+        // },
+        { 
+          title: "Clientes", 
+          path: "/dashboard/clientes", 
+          icon: Users, 
+          roles: ["Administrador", "Agente"] 
         },
         {
           title: "Bitacora",
