@@ -14,6 +14,8 @@ import {ClientHomePage } from "./App/Gestion-administracion/home-page/page/Clien
 import { BitacoraPage } from "./App/Bitacora/page/BitacoraPage"
 import { PropiedadPage}        from "./App/Gestion-administracion-propiedades/gestion-propiedad/page/PropiedadPage"
 import { PropertyMapExample } from "./shared/map/components/PropertyMapExample"
+import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/VisitasPage"
+import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage"
 
 function InmobiliarApp() {
   return (
@@ -44,7 +46,9 @@ function InmobiliarApp() {
           <Route path="roles" element={<ProtectedRoute requiredRoles={["Administrador","gestionar roles"]}><RolPage /></ProtectedRoute>} />
           <Route path="bitacora" element={<ProtectedRoute requiredRoles={["Administrador"]}><BitacoraPage /></ProtectedRoute>} />
           <Route path="inmuebles" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><PropiedadPage /></ProtectedRoute>} />
-           <Route path="ver-propiedades" element={<ProtectedRoute requiredRoles={["Administrador"]}><PropertyMapExample /></ProtectedRoute>} />
+          <Route path="ver-propiedades" element={<ProtectedRoute requiredRoles={["Administrador"]}><PropertyMapExample /></ProtectedRoute>} />
+          <Route path="visitas" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><VisitasPage /></ProtectedRoute>} />
+          <Route path="horarios-visita" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><HorariosConfigPage /></ProtectedRoute>} />
           {/* <Route path="permisos" element={<ProtectedRoute requiredRoles={["Administrador"]}><PermisoPage /></ProtectedRoute>} /> */}
       </Route>
 
