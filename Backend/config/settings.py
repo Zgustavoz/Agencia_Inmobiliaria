@@ -46,6 +46,7 @@ LOCAL_APPS = [
     'gestion_usuarios',
     'modulo_administracion_configuracion',
     'modulo_inmuebles',
+    'modulo_clientes_seguimiento',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
