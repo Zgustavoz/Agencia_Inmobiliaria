@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router"
 import {
   LayoutDashboard, Users, Shield, LogOut,
   ChevronRight, Menu, X, Key, ChevronDown, Building2,
-  HistoryIcon
+  HistoryIcon, Calendar, Clock
 } from "lucide-react"
 import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "motion/react"
 import { useState, useEffect } from "react"
@@ -55,6 +55,15 @@ export const Sidebar = () => {
       subItems: [
         { title: "Inmuebles", path: "/dashboard/inmuebles", icon: Building2, roles: ["Administrador", "Agente"] },
         { title: "Ver propiedas", path: "/dashboard/ver-propiedades", icon: Building2, roles: ["Administrador"] },
+      ],
+    },
+    {
+      title: "Seguimiento",
+      icon:  Users,
+      key:   "seguimiento",
+      subItems: [
+        { title: "Visitas", path: "/dashboard/visitas", icon: Calendar, roles: ["Administrador", "Agente"] },
+        { title: "Horarios", path: "/dashboard/horarios-visita", icon: Clock, roles: ["Administrador", "Agente"] },
       ],
     },
   ]
