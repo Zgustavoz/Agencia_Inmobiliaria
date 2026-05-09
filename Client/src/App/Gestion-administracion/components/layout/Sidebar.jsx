@@ -77,12 +77,6 @@ export const Sidebar = () => {
         //   icon: Key,
         //   roles: ["Administrador"],
         // },
-        { 
-          title: "Clientes", 
-          path: "/dashboard/clientes", 
-          icon: Users, 
-          roles: ["Administrador", "Agente"] 
-        },
         {
           title: "Bitacora",
           path: "/dashboard/bitacora",
@@ -123,7 +117,7 @@ export const Sidebar = () => {
         },
         {
           title: "Restaurar Datos",
-          path: "/dashboard/restaurar", // Asegúrate de crear esta ruta en InmobiliarApp
+          path: "/dashboard/restaurar",
           icon: RefreshCcw,
           roles: ["Administrador"],
         },
@@ -136,6 +130,7 @@ export const Sidebar = () => {
       subItems: [
         { title: "Visitas", path: "/dashboard/visitas", icon: Calendar, roles: ["Administrador", "Agente"] },
         { title: "Horarios", path: "/dashboard/horarios-visita", icon: Clock, roles: ["Administrador", "Agente"] },
+        { title: "Clientes", path: "/dashboard/clientes", icon: Users, roles: ["Administrador", "Agente"] },
       ],
     },
   ]
