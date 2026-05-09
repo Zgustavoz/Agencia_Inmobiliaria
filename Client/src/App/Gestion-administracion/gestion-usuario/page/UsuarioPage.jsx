@@ -1,32 +1,36 @@
 import { useState } from "react"
-import { Users, Search, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Users, Search, X, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react"
 import { useUsuario } from "../hooks/useUsuario"
 import { useRol } from "../../gestion-rol/hooks/useRol"
 import { useAuth } from "../../../auth/context/AuthContext"
-import { UsuarioTable }       from "../components/UsuarioTable"
+import { UsuarioTable } from "../components/UsuarioTable"
 import { CreateUsuarioModal } from "../components/CreateUsuarioModal"
-import { EditUsuarioModal }   from "../components/EditUsuarioModal"
+import { EditUsuarioModal } from "../components/EditUsuarioModal"
 import { CreateButton, ExportButton } from "../../../../shared/ui/components/buttons"
 
 export const UsuarioPage = () => {
   const { tienePermiso } = useAuth()
 
-  const [search,      setSearch]      = useState("")
-  const [rolFiltro,   setRolFiltro]   = useState("")
-  const [estadoFiltro,setEstadoFiltro]= useState("")
-  const [page,        setPage]        = useState(1)
-  const [modalCrear,  setModalCrear]  = useState(false)
+  const [search, setSearch] = useState("")
+  const [rolFiltro, setRolFiltro] = useState("")
+  const [estadoFiltro, setEstadoFiltro] = useState("")
+  const [fechaDesde, setFechaDesde] = useState("")
+  const [fechaHasta, setFechaHasta] = useState("")
+  const [page, setPage] = useState(1)
+  const [modalCrear, setModalCrear] = useState(false)
   const [usuarioEdit, setUsuarioEdit] = useState(null)
 
   const filtros = {
-    search:    search      || undefined,
-    "roles[]": rolFiltro   || undefined,
-    estado:    estadoFiltro || undefined,
+    search: search || undefined,
+    "roles[]": rolFiltro || undefined,
+    estado: estadoFiltro || undefined,
+    fecha_desde: fechaDesde || undefined,
+    fecha_hasta: fechaHasta || undefined,
     page,
   }
 
   const { usuarios, toggleEstado, eliminar } = useUsuario(filtros)
-  const { roles }                            = useRol()
+  const { roles } = useRol()
 
   const puedeCrear = tienePermiso("crear")
 
@@ -41,55 +45,101 @@ export const UsuarioPage = () => {
   }
 
   const limpiarFiltros = () => {
-    setSearch(""); setRolFiltro(""); setEstadoFiltro(""); setPage(1)
+    setSearch("")
+    setRolFiltro("")
+    setEstadoFiltro("")
+    setFechaDesde("")
+    setFechaHasta("")
+    setPage(1)
   }
 
-  const hayFiltros  = search || rolFiltro || estadoFiltro
-  const data        = usuarios.data
-  const total       = data?.count    || 0
-  const totalPages  = Math.ceil(total / 10)
-  const lista       = data?.results  || []
+  const hayFiltros = search || rolFiltro || estadoFiltro || fechaDesde || fechaHasta
+  const data = usuarios.data
+  const total = data?.count || 0
+  const totalPages = Math.ceil(total / 10)
+  const lista = data?.results || []
+
+  // Preparar datos para exportación
+  const exportSecciones = [
+    {
+      titulo: 'Usuarios del Sistema',
+      columnas: ['Usuario', 'Email', 'Teléfono', 'Roles', 'Estado', 'Fecha Registro'],
+      datos: lista,
+      mapearDatos: (usuario) => [
+        `${usuario.nombres} ${usuario.apellidos} (@${usuario.username})`,
+        usuario.email,
+        usuario.telefono || '-',
+        usuario.roles_info?.map(r => r.nombre).join(', ') || 'Sin rol',
+        usuario.estado ? 'Activo' : 'Inactivo',
+        new Date(usuario.creado_en).toLocaleDateString('es-BO')
+      ]
+    }
+  ]
+
+  const exportMetadata = {
+    'Fecha generación': new Date().toLocaleString(),
+    'Total usuarios': total,
+    'Usuarios activos': lista.filter(u => u.estado).length,
+    'Usuarios inactivos': lista.filter(u => !u.estado).length,
+    'Filtros aplicados': hayFiltros ? 'Sí' : 'No',
+  }
+
+  const handleExport = (tipo) => {
+    console.log(`Exportando reporte de usuarios como ${tipo}...`)
+  }
 
   return (
     <div className="p-6">
 
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-(--on-surface) flex items-center gap-2">
-            <Users className="w-6 h-6" />
-            Usuarios
-          </h1>
-          <p className="text-sm text-(--on-surface-variant) mt-1">
-            {total} usuarios registrados
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <ExportButton />
-          <CreateButton onClick={() => setModalCrear(true)} disabled={!puedeCrear}>
-            Nuevo Usuario
-          </CreateButton>
+      {/* Header mejorado */}
+      <div className="mb-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+              <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                <Users className="w-6 h-6 text-blue-600" />
+                Usuarios
+              </h1>
+            </div>
+            <p className="text-sm text-gray-500 ml-3">
+              {total} usuarios registrados en el sistema
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <ExportButton
+              empresa="Inmobiliaria"
+              titulo="Reporte de Usuarios"
+              metadata={exportMetadata}
+              secciones={exportSecciones}
+              onExport={handleExport}
+            />
+            <CreateButton onClick={() => setModalCrear(true)} disabled={!puedeCrear}>
+              Nuevo Usuario
+            </CreateButton>
+          </div>
         </div>
       </div>
 
-      {/* Filtros */}
-      <div className="bg-(--surface-container-lowest) rounded-xl border border-(--outline-variant)/30 p-4 mb-4 shadow-sm">
+      {/* Filtros mejorados */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
 
           <div className="relative lg:col-span-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-(--on-surface-variant)" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
-              type="text" value={search}
+              type="text"
+              value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1) }}
               placeholder="Buscar por nombre, usuario o email..."
-              className="w-full pl-9 pr-4 py-2 border border-(--outline-variant)/40 rounded-lg text-sm bg-(--surface) text-(--on-surface) focus:outline-none focus:ring-2 focus:ring-(--primary)"
+              className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <select
             value={rolFiltro}
             onChange={(e) => { setRolFiltro(e.target.value); setPage(1) }}
-            className="w-full px-3 py-2 border border-(--outline-variant)/40 rounded-lg text-sm bg-(--surface) text-(--on-surface) focus:outline-none focus:ring-2 focus:ring-(--primary)"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todos los roles</option>
             {(roles.data?.results || roles.data || []).map(rol => (
@@ -100,28 +150,86 @@ export const UsuarioPage = () => {
           <select
             value={estadoFiltro}
             onChange={(e) => { setEstadoFiltro(e.target.value); setPage(1) }}
-            className="w-full px-3 py-2 border border-(--outline-variant)/40 rounded-lg text-sm bg-(--surface) text-(--on-surface) focus:outline-none focus:ring-2 focus:ring-(--primary)"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todos los estados</option>
             <option value="true">Activos</option>
             <option value="false">Inactivos</option>
           </select>
 
+          {/* Filtro de fecha desde */}
+          <div className="relative">
+            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="date"
+              value={fechaDesde}
+              onChange={(e) => { setFechaDesde(e.target.value); setPage(1) }}
+              className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Fecha desde"
+            />
+          </div>
+
+          {/* Filtro de fecha hasta */}
+          <div className="relative">
+            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="date"
+              value={fechaHasta}
+              onChange={(e) => { setFechaHasta(e.target.value); setPage(1) }}
+              className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Fecha hasta"
+            />
+          </div>
+
           {hayFiltros && (
             <button
               onClick={limpiarFiltros}
-              className="flex items-center gap-1 px-3 py-2 text-sm text-(--on-surface-variant) hover:text-(--on-surface) border border-(--outline-variant)/40 rounded-lg hover:bg-(--surface-container) transition"
+              className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
             >
               <X size={14} />
               Limpiar filtros
             </button>
           )}
         </div>
+
+        {/* Indicador de filtros activos */}
+        {hayFiltros && (
+          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-200">
+            {search && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                Buscar: {search}
+              </span>
+            )}
+            {rolFiltro && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                Rol ID: {rolFiltro}
+              </span>
+            )}
+            {estadoFiltro && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                Estado: {estadoFiltro === 'true' ? 'Activos' : 'Inactivos'}
+              </span>
+            )}
+            {fechaDesde && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                Desde: {new Date(fechaDesde).toLocaleDateString("es-BO")}
+              </span>
+            )}
+            {fechaHasta && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                Hasta: {new Date(fechaHasta).toLocaleDateString("es-BO")}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tabla */}
       {usuarios.isLoading ? (
-        <div className="text-center py-12 text-(--on-surface-variant)">Cargando...</div>
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mb-3"></div>
+          <p className="text-gray-500 text-sm">Cargando usuarios...</p>
+        </div>
       ) : (
         <>
           <UsuarioTable
@@ -131,17 +239,17 @@ export const UsuarioPage = () => {
             onEliminar={handleEliminar}
           />
 
-          {/* Paginación */}
+          {/* Paginación mejorada */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-(--on-surface-variant)">
-                Página {page} de {totalPages} — {total} usuarios
+              <p className="text-sm text-gray-500">
+                Mostrando página {page} de {totalPages} — Total: {total} usuarios
               </p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="p-2 border border-(--outline-variant)/40 rounded-lg hover:bg-(--surface-container) transition disabled:opacity-50"
+                  className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -153,15 +261,15 @@ export const UsuarioPage = () => {
                     return acc
                   }, [])
                   .map((p, i) => p === "..." ? (
-                    <span key={`dots-${i}`} className="px-2 text-(--on-surface-variant)">...</span>
+                    <span key={`dots-${i}`} className="px-2 text-gray-400">...</span>
                   ) : (
                     <button
                       key={p}
                       onClick={() => setPage(p)}
                       className={`w-8 h-8 rounded-lg text-sm font-medium transition ${
                         page === p
-                          ? "bg-(--primary) text-(--on-primary)"
-                          : "border border-(--outline-variant)/40 hover:bg-(--surface-container) text-(--on-surface-variant)"
+                          ? "bg-blue-600 text-white"
+                          : "border border-gray-200 hover:bg-gray-50 text-gray-600"
                       }`}
                     >
                       {p}
@@ -170,7 +278,7 @@ export const UsuarioPage = () => {
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="p-2 border border-(--outline-variant)/40 rounded-lg hover:bg-(--surface-container) transition disabled:opacity-50"
+                  className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronRight size={16} />
                 </button>
@@ -181,7 +289,7 @@ export const UsuarioPage = () => {
       )}
 
       {/* Modales */}
-      {modalCrear  && <CreateUsuarioModal onClose={() => setModalCrear(false)} />}
+      {modalCrear && <CreateUsuarioModal onClose={() => setModalCrear(false)} />}
       {usuarioEdit && <EditUsuarioModal usuario={usuarioEdit} onClose={() => setUsuarioEdit(null)} />}
     </div>
   )

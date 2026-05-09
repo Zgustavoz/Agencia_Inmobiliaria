@@ -6,12 +6,12 @@ export const EstadoButton = ({ onClick, disabled, activo }) => (
     onClick={disabled ? undefined : onClick}
     disabled={disabled}
     title={activo ? "Desactivar" : "Activar"}
-    className={`p-2 rounded-lg transition-colors ${
+    className={`p-2 rounded-lg transition-all duration-200 ${
       disabled
-        ? "text-(--on-surface-variant) opacity-30 cursor-not-allowed"
+        ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
         : activo
-          ? "text-(--tertiary) hover:bg-(--tertiary-container) hover:text-(--on-tertiary-container) cursor-pointer"
-          : "text-(--on-surface-variant) hover:bg-(--surface-container) cursor-pointer"
+          ? "bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer hover:scale-105"
+          : "bg-gray-100 text-gray-600 hover:bg-gray-200 cursor-pointer hover:scale-105"
     }`}
   >
     {activo ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
