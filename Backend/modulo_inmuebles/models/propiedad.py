@@ -22,6 +22,7 @@ class Propiedad(models.Model):
     # Precios
     precio = models.DecimalField(max_digits=14, decimal_places=2)
     expensas = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    comision_pct = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     
     # Medidas
     superficie_total_m2 = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -36,12 +37,20 @@ class Propiedad(models.Model):
     dormitorios = models.IntegerField(default=0)
     banos = models.IntegerField(default=0, db_column='banos')
     garajes = models.IntegerField(default=0)
+    antiguedad_anios = models.IntegerField(null=True, blank=True)
+    pisos = models.IntegerField(null=True, blank=True)
     amoblado = models.BooleanField(default=False)
+    servicios_basicos = models.TextField(blank=True, null=True)
+    caracteristicas_adicionales = models.TextField(blank=True, null=True)
     
     # Flags de publicación
+    estado_propiedad = models.CharField(max_length=255, blank=True, null=True, default='Disponible')
     publicado_web = models.BooleanField(default=True)
     publicado_movil = models.BooleanField(default=True)
     destacada = models.BooleanField(default=False)
+    promocionada = models.BooleanField(default=False)
+    fecha_publicacion = models.DateTimeField(null=True, blank=True)
+    fecha_expiracion = models.DateTimeField(null=True, blank=True)
     
     # Auditoría
     id_agente_publicador = models.ForeignKey(
