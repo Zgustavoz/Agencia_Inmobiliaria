@@ -26,7 +26,7 @@ class Visita(models.Model):
 
     id_visita = models.BigAutoField(primary_key=True)
     propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE, db_column='id_propiedad', related_name='visitas')
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, db_column='id_cliente', related_name='visitas')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='visitas')
     agente = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.SET_NULL, 
