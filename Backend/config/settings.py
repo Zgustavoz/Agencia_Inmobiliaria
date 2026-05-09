@@ -7,6 +7,9 @@ import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+#Agrego esto para que se pueda subir documentos
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 SECRET_KEY = config('SECRET_KEY')
 DEBUG       = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['*']
@@ -23,7 +26,7 @@ CSRF_TRUSTED_ORIGINS = [
     FRONTEND_URL,
     'http://localhost:8000',
     'http://127.0.0.1:8000',
-    'http://localhost:*', # <--- Permite cualquier puerto de localhost para Flutter Web
+    'http://localhost:*',
 ]
 # ── Apps ──────────────────────────────────────────────────────
 DJANGO_APPS = [
@@ -37,6 +40,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'django_filters',
     'corsheaders',
     'cloudinary',
     'cloudinary_storage',
@@ -47,6 +51,7 @@ LOCAL_APPS = [
     'modulo_administracion_configuracion',
     'modulo_inmuebles',
     'modulo_clientes_seguimiento',
+    'modulo_contratos'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -123,6 +128,11 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
     ),
 }
 
