@@ -16,6 +16,8 @@ import { PropiedadPage } from "./App/Gestion-administracion-propiedades/gestion-
 import { PropertyMapExample } from "./shared/map/components/PropertyMapExample"
 import { BackupsPage } from "./App/Gestion-administracion/gestion-backups/pages/BackupsPage"
 import { ClienteSeguimientoPage } from "./App/Gestion-administracion/seguimiento-cliente/page/ClienteSeguimientoPage"
+import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/VisitasPage"
+import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage"
 
 function InmobiliarApp() {
   return (
@@ -103,7 +105,7 @@ function InmobiliarApp() {
               <PropiedadPage />
             </ProtectedRoute>
           }
-        />
+       />
         <Route
           path="ver-propiedades"
           element={
@@ -127,6 +129,8 @@ function InmobiliarApp() {
           } 
         />
 
+          <Route path="visitas" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><VisitasPage /></ProtectedRoute>} />
+          <Route path="horarios-visita" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><HorariosConfigPage /></ProtectedRoute>} />
         {/* <Route path="permisos" element={<ProtectedRoute requiredRoles={["Administrador"]}><PermisoPage /></ProtectedRoute>} /> */}
       </Route>
 
