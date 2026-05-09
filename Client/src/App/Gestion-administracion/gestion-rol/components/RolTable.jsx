@@ -12,11 +12,19 @@ export const RolTable = ({ roles, onToggleEstado, onEditar, onEliminar }) => {
     <div className="bg-(--surface-container-lowest) rounded-xl border border-(--outline-variant)/30 overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-(--outline-variant)/20">
-          <thead className="bg-(--surface-container-low)">
+          <thead className="bg-blue-50">
             <tr>
-              {["Rol", "Descripción", "Permisos", "Usuarios", "Estado", "Acciones"].map(h => (
-                <th key={h} className="px-6 py-3 text-left text-xs font-medium text-(--on-surface-variant) uppercase tracking-wider">
-                  {h}
+              {["Rol", "Descripción", "Permisos", "Usuarios", "Estado", "Acciones"].map((h, idx) => (
+                <th 
+                  key={h} 
+                  className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${
+                    idx === 5 ? "text-right" : "text-gray-700"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+                    <span>{h}</span>
+                  </div>
                 </th>
               ))}
             </tr>

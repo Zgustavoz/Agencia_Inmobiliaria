@@ -46,7 +46,7 @@ class ClienteRecordatorioSerializer(serializers.ModelSerializer):
             'fecha_recordatorio', 'atendido', 'atendido_en',
             'usuario', 'creado_en',
         ]
-        read_only_fields = ['id', 'creado_en', 'atendido_en']
+        read_only_fields = ['id', 'creado_en', 'atendido_en', 'usuario']
 
 
 class ClienteAgenteSerializer(serializers.ModelSerializer):
