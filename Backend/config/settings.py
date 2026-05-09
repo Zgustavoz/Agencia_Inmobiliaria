@@ -7,6 +7,9 @@ import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+#Agrego esto para que se pueda subir documentos
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 SECRET_KEY = config('SECRET_KEY')
 DEBUG       = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['*']
@@ -37,6 +40,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'django_filters',
     'corsheaders',
     'cloudinary',
     'cloudinary_storage',
@@ -46,6 +50,7 @@ LOCAL_APPS = [
     'gestion_usuarios',
     'modulo_administracion_configuracion',
     'modulo_inmuebles',
+    'modulo_contratos',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -122,6 +127,11 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
     ),
 }
 
