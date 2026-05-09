@@ -22,17 +22,27 @@ export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
     tipo_inmueble: "Luxury Villa",
     id_modalidad: 1,
     modalidad_operacion: "Para Rentar",
+    estado_propiedad: "Disponible",
     zona: "", 
     moneda: "",
     precio: "",
     expensas: 0,
+    comision_pct: 0,
     superficie_total_m2: "",
     superficie_construida_m2: "",
     ambientes: 0,
     dormitorios: 0,
     banos: 0,
     garajes: 0,
+    antiguedad_anios: 0,
+    pisos: 0,
     amoblado: false,
+    publicado_web: true,
+    publicado_movil: true,
+    destacada: false,
+    promocionada: false,
+    servicios_basicos: "",
+    caracteristicas_adicionales: "",
     latitud: "",
     longitud: "",
   });
@@ -61,17 +71,27 @@ export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
         tipo_inmueble: propiedadAEditar.tipo_inmueble || "Luxury Villa",
         id_modalidad: propiedadAEditar.id_modalidad || 1,
         modalidad_operacion: propiedadAEditar.modalidad_operacion || "Para Rentar",
+        estado_propiedad: propiedadAEditar.estado_propiedad || "Disponible",
         zona: propiedadAEditar.zona?.id_zona || propiedadAEditar.zona || "",
         moneda: propiedadAEditar.moneda?.id_moneda || propiedadAEditar.moneda || "",
         precio: propiedadAEditar.precio || "",
         expensas: propiedadAEditar.expensas || 0,
+        comision_pct: propiedadAEditar.comision_pct || 0,
         superficie_total_m2: propiedadAEditar.superficie_total_m2 || "",
         superficie_construida_m2: propiedadAEditar.superficie_construida_m2 || "",
         ambientes: propiedadAEditar.ambientes || 0,
         dormitorios: propiedadAEditar.dormitorios || 0,
         banos: propiedadAEditar.banos || 0,
         garajes: propiedadAEditar.garajes || 0,
+        antiguedad_anios: propiedadAEditar.antiguedad_anios || 0,
+        pisos: propiedadAEditar.pisos || 0,
         amoblado: propiedadAEditar.amoblado || false,
+        publicado_web: propiedadAEditar.publicado_web ?? true,
+        publicado_movil: propiedadAEditar.publicado_movil ?? true,
+        destacada: propiedadAEditar.destacada || false,
+        promocionada: propiedadAEditar.promocionada || false,
+        servicios_basicos: propiedadAEditar.servicios_basicos || "",
+        caracteristicas_adicionales: propiedadAEditar.caracteristicas_adicionales || "",
         latitud: propiedadAEditar.latitud || "",
         longitud: propiedadAEditar.longitud || "",
       });
@@ -127,20 +147,33 @@ export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
   data.append("descripcion", formData.descripcion);
   data.append("precio", formData.precio || 0);
   data.append("expensas", formData.expensas || 0);
+  data.append("comision_pct", formData.comision_pct || 0);
   data.append("tipo_inmueble", formData.tipo_inmueble);
   data.append("zona", formData.zona); 
   data.append("moneda", formData.moneda);
   data.append("id_modalidad", formData.id_modalidad || 1);
   data.append("modalidad_operacion", formData.modalidad_operacion);
+  data.append("estado_propiedad", formData.estado_propiedad);
   data.append("ambientes", formData.ambientes || 0);
   data.append("dormitorios", formData.dormitorios || 0);
   data.append("banos", formData.banos || 0);
   data.append("garajes", formData.garajes || 0);
+  data.append("antiguedad_anios", formData.antiguedad_anios || 0);
+  data.append("pisos", formData.pisos || 0);
   data.append("superficie_total_m2", formData.superficie_total_m2 || 0);
   data.append("superficie_construida_m2", formData.superficie_construida_m2 || 0);
   data.append("amoblado", formData.amoblado);
+  data.append("publicado_web", formData.publicado_web);
+  data.append("publicado_movil", formData.publicado_movil);
+  data.append("destacada", formData.destacada);
+  data.append("promocionada", formData.promocionada);
+  data.append("servicios_basicos", formData.servicios_basicos);
+  data.append("caracteristicas_adicionales", formData.caracteristicas_adicionales);
   data.append("latitud", formData.latitud);
   data.append("longitud", formData.longitud);
+
+  if (formData.fecha_publicacion) data.append("fecha_publicacion", formData.fecha_publicacion);
+  if (formData.fecha_expiracion) data.append("fecha_expiracion", formData.fecha_expiracion);
 
   selectedFiles.forEach((file) => {
     data.append("imagenes_input", file);
@@ -344,6 +377,16 @@ export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
               </div>
 
               <div>
+                <label className="text-xs font-bold text-neutral-400 mb-1 block">Estado de Publicación</label>
+                <select name="estado_propiedad" value={formData.estado_propiedad} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm outline-none">
+                  <option value="Disponible">Disponible</option>
+                  <option value="Reservado">Reservado</option>
+                  <option value="Vendido">Vendido</option>
+                  <option value="Inactivo">Inactivo</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="text-xs font-bold text-neutral-400 mb-1 block">Descripcion</label>
                 <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} className="w-full p-4 bg-neutral-50 border-none rounded-xl text-sm h-32 outline-none" placeholder="A masterpiece of modern architecture..." />
               </div>
@@ -352,7 +395,7 @@ export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
 
           {/* Sección 2: Key Features (Ambientes, Baños, etc) */}
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-100">
-            <h3 className="text-[#0052CC] text-[10px] font-black uppercase tracking-widest mb-6">Caracterizticas Clave</h3>
+            <h3 className="text-[#0052CC] text-[10px] font-black uppercase tracking-widest mb-6">Caracteristicas Clave</h3>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-neutral-50 p-4 rounded-xl text-center">
                 <Bed className="mx-auto mb-2 text-blue-500" size={20} />
@@ -375,7 +418,7 @@ export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
                 <input name="superficie_construida_m2" type="number" value={formData.superficie_construida_m2} onChange={handleChange} className="bg-transparent text-center font-bold text-neutral-800 outline-none w-full" placeholder="7000" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <label className="text-[10px] font-bold text-neutral-400 uppercase block mb-2">Garajes</label>
                 <input name="garajes" type="number" value={formData.garajes} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm font-bold outline-none" />
@@ -384,10 +427,44 @@ export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
                 <label className="text-[10px] font-bold text-neutral-400 uppercase block mb-2">Ambientes</label>
                 <input name="ambientes" type="number" value={formData.ambientes} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm font-bold outline-none" />
               </div>
+              <div>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase block mb-2">Antigüedad (Años)</label>
+                <input name="antiguedad_anios" type="number" value={formData.antiguedad_anios} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm font-bold outline-none" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase block mb-2">Pisos / Planta</label>
+                <input name="pisos" type="number" value={formData.pisos} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm font-bold outline-none" />
+              </div>
             </div>
-            <div className="mt-4 flex items-center">
-              <input name="amoblado" type="checkbox" checked={formData.amoblado} onChange={handleChange} className="w-4 h-4 rounded cursor-pointer" />
-              <label className="text-[10px] font-bold text-neutral-400 uppercase ml-2">Amoblado</label>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase block mb-2">Servicios Básicos</label>
+                <textarea name="servicios_basicos" value={formData.servicios_basicos} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-xs outline-none h-20" placeholder="Luz, Agua, Gas..." />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase block mb-2">Características Adicionales</label>
+                <textarea name="caracteristicas_adicionales" value={formData.caracteristicas_adicionales} onChange={handleChange} className="w-full p-3 bg-neutral-50 border-none rounded-xl text-xs outline-none h-20" placeholder="Piscina, Quincho, Seguridad..." />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="flex items-center">
+                <input name="amoblado" type="checkbox" checked={formData.amoblado} onChange={handleChange} className="w-4 h-4 rounded cursor-pointer" />
+                <label className="text-[10px] font-bold text-neutral-400 uppercase ml-2">Amoblado</label>
+              </div>
+              <div className="flex items-center">
+                <input name="publicado_movil" type="checkbox" checked={formData.publicado_movil} onChange={handleChange} className="w-4 h-4 rounded cursor-pointer" />
+                <label className="text-[10px] font-bold text-neutral-400 uppercase ml-2">App Móvil</label>
+              </div>
+              <div className="flex items-center">
+                <input name="destacada" type="checkbox" checked={formData.destacada} onChange={handleChange} className="w-4 h-4 rounded cursor-pointer" />
+                <label className="text-[10px] font-bold text-neutral-400 uppercase ml-2">Destacada</label>
+              </div>
+              <div className="flex items-center">
+                <input name="promocionada" type="checkbox" checked={formData.promocionada} onChange={handleChange} className="w-4 h-4 rounded cursor-pointer" />
+                <label className="text-[10px] font-bold text-neutral-400 uppercase ml-2">Promocionada</label>
+              </div>
             </div>
           </div>
 
@@ -544,6 +621,20 @@ export const PropiedadForm = ({ onCancel, onSuccess, propiedadAEditar }) => {
                 name="expensas" 
                 value={formData.expensas}
                 type="number" 
+                onChange={handleChange} 
+                className="w-full p-3 bg-neutral-50 border-none rounded-xl text-xs font-bold outline-none" 
+                placeholder="0.00" 
+              />
+            </div>
+
+            {/* COMISIÓN */}
+            <div>
+              <label className="text-[10px] font-bold text-neutral-400 uppercase">Comisión (%)</label>
+              <input 
+                name="comision_pct" 
+                value={formData.comision_pct}
+                type="number" 
+                step="0.01"
                 onChange={handleChange} 
                 className="w-full p-3 bg-neutral-50 border-none rounded-xl text-xs font-bold outline-none" 
                 placeholder="0.00" 
