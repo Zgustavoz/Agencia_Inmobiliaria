@@ -13,4 +13,5 @@ urlpatterns = [
     path('api/admin-config/', include('modulo_administracion_configuracion.urls')),
     path('api/inmuebles/', include('modulo_inmuebles.urls')),
     path('api/clientes/', include('modulo_clientes_seguimiento.urls')),
+    path('api/', include('modulo_contratos.urls'))
 ]

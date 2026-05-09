@@ -40,7 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     final url = Uri.parse(
-      'http://localhost:8000/gestion_usuarios/auth/registro/',
+      'https://agencia-inmobiliaria-7982.onrender.com/gestion_usuarios/auth/registro/',
     );
     // Nota: Usa 'http://10.0.2.2:8000' si estás en el emulador de Android.
     // Si estás en web o con el servidor local expuesto, 'localhost' está bien.

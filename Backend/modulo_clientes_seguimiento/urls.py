@@ -1,3 +1,4 @@
+# pylint: disable=C0114
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views.cliente import ClienteViewSet
