@@ -1,12 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
-import 'package:mobile/src/features/properties/presentation/pages/destacados_screen.dart'; // Asegúrate de crear este archivo
+import 'package:mobile/src/features/properties/presentation/pages/destacados_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:mobile/src/features/auth/logic/user_provider.dart';
 import 'package:mobile/src/features/auth/data/usuario_model.dart';
+import 'package:mobile/src/core/config/app_config.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,7 +17,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Controladores para capturar los datos
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final response = await http.post(
         Uri.parse(
-          'https://agencia-inmobiliaria-7982.onrender.com/gestion_usuarios/auth/login/',
+          '${AppConfig.apiUrl}/gestion_usuarios/auth/login/',
         ),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'username': username, 'password': password}),
@@ -35,15 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
-        // Ahora data['token'] NO será null porque lo agregamos en Django
         final String token = data['token'];
         final userData = data['user'];
-
-        // Creamos el usuario con su ID REAL (ya no es 0)
         final usuarioReal = Usuario.fromJson(userData);
 
-        // Guardamos en el Provider
         Provider.of<UserProvider>(
           context,
           listen: false,
@@ -69,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo degradado base igual al tuyo
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -151,7 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         const SizedBox(height: 32),
 
-                        // Botón de Iniciar Sesión con tu diseño original
                         GestureDetector(
                           onTap: _intentarLogin,
                           child: Container(
@@ -200,14 +193,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         _buildPartnerDivider(),
                         const SizedBox(height: 24),
 
-                        // Enlace a Registro
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text("¿No tienes una cuenta?"),
                             TextButton(
                               onPressed: () {
-                                // CAMBIO: Navegación directa a la clase RegisterScreen
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -237,8 +228,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  // --- Widgets Auxiliares ---
 
   Widget _buildLabel(String text) {
     return Padding(

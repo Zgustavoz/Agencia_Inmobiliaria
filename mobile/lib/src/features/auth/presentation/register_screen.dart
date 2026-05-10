@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert'; // Para convertir los datos a JSON
-import 'package:http/http.dart' as http; // Para hacer la petición al servidor
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:mobile/src/core/config/app_config.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,7 +11,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  String selectedRole = "Agent"; // Estado para el selector de rol
+  String selectedRole = "Agent";
   final TextEditingController _nombresCtrl = TextEditingController();
   final TextEditingController _apellidosCtrl = TextEditingController();
   final TextEditingController _emailCtrl = TextEditingController();
@@ -24,12 +25,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _fechaNacCtrl = TextEditingController();
 
   Future<void> registrarUsuario() async {
-    // 1. Verificación básica en el Frontend
     if (_passwordCtrl.text != _confirmPasswordCtrl.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Las contraseñas no coinciden')),
       );
-      return; // Detiene la ejecución aquí
+      return;
     }
 
     if (_passwordCtrl.text.isEmpty) {
@@ -40,10 +40,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     final url = Uri.parse(
-      'https://agencia-inmobiliaria-7982.onrender.com/gestion_usuarios/auth/registro/',
+      '${AppConfig.apiUrl}/gestion_usuarios/auth/registro/',
     );
-    // Nota: Usa 'http://10.0.2.2:8000' si estás en el emulador de Android.
-    // Si estás en web o con el servidor local expuesto, 'localhost' está bien.
 
     List<int> rolesIds = selectedRole == "Admin" ? [1] : [2];
 
@@ -55,8 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "username": _usernameCtrl.text,
           "email": _emailCtrl.text,
           "password": _passwordCtrl.text,
-          "password2":
-              _confirmPasswordCtrl.text, // <-- Ahora sí coincide el nombre
+          "password2": _confirmPasswordCtrl.text,
           "nombres": _nombresCtrl.text,
           "apellidos": _apellidosCtrl.text,
           "telefono": _telefonoCtrl.text,
@@ -70,7 +67,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (response.statusCode == 201) {
         print("¡Usuario creado con éxito!");
-        // Aquí podrías navegar al login o mostrar un mensaje de éxito
       } else {
         print("Error del servidor: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,15 +81,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _seleccionarFecha(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(2000), // Fecha inicial al abrir
-      firstDate: DateTime(1920), // Fecha mínima
-      lastDate: DateTime.now(), // No pueden nacer en el futuro
-      locale: const Locale("es", "ES"), // Para que salga en español
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1920),
+      lastDate: DateTime.now(),
+      locale: const Locale("es", "ES"),
     );
 
     if (picked != null) {
       setState(() {
-        // Formateamos la fecha a AAAA-MM-DD para que Django no llore
         _fechaNacCtrl.text =
             "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
@@ -122,7 +117,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// --- HEADER ---
             const Text(
               "Únete a la élite arquitectónica",
               style: TextStyle(
@@ -143,7 +137,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 24),
 
-            /// --- SELECTOR DE ROL ---
             _buildSectionTitle(
               "REGISTRO DE PROFESIONAL",
               "Especifica tu rol (Agente o Administrador)",
@@ -163,7 +156,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 32),
 
-            /// --- SECCIÓN: USUARIOS TABLE DETAILS ---
             _buildSectionTitle(
               "DATOS PERSONALES",
               "Información básica del usuario",
@@ -198,13 +190,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               "+591 ...",
               icon: Icons.phone_android,
               controller: _telefonoCtrl,
-              helper: "Teléfono inválido",
-              isError: false,
             ),
 
             const SizedBox(height: 32),
 
-            /// --- SECCIÓN: PERFIL Y CREDENCIALES ---
             _buildSectionTitle("PERFIL Y CREDENCIALES", "Acceso al sistema"),
             _buildInput(
               "Usuario",
@@ -217,19 +206,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               "••••••••",
               icon: Icons.lock_outline,
               isPassword: true,
-              controller: _passwordCtrl, // Este ya estaba bien
+              controller: _passwordCtrl,
             ),
             _buildInput(
               "Confirmar Contraseña",
               "••••••••",
               icon: Icons.lock_reset,
               isPassword: true,
-              controller: _confirmPasswordCtrl, // <--- AÑADE ESTA LÍNEA AQUÍ
+              controller: _confirmPasswordCtrl,
             ),
 
             const SizedBox(height: 32),
 
-            /// --- SECCIÓN: DETALLES PROFESIONALES ---
             _buildSectionTitle(
               "DETALLES DEL PERFIL PROFESIONAL",
               "Información de validación",
@@ -245,20 +233,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
               "Calle Ficticia #123",
               icon: Icons.location_on_outlined,
               controller: _direccionCtrl,
-              helper: "Selecciona una dirección válida",
             ),
             _buildInput(
               "Ocupación",
               "Arquitecto / Ingeniero",
               icon: Icons.work_outline,
               controller: _ocupacionCtrl,
-              helper: "Requerido",
             ),
             GestureDetector(
-              onTap: () =>
-                  _seleccionarFecha(context), // Abre el calendario al tocar
+              onTap: () => _seleccionarFecha(context),
               child: AbsorbPointer(
-                // Evita que salga el teclado físico
                 child: _buildInput(
                   "Fecha de Nacimiento",
                   "Selecciona tu fecha",
@@ -271,7 +255,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             const SizedBox(height: 40),
 
-            /// --- BOTÓN FINAL ---
             Container(
               width: double.infinity,
               height: 60,
@@ -311,7 +294,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Widget para Títulos de Sección
   Widget _buildSectionTitle(String title, String subtitle) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,7 +317,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Widget para Inputs personalizados
   Widget _buildInput(
     String label,
     String hint, {
@@ -343,14 +324,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool isPassword = false,
     String? helper,
     bool isError = false,
-    TextEditingController? controller, // <--- AÑADIMOS ESTA LÍNEA
+    TextEditingController? controller,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // TU DISEÑO SIGUE IGUAL AQUÍ
           Text(
             label,
             style: const TextStyle(
@@ -361,8 +341,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 8),
           TextField(
-            controller:
-                controller, // <--- AÑADIMOS ESTA LÍNEA (CONECTA EL DISEÑO CON EL BACKEND)
+            controller: controller,
             obscureText: isPassword,
             decoration: InputDecoration(
               prefixIcon: icon != null
@@ -395,7 +374,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Widget para el Selector de Rol (Toggle)
   Widget _buildToggleOption(String label) {
     bool isActive = selectedRole == label;
     return Expanded(
