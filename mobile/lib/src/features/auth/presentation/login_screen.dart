@@ -1,12 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
-import 'package:mobile/src/features/properties/presentation/pages/destacados_screen.dart'; // Asegúrate de crear este archivo
+import 'package:mobile/src/features/properties/presentation/pages/destacados_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:mobile/src/features/auth/logic/user_provider.dart';
 import 'package:mobile/src/features/auth/data/usuario_model.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mobile/src/core/config/app_config.dart';
+import 'package:mobile/src/features/notifications/notification_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,8 +19,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Controladores para capturar los datos
-  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _userController     = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _intentarLogin() async {
@@ -26,32 +28,29 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/gestion_usuarios/auth/login/'),
+        Uri.parse('${AppConfig.apiUsuarios}/auth/login/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'username': username, 'password': password}),
       );
 
+      if (!mounted) return;
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        // Ahora data['token'] NO será null porque lo agregamos en Django
+        final data       = jsonDecode(response.body);
         final String token = data['token'];
-        final userData = data['user'];
+        final usuarioReal  = Usuario.fromJson(data['user']);
 
-        // Creamos el usuario con su ID REAL (ya no es 0)
-        final usuarioReal = Usuario.fromJson(userData);
+        Provider.of<UserProvider>(context, listen: false).setUser(usuarioReal, token);
 
-        // Guardamos en el Provider
-        Provider.of<UserProvider>(
-          context,
-          listen: false,
-        ).setUser(usuarioReal, token);
+        if (!kIsWeb) NotificationService.registrarToken(token);
 
+        if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/destacados');
       } else {
         _mostrarError("Credenciales incorrectas");
       }
-    } catch (e) {
+    } catch (_) {
+      if (!mounted) return;
       _mostrarError("Error de conexión");
     }
   }
@@ -67,7 +66,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo degradado base igual al tuyo
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -87,9 +85,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.4)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -132,10 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {},
                               child: const Text(
                                 "¿olvidaste tu contraseña?",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
@@ -149,7 +144,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         const SizedBox(height: 32),
 
-                        // Botón de Iniciar Sesión con tu diseño original
                         GestureDetector(
                           onTap: _intentarLogin,
                           child: Container(
@@ -161,19 +155,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(
-                                    0xFF004AC6,
-                                  ).withOpacity(0.3),
+                                  color: const Color(0xFF004AC6).withValues(alpha: 0.3),
                                   blurRadius: 15,
                                   offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 18),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 18),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
+                                children: [
                                   Text(
                                     "Iniciar Sesión",
                                     style: TextStyle(
@@ -183,11 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                   SizedBox(width: 8),
-                                  Icon(
-                                    Icons.arrow_forward,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
+                                  Icon(Icons.arrow_forward, color: Colors.white, size: 20),
                                 ],
                               ),
                             ),
@@ -198,20 +186,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         _buildPartnerDivider(),
                         const SizedBox(height: 24),
 
-                        // Enlace a Registro
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text("¿No tienes una cuenta?"),
                             TextButton(
                               onPressed: () {
-                                // CAMBIO: Navegación directa a la clase RegisterScreen
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const RegisterScreen(),
-                                  ),
+                                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
                                 );
                               },
                               child: const Text(
@@ -235,8 +218,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  // --- Widgets Auxiliares ---
 
   Widget _buildLabel(String text) {
     return Padding(
@@ -265,21 +246,17 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: const Color(0xFF737686), size: 20),
         hintText: hint,
-        hintStyle: TextStyle(color: const Color(0xFF737686).withOpacity(0.5)),
+        hintStyle: TextStyle(color: const Color(0xFF737686).withValues(alpha: 0.5)),
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: const Color(0xFFC3C6D7).withOpacity(0.3),
-          ),
+          borderSide: BorderSide(color: const Color(0xFFC3C6D7).withValues(alpha: 0.3)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: const Color(0xFFC3C6D7).withOpacity(0.3),
-          ),
+          borderSide: BorderSide(color: const Color(0xFFC3C6D7).withValues(alpha: 0.3)),
         ),
       ),
     );
@@ -288,9 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildPartnerDivider() {
     return Row(
       children: [
-        Expanded(
-          child: Divider(color: const Color(0xFF737686).withOpacity(0.2)),
-        ),
+        Expanded(child: Divider(color: const Color(0xFF737686).withValues(alpha: 0.2))),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -303,9 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        Expanded(
-          child: Divider(color: const Color(0xFF737686).withOpacity(0.2)),
-        ),
+        Expanded(child: Divider(color: const Color(0xFF737686).withValues(alpha: 0.2))),
       ],
     );
   }

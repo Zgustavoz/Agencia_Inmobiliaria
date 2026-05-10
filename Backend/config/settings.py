@@ -46,6 +46,7 @@ LOCAL_APPS = [
     'gestion_usuarios',
     'modulo_administracion_configuracion',
     'modulo_inmuebles',
+    'notificaciones',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -179,6 +180,9 @@ TIME_ZONE     = 'America/La_Paz'
 USE_I18N      = True
 USE_TZ        = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ── Firebase ──────────────────────────────────────────────────
+FIREBASE_SERVICE_ACCOUNT = config('FIREBASE_SERVICE_ACCOUNT', default='firebase-service-account.json')
 
 # ── Cloudinary ───────────────────────────────────────────────
 cloudinary.config(

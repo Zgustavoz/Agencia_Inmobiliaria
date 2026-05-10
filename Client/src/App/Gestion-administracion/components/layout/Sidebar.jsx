@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router"
 import {
-  LayoutDashboard, Users, Shield, LogOut,
+  LayoutDashboard, Users, Shield,
   ChevronRight, Menu, X, Key, ChevronDown, Building2,
   HistoryIcon
 } from "lucide-react"
@@ -9,6 +9,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../../../auth/context/AuthContext"
 import { useAuth as useAuthHook } from "../../../auth/hook/useAuthMutation"
 import { LogoutButton } from "../button/LogoutButton"
+import { NotificationBell } from "../../../../notificaciones/components/NotificationBell"
  
 export const Sidebar = () => {
   const location           = useLocation()
@@ -105,17 +106,20 @@ export const Sidebar = () => {
                 </m.div>
               )}
             </div>
-            {!isMobile && (
-              <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className="text-(--on-surface-variant) hover:text-(--on-surface) transition ml-2 shrink-0"
-              >
-                <m.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                  <ChevronRight size={16} />
-                </m.div>
-              </button>
-            )}
+            <div className="flex items-center gap-1 ml-2 shrink-0">
+              <NotificationBell collapsed={!expanded} />
+              {!isMobile && (
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="text-(--on-surface-variant) hover:text-(--on-surface) transition"
+                >
+                  <m.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronRight size={16} />
+                  </m.div>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Nav */}

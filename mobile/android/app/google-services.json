@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "367975252704",
+    "project_id": "agenciainmobiliaria-18a19",
+    "storage_bucket": "agenciainmobiliaria-18a19.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367975252704:android:50aa52b4d1ec1f56300685",
+        "android_client_info": {
+          "package_name": "com.example.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFEyKHxLsGqDVbklC46ky8zcCTO-JujhM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

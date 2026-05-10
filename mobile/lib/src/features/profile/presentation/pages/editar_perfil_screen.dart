@@ -124,7 +124,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                       backgroundColor: Colors.white,
                       child: CircleAvatar(
                         radius: 52.r,
-                        backgroundColor: Color(0xFFF16621).withOpacity(0.1),
+                        backgroundColor: Color(0xFFF16621),
                         child: Icon(
                           Icons.person,
                           size: 55.sp,

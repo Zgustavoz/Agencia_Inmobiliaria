@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert'; // Para convertir los datos a JSON
-import 'package:http/http.dart' as http; // Para hacer la petición al servidor
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:mobile/src/core/config/app_config.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,90 +11,89 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  String selectedRole = "Agent"; // Estado para el selector de rol
-  final TextEditingController _nombresCtrl = TextEditingController();
-  final TextEditingController _apellidosCtrl = TextEditingController();
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _telefonoCtrl = TextEditingController();
-  final TextEditingController _usernameCtrl = TextEditingController();
-  final TextEditingController _passwordCtrl = TextEditingController();
+  String selectedRole = "Agent";
+  final TextEditingController _nombresCtrl       = TextEditingController();
+  final TextEditingController _apellidosCtrl     = TextEditingController();
+  final TextEditingController _emailCtrl         = TextEditingController();
+  final TextEditingController _telefonoCtrl      = TextEditingController();
+  final TextEditingController _usernameCtrl      = TextEditingController();
+  final TextEditingController _passwordCtrl      = TextEditingController();
   final TextEditingController _confirmPasswordCtrl = TextEditingController();
-  final TextEditingController _ciCtrl = TextEditingController();
-  final TextEditingController _direccionCtrl = TextEditingController();
-  final TextEditingController _ocupacionCtrl = TextEditingController();
-  final TextEditingController _fechaNacCtrl = TextEditingController();
+  final TextEditingController _ciCtrl            = TextEditingController();
+  final TextEditingController _direccionCtrl     = TextEditingController();
+  final TextEditingController _ocupacionCtrl     = TextEditingController();
+  final TextEditingController _fechaNacCtrl      = TextEditingController();
 
   Future<void> registrarUsuario() async {
-    // 1. Verificación básica en el Frontend
     if (_passwordCtrl.text != _confirmPasswordCtrl.text) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Las contraseñas no coinciden')),
       );
-      return; // Detiene la ejecución aquí
+      return;
     }
 
     if (_passwordCtrl.text.isEmpty) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('La contraseña no puede estar vacía')),
       );
       return;
     }
 
-    final url = Uri.parse(
-      'http://localhost:8000/gestion_usuarios/auth/registro/',
-    );
-    // Nota: Usa 'http://10.0.2.2:8000' si estás en el emulador de Android.
-    // Si estás en web o con el servidor local expuesto, 'localhost' está bien.
-
-    List<int> rolesIds = selectedRole == "Admin" ? [1] : [2];
+    final List<int> rolesIds = selectedRole == "Admin" ? [1] : [2];
 
     try {
       final response = await http.post(
-        url,
+        Uri.parse('${AppConfig.apiUsuarios}/auth/registro/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          "username": _usernameCtrl.text,
-          "email": _emailCtrl.text,
-          "password": _passwordCtrl.text,
-          "password2":
-              _confirmPasswordCtrl.text, // <-- Ahora sí coincide el nombre
-          "nombres": _nombresCtrl.text,
-          "apellidos": _apellidosCtrl.text,
-          "telefono": _telefonoCtrl.text,
-          "ci": _ciCtrl.text,
-          "direccion": _direccionCtrl.text,
-          "ocupacion": _ocupacionCtrl.text,
+          "username":        _usernameCtrl.text,
+          "email":           _emailCtrl.text,
+          "password":        _passwordCtrl.text,
+          "password2":       _confirmPasswordCtrl.text,
+          "nombres":         _nombresCtrl.text,
+          "apellidos":       _apellidosCtrl.text,
+          "telefono":        _telefonoCtrl.text,
+          "ci":              _ciCtrl.text,
+          "direccion":       _direccionCtrl.text,
+          "ocupacion":       _ocupacionCtrl.text,
           "fecha_nacimiento": _fechaNacCtrl.text,
-          "roles_ids": rolesIds,
+          "roles_ids":       rolesIds,
         }),
       );
 
+      if (!mounted) return;
+
       if (response.statusCode == 201) {
-        print("¡Usuario creado con éxito!");
-        // Aquí podrías navegar al login o mostrar un mensaje de éxito
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('¡Cuenta creada con éxito!')),
+        );
+        Navigator.pop(context);
       } else {
-        print("Error del servidor: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al registrar: ${response.body}')),
         );
       }
-    } catch (e) {
-      print("Error de conexión: $e");
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error de conexión')),
+      );
     }
   }
 
   Future<void> _seleccionarFecha(BuildContext context) async {
-    DateTime? picked = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(2000), // Fecha inicial al abrir
-      firstDate: DateTime(1920), // Fecha mínima
-      lastDate: DateTime.now(), // No pueden nacer en el futuro
-      locale: const Locale("es", "ES"), // Para que salga en español
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1920),
+      lastDate: DateTime.now(),
+      locale: const Locale("es", "ES"),
     );
 
     if (picked != null) {
       setState(() {
-        // Formateamos la fecha a AAAA-MM-DD para que Django no llore
         _fechaNacCtrl.text =
             "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
@@ -110,11 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         leading: const BackButton(color: Colors.black),
         title: const Text(
           "Portal Profesional",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
         ),
       ),
       body: SingleChildScrollView(
@@ -122,7 +118,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// --- HEADER ---
             const Text(
               "Únete a la élite arquitectónica",
               style: TextStyle(
@@ -135,19 +130,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 12),
             const Text(
               "Registra tu perfil profesional para operar propiedades, clientes y oportunidades con una experiencia premium.",
-              style: TextStyle(
-                color: Color(0xFF434655),
-                fontSize: 14,
-                height: 1.5,
-              ),
+              style: TextStyle(color: Color(0xFF434655), fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: 24),
 
-            /// --- SELECTOR DE ROL ---
-            _buildSectionTitle(
-              "REGISTRO DE PROFESIONAL",
-              "Especifica tu rol (Agente o Administrador)",
-            ),
+            _buildSectionTitle("REGISTRO DE PROFESIONAL", "Especifica tu rol (Agente o Administrador)"),
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
@@ -163,102 +150,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 32),
 
-            /// --- SECCIÓN: USUARIOS TABLE DETAILS ---
-            _buildSectionTitle(
-              "DATOS PERSONALES",
-              "Información básica del usuario",
-            ),
+            _buildSectionTitle("DATOS PERSONALES", "Información básica del usuario"),
             Row(
               children: [
-                Expanded(
-                  child: _buildInput(
-                    "Nombres",
-                    "Ej. Juan",
-                    controller: _nombresCtrl,
-                  ),
-                ),
+                Expanded(child: _buildInput("Nombres", "Ej. Juan", controller: _nombresCtrl)),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: _buildInput(
-                    "Apellidos",
-                    "Ej. Pérez",
-                    controller: _apellidosCtrl,
-                  ),
-                ),
+                Expanded(child: _buildInput("Apellidos", "Ej. Pérez", controller: _apellidosCtrl)),
               ],
             ),
-            _buildInput(
-              "Email",
-              "profesional@architect.com",
-              icon: Icons.email_outlined,
-              controller: _emailCtrl,
-            ),
-            _buildInput(
-              "Teléfono",
-              "+591 ...",
-              icon: Icons.phone_android,
-              controller: _telefonoCtrl,
-              helper: "Teléfono inválido",
-              isError: false,
-            ),
-
+            _buildInput("Email", "profesional@architect.com", icon: Icons.email_outlined, controller: _emailCtrl),
+            _buildInput("Teléfono", "+591 ...", icon: Icons.phone_android, controller: _telefonoCtrl),
             const SizedBox(height: 32),
 
-            /// --- SECCIÓN: PERFIL Y CREDENCIALES ---
             _buildSectionTitle("PERFIL Y CREDENCIALES", "Acceso al sistema"),
-            _buildInput(
-              "Usuario",
-              "jperez_pro",
-              icon: Icons.person_outline,
-              controller: _usernameCtrl,
-            ),
-            _buildInput(
-              "Contraseña",
-              "••••••••",
-              icon: Icons.lock_outline,
-              isPassword: true,
-              controller: _passwordCtrl, // Este ya estaba bien
-            ),
-            _buildInput(
-              "Confirmar Contraseña",
-              "••••••••",
-              icon: Icons.lock_reset,
-              isPassword: true,
-              controller: _confirmPasswordCtrl, // <--- AÑADE ESTA LÍNEA AQUÍ
-            ),
-
+            _buildInput("Usuario", "jperez_pro", icon: Icons.person_outline, controller: _usernameCtrl),
+            _buildInput("Contraseña", "••••••••", icon: Icons.lock_outline, isPassword: true, controller: _passwordCtrl),
+            _buildInput("Confirmar Contraseña", "••••••••", icon: Icons.lock_reset, isPassword: true, controller: _confirmPasswordCtrl),
             const SizedBox(height: 32),
 
-            /// --- SECCIÓN: DETALLES PROFESIONALES ---
-            _buildSectionTitle(
-              "DETALLES DEL PERFIL PROFESIONAL",
-              "Información de validación",
-            ),
-            _buildInput(
-              "CI (Cédula de Identidad)",
-              "1234567 LP",
-              icon: Icons.badge_outlined,
-              controller: _ciCtrl,
-            ),
-            _buildInput(
-              "Dirección",
-              "Calle Ficticia #123",
-              icon: Icons.location_on_outlined,
-              controller: _direccionCtrl,
-              helper: "Selecciona una dirección válida",
-            ),
-            _buildInput(
-              "Ocupación",
-              "Arquitecto / Ingeniero",
-              icon: Icons.work_outline,
-              controller: _ocupacionCtrl,
-              helper: "Requerido",
-            ),
+            _buildSectionTitle("DETALLES DEL PERFIL PROFESIONAL", "Información de validación"),
+            _buildInput("CI (Cédula de Identidad)", "1234567 LP", icon: Icons.badge_outlined, controller: _ciCtrl),
+            _buildInput("Dirección", "Calle Ficticia #123", icon: Icons.location_on_outlined, controller: _direccionCtrl),
+            _buildInput("Ocupación", "Arquitecto / Ingeniero", icon: Icons.work_outline, controller: _ocupacionCtrl),
             GestureDetector(
-              onTap: () =>
-                  _seleccionarFecha(context), // Abre el calendario al tocar
+              onTap: () => _seleccionarFecha(context),
               child: AbsorbPointer(
-                // Evita que salga el teclado físico
                 child: _buildInput(
                   "Fecha de Nacimiento",
                   "Selecciona tu fecha",
@@ -268,39 +184,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 40),
 
-            /// --- BOTÓN FINAL ---
-            Container(
-              width: double.infinity,
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF004AC6), Color(0xFF2563EB)],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF004AC6).withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+            GestureDetector(
+              onTap: registrarUsuario,
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF004AC6), Color(0xFF2563EB)],
                   ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: registrarUsuario,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF004AC6).withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
                 child: const Text(
                   "Crear Cuenta Profesional",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
             ),
@@ -311,7 +218,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Widget para Títulos de Sección
   Widget _buildSectionTitle(String title, String subtitle) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,16 +232,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: const TextStyle(fontSize: 13, color: Colors.grey),
-        ),
+        Text(subtitle, style: const TextStyle(fontSize: 13, color: Colors.grey)),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  /// Widget para Inputs personalizados
   Widget _buildInput(
     String label,
     String hint, {
@@ -343,43 +245,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool isPassword = false,
     String? helper,
     bool isError = false,
-    TextEditingController? controller, // <--- AÑADIMOS ESTA LÍNEA
+    TextEditingController? controller,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // TU DISEÑO SIGUE IGUAL AQUÍ
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF737686),
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF737686)),
           ),
           const SizedBox(height: 8),
           TextField(
-            controller:
-                controller, // <--- AÑADIMOS ESTA LÍNEA (CONECTA EL DISEÑO CON EL BACKEND)
+            controller: controller,
             obscureText: isPassword,
             decoration: InputDecoration(
-              prefixIcon: icon != null
-                  ? Icon(icon, size: 20, color: const Color(0xFF737686))
-                  : null,
+              prefixIcon: icon != null ? Icon(icon, size: 20, color: const Color(0xFF737686)) : null,
               hintText: hint,
-              hintStyle: TextStyle(
-                color: Colors.grey.withOpacity(0.5),
-                fontSize: 14,
-              ),
+              hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.5), fontSize: 14),
               filled: true,
               fillColor: Colors.white,
               helperText: helper,
-              helperStyle: TextStyle(
-                color: isError ? Colors.red : Colors.grey,
-                fontSize: 10,
-              ),
+              helperStyle: TextStyle(color: isError ? Colors.red : Colors.grey, fontSize: 10),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.grey.shade200),
@@ -395,9 +283,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Widget para el Selector de Rol (Toggle)
   Widget _buildToggleOption(String label) {
-    bool isActive = selectedRole == label;
+    final bool isActive = selectedRole == label;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => selectedRole = label),
@@ -408,20 +295,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             color: isActive ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 5,
-                    ),
-                  ]
+                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5)]
                 : null,
           ),
           child: Text(
             label,
             style: TextStyle(
-              color: isActive
-                  ? const Color(0xFF004AC6)
-                  : const Color(0xFF737686),
+              color: isActive ? const Color(0xFF004AC6) : const Color(0xFF737686),
               fontWeight: FontWeight.bold,
             ),
           ),
