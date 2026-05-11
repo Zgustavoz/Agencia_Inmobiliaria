@@ -2,6 +2,7 @@
 from rest_framework import viewsets, filters
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ..models.propiedad import Propiedad
 from ..serializers.propiedad import PropiedadSerializer

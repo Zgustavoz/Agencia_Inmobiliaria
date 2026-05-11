@@ -19,6 +19,7 @@ import { BackupsPage } from "./App/Gestion-administracion/gestion-backups/pages/
 import { ClienteSeguimientoPage } from "./App/Gestion-administracion/seguimiento-cliente/page/ClienteSeguimientoPage"
 import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/VisitasPage"
 import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage"
+import { ClientesHistorialPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/ClientesHistorialPage"
 
 function InmobiliarApp() {
   return (
