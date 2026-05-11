@@ -1,11 +1,13 @@
 import { Search, SlidersHorizontal } from "lucide-react"
 import { motion } from "motion/react"
+import { useState } from "react"
+import { FiltersPanel } from "./FiltersPanel"
 
-export const HeroSearchSection = ({ hero, searchModes }) => {
+export const HeroSearchSection = ({ hero, searchModes, onApplyFilters }) => {
   const MotionDiv = motion.div
   const MotionH1 = motion.h1
   const MotionP = motion.p
-
+  const [showFilters, setShowFilters] = useState(false)
   return (
     <section className="relative isolate min-h-[74vh] overflow-hidden px-4 pb-14 pt-16 md:px-8 md:pt-24">
       <img
@@ -74,13 +76,16 @@ export const HeroSearchSection = ({ hero, searchModes }) => {
 
             <button
               type="button"
-              className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full bg-(--secondary-container) text-(--on-secondary) transition hover:scale-105"
+              onClick={() => setShowFilters(!showFilters)}
             >
               <SlidersHorizontal size={18} />
             </button>
           </div>
         </MotionDiv>
       </MotionDiv>
+      {showFilters && (
+        <FiltersPanel onApplyFilters={onApplyFilters} />
+      )}
     </section>
   )
 }

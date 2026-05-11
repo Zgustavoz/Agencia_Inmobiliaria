@@ -13,6 +13,7 @@ import { PublicLayout, NotFoundPage } from "./shared/ui"
 import { ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage"
 import { BitacoraPage } from "./App/Bitacora/page/BitacoraPage"
 import { PropiedadPage } from "./App/Gestion-administracion-propiedades/gestion-propiedad/page/PropiedadPage"
+import { ContratoPage } from "./App/Gestion-administracion-contratos/gestion-contrato/page/ContratoPage"
 import { PropertyMapExample } from "./shared/map/components/PropertyMapExample"
 import { BackupsPage } from "./App/Gestion-administracion/gestion-backups/pages/BackupsPage"
 import { ClienteSeguimientoPage } from "./App/Gestion-administracion/seguimiento-cliente/page/ClienteSeguimientoPage"
@@ -106,6 +107,12 @@ function InmobiliarApp() {
             </ProtectedRoute>
           }
        />
+
+        <Route
+          path="/dashboard/contratos"
+          element={<ContratoPage />}
+        />
+
         <Route
           path="ver-propiedades"
           element={
