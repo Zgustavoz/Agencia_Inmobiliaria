@@ -1,24 +1,26 @@
-import { Navigate, Route, Routes } from "react-router"
-import { LoginPage } from "./App/auth/page/LoginPage"
-import { RegisterPage } from "./App/auth/page/RegisterPage"
-import { RegisterClientePage } from "./App/auth/page/RegisterClientePage"
-import { ClientPage } from "./App/auth/page/ClientPage"
-import { ResetPasswordPage } from "./App/auth/page/ResetPasswordPage"
-import { Dashboard } from "./App/Gestion-administracion/Dashboard"
-import { DashboardPage } from "./App/Gestion-administracion/dashboard/page/Dashboard"
-import { UsuarioPage } from "./App/Gestion-administracion/gestion-usuario/page/UsuarioPage"
-import { RolPage } from "./App/Gestion-administracion/gestion-rol/page/RolPage"
-import { ProtectedRoute } from "./App/auth/components/ProtectedRoute"
-import { PublicLayout, NotFoundPage } from "./shared/ui"
-import { ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage"
-import { BitacoraPage } from "./App/Bitacora/page/BitacoraPage"
-import { PropiedadPage } from "./App/Gestion-administracion-propiedades/gestion-propiedad/page/PropiedadPage"
-import { PropertyMapExample } from "./shared/map/components/PropertyMapExample"
-import { BackupsPage } from "./App/Gestion-administracion/gestion-backups/pages/BackupsPage"
-import { ClienteSeguimientoPage } from "./App/Gestion-administracion/seguimiento-cliente/page/ClienteSeguimientoPage"
-import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/VisitasPage"
-import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage"
-import { VencimientosPage } from "./App/Gestion-administracion/gestion-vencimientos/page/VencimientosPage"
+
+import { Navigate, Route, Routes } from "react-router";
+import { LoginPage } from "./App/auth/page/LoginPage";
+import { RegisterPage } from "./App/auth/page/RegisterPage";
+import { RegisterClientePage } from "./App/auth/page/RegisterClientePage";
+import { ClientPage } from "./App/auth/page/ClientPage";
+import { ResetPasswordPage } from "./App/auth/page/ResetPasswordPage";
+import { Dashboard } from "./App/Gestion-administracion/Dashboard";
+import { DashboardPage } from "./App/Gestion-administracion/dashboard/page/Dashboard";
+import { UsuarioPage } from "./App/Gestion-administracion/gestion-usuario/page/UsuarioPage";
+import { RolPage } from "./App/Gestion-administracion/gestion-rol/page/RolPage";
+import { ProtectedRoute } from "./App/auth/components/ProtectedRoute";
+import { PublicLayout, NotFoundPage } from "./shared/ui";
+import { ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage";
+import { BitacoraPage } from "./App/Bitacora/page/BitacoraPage";
+import { PropiedadPage } from "./App/Gestion-administracion-propiedades/gestion-propiedad/page/PropiedadPage";
+import { PropertyMapExample } from "./shared/map/components/PropertyMapExample";
+import { BackupsPage } from "./App/Gestion-administracion/gestion-backups/pages/BackupsPage";
+import { ClienteSeguimientoPage } from "./App/Gestion-administracion/seguimiento-cliente/page/ClienteSeguimientoPage";
+import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/VisitasPage";
+import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage";
+import { ClientesHistorialPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/ClientesHistorialPage";
+import { VencimientosPage } from "./App/Gestion-administracion/gestion-vencimientos/page/VencimientosPage";
 
 function InmobiliarApp() {
   return (
@@ -106,7 +108,7 @@ function InmobiliarApp() {
               <PropiedadPage />
             </ProtectedRoute>
           }
-       />
+        />
         <Route
           path="ver-propiedades"
           element={
@@ -123,11 +125,13 @@ function InmobiliarApp() {
             </ProtectedRoute>
           }
         />
-        <Route path="clientes" element={
+        <Route
+          path="clientes"
+          element={
             <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
               <ClienteSeguimientoPage />
             </ProtectedRoute>
-          } 
+          }
         />
         <Route
           path="vencimientos"
@@ -138,15 +142,37 @@ function InmobiliarApp() {
           }
         />
 
-          <Route path="visitas" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><VisitasPage /></ProtectedRoute>} />
-          <Route path="horarios-visita" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><HorariosConfigPage /></ProtectedRoute>} />
+        <Route
+          path="visitas"
+          element={
+            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+              <VisitasPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="horarios-visita"
+          element={
+            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+              <HorariosConfigPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="clientes-historial"
+          element={
+            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+              <ClientesHistorialPage />
+            </ProtectedRoute>
+          }
+        />
         {/* <Route path="permisos" element={<ProtectedRoute requiredRoles={["Administrador"]}><PermisoPage /></ProtectedRoute>} /> */}
       </Route>
 
       {/* ── 404 ── */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
-  )
+  );
 }
 
-export default InmobiliarApp
+export default InmobiliarApp;

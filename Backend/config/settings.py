@@ -1,9 +1,9 @@
-# pylint: disable=W0611
+# pylint: disable=W0611,C0114
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import dj_database_url
-import cloudinary 
+import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -109,6 +109,7 @@ DATABASES = {
        #ssl_require=False
    #)
 #}
+
 
 # ── Auth ──────────────────────────────────────────────────────
 AUTH_USER_MODEL = 'gestion_usuarios.Usuario'
