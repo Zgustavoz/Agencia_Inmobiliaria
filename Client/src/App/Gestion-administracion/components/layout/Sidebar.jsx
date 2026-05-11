@@ -13,8 +13,8 @@ import {
   HistoryIcon,
   Database,
   RefreshCcw, // Para "Restaurar"
-  Calendar,
-  Clock,
+  Calendar, Clock,
+  FileText
 } from "lucide-react";
 import {
   AnimatePresence,
@@ -102,6 +102,11 @@ export const Sidebar = () => {
           path: "/dashboard/ver-propiedades",
           icon: Building2,
           roles: ["Administrador"],
+        },
+        {
+          title: "Contratos",
+          path: "/dashboard/contratos",
+          icon: FileText,
         },
       ],
     },

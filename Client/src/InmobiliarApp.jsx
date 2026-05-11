@@ -1,24 +1,25 @@
-import { Navigate, Route, Routes } from "react-router";
-import { LoginPage } from "./App/auth/page/LoginPage";
-import { RegisterPage } from "./App/auth/page/RegisterPage";
-import { RegisterClientePage } from "./App/auth/page/RegisterClientePage";
-import { ClientPage } from "./App/auth/page/ClientPage";
-import { ResetPasswordPage } from "./App/auth/page/ResetPasswordPage";
-import { Dashboard } from "./App/Gestion-administracion/Dashboard";
-import { DashboardPage } from "./App/Gestion-administracion/dashboard/page/Dashboard";
-import { UsuarioPage } from "./App/Gestion-administracion/gestion-usuario/page/UsuarioPage";
-import { RolPage } from "./App/Gestion-administracion/gestion-rol/page/RolPage";
-import { ProtectedRoute } from "./App/auth/components/ProtectedRoute";
-import { PublicLayout, NotFoundPage } from "./shared/ui";
-import { ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage";
-import { BitacoraPage } from "./App/Bitacora/page/BitacoraPage";
-import { PropiedadPage } from "./App/Gestion-administracion-propiedades/gestion-propiedad/page/PropiedadPage";
-import { PropertyMapExample } from "./shared/map/components/PropertyMapExample";
-import { BackupsPage } from "./App/Gestion-administracion/gestion-backups/pages/BackupsPage";
-import { ClienteSeguimientoPage } from "./App/Gestion-administracion/seguimiento-cliente/page/ClienteSeguimientoPage";
-import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/VisitasPage";
-import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage";
-import { ClientesHistorialPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/ClientesHistorialPage";
+import { Navigate, Route, Routes } from "react-router"
+import { LoginPage } from "./App/auth/page/LoginPage"
+import { RegisterPage } from "./App/auth/page/RegisterPage"
+import { RegisterClientePage } from "./App/auth/page/RegisterClientePage"
+import { ClientPage } from "./App/auth/page/ClientPage"
+import { ResetPasswordPage } from "./App/auth/page/ResetPasswordPage"
+import { Dashboard } from "./App/Gestion-administracion/Dashboard"
+import { DashboardPage } from "./App/Gestion-administracion/dashboard/page/Dashboard"
+import { UsuarioPage } from "./App/Gestion-administracion/gestion-usuario/page/UsuarioPage"
+import { RolPage } from "./App/Gestion-administracion/gestion-rol/page/RolPage"
+import { ProtectedRoute } from "./App/auth/components/ProtectedRoute"
+import { PublicLayout, NotFoundPage } from "./shared/ui"
+import { ClientHomePage } from "./App/Gestion-administracion/home-page/page/ClientHomePage"
+import { BitacoraPage } from "./App/Bitacora/page/BitacoraPage"
+import { PropiedadPage } from "./App/Gestion-administracion-propiedades/gestion-propiedad/page/PropiedadPage"
+import { ContratoPage } from "./App/Gestion-administracion-contratos/gestion-contrato/page/ContratoPage"
+import { PropertyMapExample } from "./shared/map/components/PropertyMapExample"
+import { BackupsPage } from "./App/Gestion-administracion/gestion-backups/pages/BackupsPage"
+import { ClienteSeguimientoPage } from "./App/Gestion-administracion/seguimiento-cliente/page/ClienteSeguimientoPage"
+import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/VisitasPage"
+import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage"
+
 function InmobiliarApp() {
   return (
     <Routes>
@@ -105,7 +106,13 @@ function InmobiliarApp() {
               <PropiedadPage />
             </ProtectedRoute>
           }
+       />
+
+        <Route
+          path="/dashboard/contratos"
+          element={<ContratoPage />}
         />
+
         <Route
           path="ver-propiedades"
           element={

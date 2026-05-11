@@ -26,8 +26,41 @@ class PropiedadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Propiedad
-        fields = '__all__'
-        read_only_fields = ('creado_por', 'creado_en', 'actualizado_en')
+        fields = (
+            'id_propiedad',
+            'codigo_propiedad',
+            'titulo',
+            'descripcion',
+            'tipo_inmueble',
+            'id_modalidad',
+            'modalidad_operacion',
+            'zona',
+            'moneda',
+            'precio',
+            'expensas',
+            'superficie_total_m2',
+            'superficie_construida_m2',
+            'ambientes',
+            'dormitorios',
+            'banos',
+            'garajes',
+            'amoblado',
+            'publicado_web',
+            'publicado_movil',
+            'destacada',
+            'id_agente_publicador',
+            'imagenes',
+            'imagenes_input',
+            'nombre_zona',
+            'nombre_moneda',
+        )
+
+        read_only_fields = (
+            'id_propiedad',
+            'creado_por',
+            'creado_en',
+            'actualizado_en'
+        )
 
     def create(self, validated_data):
         imagenes_subidas = validated_data.pop('imagenes_input', [])

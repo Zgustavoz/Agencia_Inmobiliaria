@@ -1,12 +1,14 @@
 import { LoaderCircle } from "lucide-react"
 import { motion } from "motion/react"
+import { useState } from "react"
 import { HeroSearchSection } from "../components/HeroSearchSection"
 import { CategoryBentoSection } from "../components/CategoryBentoSection"
 import { FeaturedListingsSection } from "../components/FeaturedListingsSection"
 import { useClientHomeQuery } from "../hooks/useClientHomeQuery"
 
 export const ClientHomePage = () => {
-  const { data, isLoading, isError } = useClientHomeQuery()
+  const [filters, setFilters] = useState({})
+  const { data, isLoading, isError } = useClientHomeQuery(filters)
 
   if (isLoading) {
     return (
@@ -44,7 +46,11 @@ export const ClientHomePage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
       >
-        <HeroSearchSection hero={data.hero} searchModes={data.searchModes} />
+        <HeroSearchSection
+          hero={data.hero}
+          searchModes={data.searchModes}
+          onApplyFilters={setFilters}
+        />
       </MotionDiv>
 
       <MotionDiv
@@ -52,7 +58,7 @@ export const ClientHomePage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: "easeOut", delay: 0.2 }}
       >
-        <CategoryBentoSection categories={data.categories} />
+        <CategoryBentoSection categories={data?.categories || []} />
       </MotionDiv>
 
       <MotionDiv
