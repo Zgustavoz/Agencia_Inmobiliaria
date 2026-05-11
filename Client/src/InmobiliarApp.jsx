@@ -18,6 +18,7 @@ import { BackupsPage } from "./App/Gestion-administracion/gestion-backups/pages/
 import { ClienteSeguimientoPage } from "./App/Gestion-administracion/seguimiento-cliente/page/ClienteSeguimientoPage"
 import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/VisitasPage"
 import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage"
+import { VencimientosPage } from "./App/Gestion-administracion/gestion-vencimientos/page/VencimientosPage"
 
 function InmobiliarApp() {
   return (
@@ -127,6 +128,14 @@ function InmobiliarApp() {
               <ClienteSeguimientoPage />
             </ProtectedRoute>
           } 
+        />
+        <Route
+          path="vencimientos"
+          element={
+            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+              <VencimientosPage />
+            </ProtectedRoute>
+          }
         />
 
           <Route path="visitas" element={<ProtectedRoute requiredRoles={["Administrador", "Agente"]}><VisitasPage /></ProtectedRoute>} />

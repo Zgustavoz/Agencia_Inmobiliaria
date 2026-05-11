@@ -131,6 +131,7 @@ export const Sidebar = () => {
         { title: "Visitas", path: "/dashboard/visitas", icon: Calendar, roles: ["Administrador", "Agente"] },
         { title: "Horarios", path: "/dashboard/horarios-visita", icon: Clock, roles: ["Administrador", "Agente"] },
         { title: "Clientes", path: "/dashboard/clientes", icon: Users, roles: ["Administrador", "Agente"] },
+        { title: "Vencimientos", path: "/dashboard/vencimientos", icon: Calendar, roles: ["Administrador", "Agente"] },
       ],
     },
   ]
