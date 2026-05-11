@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/src/features/profile/presentation/pages/editar_perfil_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/src/features/auth/logic/user_provider.dart';
 
 class DestacadosScreen extends StatelessWidget {
   const DestacadosScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final user = userProvider.usuario;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      // Menú lateral derecho
-      endDrawer: _buildRightMenu(context),
+      endDrawer: _buildRightMenu(context, user?.nombres ?? "Usuario"),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -22,8 +26,17 @@ class DestacadosScreen extends StatelessWidget {
             size: 28.sp,
           ),
         ),
+        title: Text(
+          "INMOBILIARIA PRO",
+          style: TextStyle(
+            color: const Color(0xFF191C1E),
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.2,
+          ),
+        ),
+        centerTitle: true,
         actions: [
-          // Botón que abre el menú de las 3 rayas
           Builder(
             builder: (context) => IconButton(
               icon: Icon(
@@ -40,7 +53,6 @@ class DestacadosScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // --- SECCIÓN HERO CON EL BUSCADOR (RESTAURADO) ---
             Stack(
               children: [
                 Container(
@@ -63,30 +75,21 @@ class DestacadosScreen extends StatelessWidget {
                           color: Colors.white,
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
-                          shadows: const [
-                            Shadow(blurRadius: 10, color: Colors.black45),
-                          ],
+                          shadows: const [Shadow(blurRadius: 10, color: Colors.black45)],
                         ),
                       ),
                       SizedBox(height: 20.h),
-                      // AQUÍ ESTÁ EL BUSCADOR QUE FALTABA
                       _buildFloatingSearch(),
                     ],
                   ),
                 ),
               ],
             ),
-
             SizedBox(height: 30.h),
-
-            // --- SECCIÓN DESTACADOS ---
             _buildDestacadosHeader(),
             SizedBox(height: 15.h),
             _buildHorizontalCarousel(),
-
             SizedBox(height: 40.h),
-
-            // --- SECCIÓN AYUDA ---
             Text(
               "Mirá como InfoCasas\nte puede ayudar",
               textAlign: TextAlign.center,
@@ -101,7 +104,6 @@ class DestacadosScreen extends StatelessWidget {
     );
   }
 
-  // --- WIDGET DEL BUSCADOR FLOTANTE ---
   Widget _buildFloatingSearch() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w),
@@ -109,13 +111,7 @@ class DestacadosScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 15, offset: const Offset(0, 5))],
       ),
       child: Column(
         children: [
@@ -172,12 +168,10 @@ class DestacadosScreen extends StatelessWidget {
     );
   }
 
-  // --- MENÚ LATERAL CON CERRAR SESIÓN ---
-  Widget _buildRightMenu(BuildContext context) {
+  Widget _buildRightMenu(BuildContext context, String userName) {
     return Drawer(
       child: Column(
         children: [
-          // Cabecera Naranja con Nombre y Editar
           Container(
             width: double.infinity,
             height: 180.h,
@@ -188,56 +182,37 @@ class DestacadosScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Gabo2004", // Aquí luego pondrás el nombre real del backend
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  userName,
+                  style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 5.h),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context); // Cierra el menú
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const EditarPerfilScreen(),
-                      ),
-                    );
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EditarPerfilScreen()));
                   },
                   child: Row(
                     children: [
-                      Text(
-                        "Editar perfil",
-                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                      ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.white,
-                        size: 18.sp,
-                      ),
+                      Text("Editar perfil", style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+                      Icon(Icons.chevron_right, color: Colors.white, size: 18.sp),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-
-          // Opciones del Menú
-          ListTile(
-            leading: const Icon(Icons.person_outline),
-            title: const Text("Perfil"),
-            onTap: () {},
-          ),
+          
+          _menuItem(Icons.home_outlined, "Propiedades Destacadas", () => Navigator.pop(context)),
+          _menuItem(Icons.favorite_border, "Mis Favoritos", () {}),
+          _menuItem(Icons.calendar_today_outlined, "Mis Citas / Visitas", () {}),
+          _menuItem(Icons.chat_bubble_outline, "Mensajes con Agentes", () {}),
+          _menuItem(Icons.description_outlined, "Mis Contratos", () {}),
+          
           const Spacer(),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
-            title: const Text(
-              "Cerrar sesión",
-              style: TextStyle(color: Colors.redAccent),
-            ),
+            title: const Text("Cerrar sesión", style: TextStyle(color: Colors.redAccent)),
             onTap: () => Navigator.pushReplacementNamed(context, '/'),
           ),
           SizedBox(height: 20.h),
@@ -246,21 +221,22 @@ class DestacadosScreen extends StatelessWidget {
     );
   }
 
-  // (Mantenemos los widgets de Carrusel y Gota Naranja igual que antes...)
+  Widget _menuItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: const Color(0xFF434655)),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      onTap: onTap,
+    );
+  }
+
   Widget _buildDestacadosHeader() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "Destacados",
-            style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            "Mostrar más",
-            style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp),
-          ),
+          Text("Destacados", style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold)),
+          Text("Mostrar más", style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp)),
         ],
       ),
     );
@@ -273,18 +249,8 @@ class DestacadosScreen extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.only(left: 20.w),
         children: [
-          _card(
-            "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500",
-            "Duplex de lujo",
-            "USD 49.000",
-            const Color(0xFF009191),
-          ),
-          _card(
-            "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500",
-            "Equipetrol",
-            "Preventa",
-            const Color(0xFF004AC6),
-          ),
+          _card("https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500", "Duplex de lujo", "USD 49.000", const Color(0xFF009191)),
+          _card("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500", "Equipetrol", "Preventa", const Color(0xFF004AC6)),
           _buildMoreCard(),
         ],
       ),
@@ -301,27 +267,15 @@ class DestacadosScreen extends StatelessWidget {
           children: [
             Image.network(url, height: 200.h, width: 200.w, fit: BoxFit.cover),
             Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
+              bottom: 0, left: 0, right: 0,
               child: Container(
                 padding: EdgeInsets.all(10.w),
                 color: c.withOpacity(0.9),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      t,
-                      style: TextStyle(color: Colors.white, fontSize: 11.sp),
-                    ),
-                    Text(
-                      p,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
-                      ),
-                    ),
+                    Text(t, style: TextStyle(color: Colors.white, fontSize: 11.sp)),
+                    Text(p, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp)),
                   ],
                 ),
               ),
@@ -337,10 +291,7 @@ class DestacadosScreen extends StatelessWidget {
       width: 100.w,
       height: 200.h,
       margin: EdgeInsets.only(right: 20.w, bottom: 60.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF16621).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15.r),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFFF16621).withOpacity(0.1), borderRadius: BorderRadius.circular(15.r)),
       child: Icon(Icons.arrow_forward_ios, color: const Color(0xFFF16621)),
     );
   }
@@ -352,10 +303,8 @@ class DestacadosScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF16621),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(50.r),
-          topRight: Radius.circular(50.r),
-          bottomRight: Radius.circular(50.r),
-          bottomLeft: Radius.circular(10.r),
+          topLeft: Radius.circular(50.r), topRight: Radius.circular(50.r),
+          bottomRight: Radius.circular(50.r), bottomLeft: Radius.circular(10.r),
         ),
       ),
       child: Icon(Icons.search_rounded, color: Colors.white, size: 50.sp),

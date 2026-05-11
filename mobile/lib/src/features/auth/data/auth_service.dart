@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/src/features/auth/data/usuario_model.dart';
+import 'package:mobile/src/core/config/app_config.dart';
 
 class AuthService {
-  // Base URL corregida según tus logs de Django
-  static const String baseUrl =
-      "https://agencia-inmobiliaria-7982.onrender.com/gestion_usuarios";
+  // Base URL corregida usando la variable de entorno
+  static String get baseUrl => "${AppConfig.apiUrl}/gestion_usuarios";
 
   // 1. LOGIN: Ahora enviamos JSON (necesario para @api_view en Django)
   static Future<Map<String, dynamic>> login(

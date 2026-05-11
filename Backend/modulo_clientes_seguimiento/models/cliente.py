@@ -33,6 +33,16 @@ class Cliente(models.Model):
     origen           = models.CharField(max_length=30, choices=ORIGEN_CHOICES, blank=True, null=True)
     estado           = models.CharField(max_length=15, choices=ESTADO_CHOICES, default='nuevo')
     observaciones    = models.TextField(blank=True, null=True)
+    
+    # NUEVO: Relación con la cuenta de acceso (Login)
+    usuario          = models.OneToOneField(
+        Usuario, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='perfil_cliente'
+    )
+    
     creado_por       = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, related_name='clientes_creados')
     creado_en        = models.DateTimeField(auto_now_add=True)
     actualizado_en   = models.DateTimeField(auto_now=True)
