@@ -21,6 +21,7 @@ import { VisitasPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/p
 import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/HorariosConfigPage";
 import { ClientesHistorialPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/ClientesHistorialPage";
 import { VencimientosPage } from "./App/Gestion-administracion/gestion-vencimientos/page/VencimientosPage";
+import { ContratoPage } from "./App/Gestion-administracion-contratos/gestion-contrato/page/ContratoPage";
 
 function InmobiliarApp() {
   return (

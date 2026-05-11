@@ -25,7 +25,7 @@ export const BitacoraTable = ({ logs }) => {
               <th className="p-3 text-left">Acción</th>
               <th className="p-3 text-left">Detalle</th>
               <th className="p-3 text-left">IP</th>
-              <th className="p-3 text-left">Dispositivo</th> {/* <-- Nueva columna */}
+              <th className="p-3 text-left">Dispositivo</th>
             </tr>
           </thead>
 
