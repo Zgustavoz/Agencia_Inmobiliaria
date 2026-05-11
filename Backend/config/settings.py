@@ -1,9 +1,9 @@
-# pylint: disable=W0611
+# pylint: disable=W0611,C0114
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import dj_database_url
-import cloudinary 
+import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -98,9 +98,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 #         'PASSWORD': config('DB_PASSWORD'),
 #         'HOST':     config('DB_HOST', default='localhost'),
 #         'PORT':     config('DB_PORT', default='5432'),
-#         'OPTIONS': {
-#             'client_encoding': 'UTF8',  # Esto asegura que la conexión use UTF-8
-#         },
 #     }
 # }
 
