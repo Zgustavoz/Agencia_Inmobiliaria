@@ -153,6 +153,12 @@ export const Sidebar = () => {
           roles: ["Administrador", "Agente"],
         },
         {
+          title: "Vencimientos",
+          path: "/dashboard/vencimientos",
+          icon: Calendar,
+          roles: ["Administrador", "Agente"],
+        },
+        {
           title: "Historial Interacciones",
           path: "/dashboard/clientes-historial",
           icon: HistoryIcon,
