@@ -13,7 +13,8 @@ import {
   HistoryIcon,
   Database,
   RefreshCcw, // Para "Restaurar"
-  Calendar, Clock
+  Calendar,
+  Clock,
 } from "lucide-react";
 import {
   AnimatePresence,
@@ -125,15 +126,36 @@ export const Sidebar = () => {
     },
     {
       title: "Seguimiento",
-      icon:  Users,
-      key:   "seguimiento",
+      icon: Users,
+      key: "seguimiento",
       subItems: [
-        { title: "Visitas", path: "/dashboard/visitas", icon: Calendar, roles: ["Administrador", "Agente"] },
-        { title: "Horarios", path: "/dashboard/horarios-visita", icon: Clock, roles: ["Administrador", "Agente"] },
-        { title: "Clientes", path: "/dashboard/clientes", icon: Users, roles: ["Administrador", "Agente"] },
+        {
+          title: "Visitas",
+          path: "/dashboard/visitas",
+          icon: Calendar,
+          roles: ["Administrador", "Agente"],
+        },
+        {
+          title: "Horarios",
+          path: "/dashboard/horarios-visita",
+          icon: Clock,
+          roles: ["Administrador", "Agente"],
+        },
+        {
+          title: "Clientes",
+          path: "/dashboard/clientes",
+          icon: Users,
+          roles: ["Administrador", "Agente"],
+        },
+        {
+          title: "Historial Interacciones",
+          path: "/dashboard/clientes-historial",
+          icon: HistoryIcon,
+          roles: ["Administrador", "Agente"],
+        },
       ],
     },
-  ]
+  ];
 
   const toggleSubmenu = (key) =>
     setOpenSubmenus((prev) => ({ ...prev, [key]: !prev[key] }));
