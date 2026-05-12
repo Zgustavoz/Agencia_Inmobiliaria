@@ -66,7 +66,7 @@ function InmobiliarApp() {
         path="dashboard"
         element={
           <ProtectedRoute
-            requiredRoles={["Administrador", "Agente", "Supervisor", "Asistente", "Auditor"]}
+            requiredRoles={["Administrador", "Supervisor", "Agente", "Asistente", "Auditor"]}
           >
             {" "}
             <Dashboard />{" "}
@@ -105,7 +105,7 @@ function InmobiliarApp() {
         <Route
           path="inmuebles"
           element={
-            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Agente", "Auditor"]}>
               <PropiedadPage />
             </ProtectedRoute>
           }
@@ -113,13 +113,17 @@ function InmobiliarApp() {
 
         <Route
           path="/dashboard/contratos"
-          element={<ContratoPage />}
+          element={
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Agente", "Auditor"]}>
+              <ContratoPage />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="ver-propiedades"
           element={
-            <ProtectedRoute requiredRoles={["Administrador"]}>
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Asistente", "Auditor"]}>
               <PropertyMapExample />
             </ProtectedRoute>
           }
@@ -135,7 +139,7 @@ function InmobiliarApp() {
         <Route
           path="clientes"
           element={
-            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Agente", "Asistente", "Auditor"]}>
               <ClienteSeguimientoPage />
             </ProtectedRoute>
           }
@@ -143,7 +147,7 @@ function InmobiliarApp() {
         <Route
           path="vencimientos"
           element={
-            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Agente", "Auditor"]}>
               <VencimientosPage />
             </ProtectedRoute>
           }
@@ -152,7 +156,7 @@ function InmobiliarApp() {
         <Route
           path="visitas"
           element={
-            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Agente", "Asistente", "Auditor"]}>
               <VisitasPage />
             </ProtectedRoute>
           }
@@ -160,7 +164,7 @@ function InmobiliarApp() {
         <Route
           path="horarios-visita"
           element={
-            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Agente", "Asistente"]}>
               <HorariosConfigPage />
             </ProtectedRoute>
           }
@@ -168,7 +172,7 @@ function InmobiliarApp() {
         <Route
           path="clientes-historial"
           element={
-            <ProtectedRoute requiredRoles={["Administrador", "Agente"]}>
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Auditor"]}>
               <ClientesHistorialPage />
             </ProtectedRoute>
           }

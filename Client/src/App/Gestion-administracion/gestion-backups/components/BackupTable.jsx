@@ -1,6 +1,11 @@
 import { RotateCcw, Database, RefreshCcw } from "lucide-react";
 
-export const BackupTable = ({ backups, onRestaurar, isRestoring }) => {
+export const BackupTable = ({
+  backups,
+  onRestaurar,
+  isRestoring,
+  canRestore = true,
+}) => {
   return (
     <div className="bg-(--surface-container-lowest) rounded-xl border border-(--outline-variant)/30 overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
@@ -51,10 +56,10 @@ export const BackupTable = ({ backups, onRestaurar, isRestoring }) => {
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => onRestaurar(b.nombre)}
-                      disabled={isRestoring}
+                      disabled={isRestoring || !canRestore}
                       className={`flex items-center gap-1 ml-auto px-3 py-1.5 text-xs font-medium rounded-lg transition
                         ${
-                          isRestoring
+                          isRestoring || !canRestore
                             ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                             : "text-orange-600 hover:bg-orange-50 active:bg-orange-100"
                         }`}

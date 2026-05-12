@@ -32,7 +32,8 @@ export const UsuarioPage = () => {
   const { usuarios, toggleEstado, eliminar } = useUsuario(filtros)
   const { roles } = useRol()
 
-  const puedeCrear = tienePermiso("crear")
+  const puedeCrear = tienePermiso("usuarios", "crear")
+  const puedeExportar = tienePermiso("usuarios", "exportar")
 
   const handleToggleEstado = (usuario) => {
     if (window.confirm(`¿${usuario.estado ? "Desactivar" : "Activar"} a "${usuario.username}"?`))
@@ -113,6 +114,7 @@ export const UsuarioPage = () => {
               metadata={exportMetadata}
               secciones={exportSecciones}
               onExport={handleExport}
+              disabled={!puedeExportar}
             />
             <CreateButton onClick={() => setModalCrear(true)} disabled={!puedeCrear}>
               Nuevo Usuario

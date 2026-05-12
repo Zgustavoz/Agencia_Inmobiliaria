@@ -4,9 +4,9 @@ import { useAuth } from "../../../auth/context/AuthContext"
 export const RolTable = ({ roles, onToggleEstado, onEditar, onEliminar }) => {
   const { tienePermiso } = useAuth()
 
-  const puedeEditar        = tienePermiso("editar")
-  const puedeEliminar      = tienePermiso("eliminar")
-  const puedeCambiarEstado = tienePermiso("cambiar_estado")
+  const puedeEditar        = tienePermiso("roles", "editar")
+  const puedeEliminar      = tienePermiso("roles", "eliminar")
+  const puedeCambiarEstado = tienePermiso("roles", "cambiar_estado")
 
   return (
     <div className="bg-(--surface-container-lowest) rounded-xl border border-(--outline-variant)/30 overflow-hidden shadow-sm">

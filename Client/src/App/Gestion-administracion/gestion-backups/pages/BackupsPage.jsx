@@ -8,11 +8,12 @@ export const BackupsPage = () => {
   const { tienePermiso } = useAuth();
   const { backups, crear, restaurar } = useBackup();
 
-  // Suponiendo que el permiso se llame así en tu BD
-  const puedeGestionar =
-    tienePermiso("administrar_backups") || tienePermiso("Administrador");
+  const puedeCrearBackup = tienePermiso("backups", "crear");
+  const puedeRestaurarBackup = tienePermiso("backups", "restaurar");
 
   const handleRestaurar = (filename) => {
+    if (!puedeRestaurarBackup) return;
+
     if (
       window.confirm(
         `¿Seguro que deseas restaurar el archivo ${filename}? Los datos actuales se perderán.`,
@@ -37,7 +38,7 @@ export const BackupsPage = () => {
         </div>
         <CreateButton
           onClick={() => crear.mutate()}
-          disabled={!puedeGestionar || crear.isPending}
+          disabled={!puedeCrearBackup || crear.isPending}
         >
           {crear.isPending ? "Generando..." : "Generar Backup"}
         </CreateButton>
@@ -52,6 +53,7 @@ export const BackupsPage = () => {
         <BackupTable
           backups={backups.data}
           onRestaurar={handleRestaurar}
+          canRestore={puedeRestaurarBackup}
           isRestoring={restaurar.isPending}
         />
       )}

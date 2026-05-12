@@ -95,19 +95,19 @@ export const Sidebar = () => {
           title: "Inmuebles",
           path: "/dashboard/inmuebles",
           icon: Building2,
-          roles: ["Administrador", "Agente"],
+          roles: ["Administrador", "Supervisor", "Agente", "Auditor"],
         },
         {
           title: "Ver propiedas",
           path: "/dashboard/ver-propiedades",
           icon: Building2,
-          roles: ["Administrador"],
+          roles: ["Administrador", "Supervisor", "Asistente", "Auditor"],
         },
         {
           title: "Contratos",
           path: "/dashboard/contratos",
           icon: FileText,
-          roles: ["Administrador", "Agente"],
+          roles: ["Administrador", "Supervisor", "Agente", "Auditor"],
         },
       ],
     },
@@ -139,31 +139,31 @@ export const Sidebar = () => {
           title: "Visitas",
           path: "/dashboard/visitas",
           icon: Calendar,
-          roles: ["Administrador", "Agente"],
+          roles: ["Administrador", "Supervisor", "Agente", "Asistente", "Auditor"],
         },
         {
           title: "Horarios",
           path: "/dashboard/horarios-visita",
           icon: Clock,
-          roles: ["Administrador", "Agente"],
+          roles: ["Administrador", "Supervisor", "Agente", "Asistente"],
         },
         {
           title: "Clientes",
           path: "/dashboard/clientes",
           icon: Users,
-          roles: ["Administrador", "Agente"],
+          roles: ["Administrador", "Supervisor", "Agente", "Asistente", "Auditor"],
         },
         {
           title: "Vencimientos",
           path: "/dashboard/vencimientos",
           icon: Calendar,
-          roles: ["Administrador", "Agente"],
+          roles: ["Administrador", "Supervisor", "Agente", "Auditor"],
         },
         {
           title: "Historial Interacciones",
           path: "/dashboard/clientes-historial",
           icon: HistoryIcon,
-          roles: ["Administrador", "Agente"],
+          roles: ["Administrador", "Supervisor", "Auditor"],
         },
       ],
     },
@@ -360,7 +360,7 @@ export const Sidebar = () => {
                   <p className="text-xs text-(--on-surface-variant) truncate">
                     {user.es_admin
                       ? "Administrador"
-                      : user.roles?.[0] || "Usuario"}
+                      : user.rol_principal || user.roles?.[0] || "Usuario"}
                   </p>
                 </div>
               </div>

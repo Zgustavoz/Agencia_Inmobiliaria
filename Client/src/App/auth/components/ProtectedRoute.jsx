@@ -6,6 +6,7 @@ import { UnauthorizedPage } from "../../../shared/ui/components/UnauthorizedPage
 export const ProtectedRoute = ({
   children,
   requiredPermission = null,
+  requiredPermissionModule = null,
   requiredRoles      = [],
 }) => {
   const { user, loading, tienePermiso, tieneAcceso } = useAuth()
@@ -14,7 +15,13 @@ export const ProtectedRoute = ({
   if (!user)   return <Navigate to="/" replace />
   if (user.es_admin) return children
 
-  if (requiredPermission && !tienePermiso(requiredPermission))
+  if (
+    requiredPermission &&
+    !tienePermiso(
+      requiredPermissionModule || requiredPermission,
+      requiredPermissionModule ? requiredPermission : null
+    )
+  )
     return <UnauthorizedPage />
 
   if (requiredRoles.length > 0 && !tieneAcceso(requiredRoles))

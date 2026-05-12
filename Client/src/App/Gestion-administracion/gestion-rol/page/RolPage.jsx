@@ -21,7 +21,8 @@ export const RolPage = () => {
   }
 
   const { roles, toggleEstado, eliminar } = useRol(filtros)
-  const puedeCrear = tienePermiso("crear")
+  const puedeCrear = tienePermiso("roles", "crear")
+  const puedeExportar = tienePermiso("roles", "exportar")
 
   const handleToggleEstado = (rol) => {
     if (window.confirm(`¿${rol.estado ? "Desactivar" : "Activar"} el rol "${rol.nombre}"?`))
@@ -88,6 +89,7 @@ export const RolPage = () => {
               metadata={exportMetadata}
               secciones={exportSecciones}
               onExport={handleExport}
+              disabled={!puedeExportar}
             />
             <CreateButton onClick={() => setModalCrear(true)} disabled={!puedeCrear}>
               Nuevo Rol

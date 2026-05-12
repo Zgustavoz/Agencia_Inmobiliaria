@@ -2,7 +2,14 @@ import { generarExcel, generarHTML, generarPDF } from '../utils/index';
 import { useState, useRef, useEffect } from 'react';
 import { Download, FileText, Sheet, Code } from 'lucide-react';
 
-export const ExportButton = ({ empresa, titulo, metadata, secciones, onExport }) => {
+export const ExportButton = ({
+  empresa,
+  titulo,
+  metadata,
+  secciones,
+  onExport,
+  disabled = false,
+}) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -13,6 +20,10 @@ export const ExportButton = ({ empresa, titulo, metadata, secciones, onExport })
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
 
   const opciones = [
     {
@@ -54,8 +65,13 @@ export const ExportButton = ({ empresa, titulo, metadata, secciones, onExport })
     <div className="relative" ref={ref}>
       <button
         type="button"
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-all duration-200"
+        onClick={() => !disabled && setOpen(!open)}
+        disabled={disabled}
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          disabled
+            ? "bg-blue-300 text-white cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700 text-white"
+        }`}
       >
         <Download size={16} />
         Exportar

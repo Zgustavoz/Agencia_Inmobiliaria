@@ -22,8 +22,8 @@ const ESTADO_ICONOS = {
 
 export const ClienteTable = ({ clientes, onEditar, onEliminar, onVerPanel }) => {
   const { tienePermiso } = useAuth()
-  const puedeEditar   = tienePermiso("editar")
-  const puedeEliminar = tienePermiso("eliminar")
+  const puedeEditar   = tienePermiso("clientes", "editar")
+  const puedeEliminar = tienePermiso("clientes", "eliminar")
   const [hoveredRow, setHoveredRow] = useState(null)
 
   return (

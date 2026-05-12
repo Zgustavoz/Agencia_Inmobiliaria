@@ -5,9 +5,9 @@ import { useAuth } from "../../../auth/context/AuthContext"
 export const UsuarioTable = ({ usuarios, onToggleEstado, onEditar, onEliminar }) => {
   const { tienePermiso } = useAuth()
 
-  const puedeEditar        = tienePermiso("editar")
-  const puedeEliminar      = tienePermiso("eliminar")
-  const puedeCambiarEstado = tienePermiso("cambiar_estado")
+  const puedeEditar        = tienePermiso("usuarios", "editar")
+  const puedeEliminar      = tienePermiso("usuarios", "eliminar")
+  const puedeCambiarEstado = tienePermiso("usuarios", "cambiar_estado")
 
   const getRoles = (usuario) => {
     if (!usuario.roles_info?.length)

@@ -30,7 +30,8 @@ export const ClienteSeguimientoPage = () => {
   }
 
   const { clientes, eliminar } = useCliente(filtros)
-  const puedeCrear = tienePermiso("crear")
+  const puedeCrear = tienePermiso("clientes", "crear")
+  const puedeExportar = tienePermiso("clientes", "exportar")
 
   const handleEliminar = (cliente) => {
     if (window.confirm(`¿Eliminar a "${cliente.nombres} ${cliente.apellidos}"?`))
@@ -120,6 +121,7 @@ export const ClienteSeguimientoPage = () => {
               metadata={exportMetadata}
               secciones={exportSecciones}
               onExport={handleExport}
+              disabled={!puedeExportar}
             />
             <CreateButton onClick={() => setModalCrear(true)} disabled={!puedeCrear}>
               Nuevo Cliente
