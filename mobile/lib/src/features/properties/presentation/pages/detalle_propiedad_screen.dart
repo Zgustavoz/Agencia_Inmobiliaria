@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mobile/src/features/properties/data/propiedad_model.dart';
+import 'package:mobile/src/features/properties/presentation/pages/solicitar_visita_screen.dart';
 
 class DetallePropiedadScreen extends StatelessWidget {
   final Propiedad propiedad;
@@ -33,7 +34,7 @@ class DetallePropiedadScreen extends StatelessWidget {
                   SizedBox(height: 30.h),
                   _buildLocationSection(),
                   SizedBox(height: 30.h),
-                  _buildActionButtons(),
+                  _buildActionButtons(context),
                   SizedBox(height: 50.h),
                 ],
               ),
@@ -208,7 +209,7 @@ class DetallePropiedadScreen extends StatelessWidget {
                 ? FlutterMap(
                     options: MapOptions(
                       initialCenter: LatLng(lat, lon),
-                      initialZoom: 16, // Zoom más cercano para que se vea la calle
+                      initialZoom: 16,
                     ),
                     children: [
                       TileLayer(
@@ -239,7 +240,7 @@ class DetallePropiedadScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(BuildContext context) {
     return Column(
       children: [
         ElevatedButton(
@@ -247,25 +248,30 @@ class DetallePropiedadScreen extends StatelessWidget {
             backgroundColor: const Color(0xFFF16621),
             minimumSize: Size(double.infinity, 50.h),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          ),
+          onPressed: () {}, 
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.chat_bubble_outline, color: Colors.white),
+              SizedBox(width: 10.w),
+              const Text("Contactar por WhatsApp", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ],
+          ),
         ),
-        onPressed: () {}, // Futuro WhatsApp
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.chat_bubble_outline, color: Colors.white),
-            SizedBox(width: 10.w),
-            const Text("Contactar por WhatsApp", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-      SizedBox(height: 15.h),
-      OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Color(0xFFF16621)),
-          minimumSize: Size(double.infinity, 50.h),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-        ),
-          onPressed: () {}, // Futuro Agendar
+        SizedBox(height: 15.h),
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Color(0xFFF16621)),
+            minimumSize: Size(double.infinity, 50.h),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SolicitarVisitaScreen(propiedad: propiedad)),
+            );
+          },
           child: const Text("Agendar Visita", style: TextStyle(color: Color(0xFFF16621), fontWeight: FontWeight.bold)),
         ),
       ],

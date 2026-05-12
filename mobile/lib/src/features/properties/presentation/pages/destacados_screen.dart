@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/src/features/profile/presentation/pages/editar_perfil_screen.dart';
 import 'package:mobile/src/features/properties/logic/propiedad_provider.dart';
 import 'package:mobile/src/features/properties/presentation/property_card.dart';
+import 'package:mobile/src/features/properties/presentation/pages/historial_visitas_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/src/features/auth/logic/user_provider.dart';
 
@@ -17,7 +18,6 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
   @override
   void initState() {
     super.initState();
-    // Cargamos las propiedades al iniciar la pantalla
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PropiedadProvider>().cargarDestacadas();
     });
@@ -227,7 +227,10 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
           ),
           _menuItem(Icons.home_outlined, "Propiedades Destacadas", () => Navigator.pop(context)),
           _menuItem(Icons.favorite_border, "Mis Favoritos", () {}),
-          _menuItem(Icons.calendar_today_outlined, "Mis Citas / Visitas", () {}),
+          _menuItem(Icons.calendar_today_outlined, "Mis Citas / Visitas", () {
+            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const HistorialVisitasScreen()));
+          }),
           _menuItem(Icons.chat_bubble_outline, "Mensajes con Agentes", () {}),
           _menuItem(Icons.description_outlined, "Mis Contratos", () {}),
           const Spacer(),

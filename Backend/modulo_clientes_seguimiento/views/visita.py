@@ -21,8 +21,22 @@ class VisitaViewSet(ModelViewSet):
     serializer_class = VisitaSerializer
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self, serializer):
+        # Si el usuario autenticado tiene un perfil de cliente, lo asignamos automáticamente
+        user = self.request.user
+        if hasattr(user, 'perfil_cliente'):
+            serializer.save(cliente=user.perfil_cliente)
+        else:
+            serializer.save()
+
     def get_queryset(self):
         queryset = super().get_queryset()
+        
+        # Filtro automático para el cliente autenticado
+        user = self.request.user
+        if not user.is_staff and hasattr(user, 'perfil_cliente'):
+            queryset = queryset.filter(cliente=user.perfil_cliente)
+            
         cliente_id = self.request.query_params.get('cliente_id')
         agente_id = self.request.query_params.get('agente_id')
         propiedad_id = self.request.query_params.get('propiedad_id')
