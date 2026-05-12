@@ -1,32 +1,32 @@
 import { intanciaAxios } from "../../../../config/axios"
 
-const CONTRATOS_URL = "/contratos/";
-const DOCUMENTOS_URL = "/documentos-contrato/";
-const USUARIOS_URL = "/usuarios/";
-const PROPIEDADES_URL = "/propiedades/";
+const CONTRATOS_URL = "/api/contratos/";
+const DOCUMENTOS_URL = "/api/documentos-contrato/";
+const USUARIOS_URL = "/gestion_usuarios/usuarios/";
+const PROPIEDADES_URL = "/api/inmuebles/propiedades/";
 
 export const obtenerContratos = async () => {
-  const { data } = await instanciaAxios.get(CONTRATOS_URL);
+  const { data } = await intanciaAxios.get(CONTRATOS_URL);
   return data;
 };
 
 export const obtenerResumenContratos = async () => {
-  const { data } = await instanciaAxios.get(`${CONTRATOS_URL}resumen/`);
+  const { data } = await intanciaAxios.get(`${CONTRATOS_URL}resumen/`);
   return data;
 };
 
 export const createContrato = async (payload) => {
-  const { data } = await instanciaAxios.post(CONTRATOS_URL, payload);
+  const { data } = await intanciaAxios.post(CONTRATOS_URL, payload);
   return data;
 };
 
 export const updateContrato = async (id, payload) => {
-  const { data } = await instanciaAxios.put(`${CONTRATOS_URL}${id}/`, payload);
+  const { data } = await intanciaAxios.put(`${CONTRATOS_URL}${id}/`, payload);
   return data;
 };
 
 export const exportarContratoPDF = async (id) => {
-  const response = await instanciaAxios.get(
+  const response = await intanciaAxios.get(
     `${CONTRATOS_URL}${id}/exportar_pdf/`,
     {
       responseType: "blob"
@@ -48,7 +48,7 @@ export const exportarContratoPDF = async (id) => {
 };
 
 export const obtenerDocumentosContrato = async (idContrato) => {
-  const { data } = await instanciaAxios.get(
+  const { data } = await intanciaAxios.get(
     `${DOCUMENTOS_URL}?contrato=${idContrato}`
   );
 
@@ -56,7 +56,7 @@ export const obtenerDocumentosContrato = async (idContrato) => {
 };
 
 export const buscarClientes = async (search = "") => {
-  const { data } = await instanciaAxios.get(
+  const { data } = await intanciaAxios.get(
     `${USUARIOS_URL}?search=${search}`
   );
 
@@ -64,7 +64,7 @@ export const buscarClientes = async (search = "") => {
 };
 
 export const buscarAgentes = async (search = "") => {
-  const { data } = await instanciaAxios.get(
+  const { data } = await intanciaAxios.get(
     `${USUARIOS_URL}?search=${search}`
   );
 
@@ -72,7 +72,7 @@ export const buscarAgentes = async (search = "") => {
 };
 
 export const buscarPropiedades = async (search = "") => {
-  const { data } = await instanciaAxios.get(
+  const { data } = await intanciaAxios.get(
     `${PROPIEDADES_URL}?search=${search}`
   );
 
