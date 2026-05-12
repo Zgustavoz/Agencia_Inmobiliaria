@@ -66,7 +66,7 @@ function InmobiliarApp() {
         path="dashboard"
         element={
           <ProtectedRoute
-            requiredRoles={["Administrador", "Agente", "empleado"]}
+            requiredRoles={["Administrador", "Agente", "Supervisor", "Asistente", "Auditor"]}
           >
             {" "}
             <Dashboard />{" "}
@@ -78,7 +78,7 @@ function InmobiliarApp() {
           path="usuarios"
           element={
             <ProtectedRoute
-              requiredRoles={["Administrador", "gestionar usuario"]}
+              requiredRoles={["Administrador"]}
             >
               <UsuarioPage />
             </ProtectedRoute>
@@ -88,7 +88,7 @@ function InmobiliarApp() {
           path="roles"
           element={
             <ProtectedRoute
-              requiredRoles={["Administrador", "gestionar roles"]}
+              requiredRoles={["Administrador"]}
             >
               <RolPage />
             </ProtectedRoute>

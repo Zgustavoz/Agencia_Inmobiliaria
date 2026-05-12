@@ -10,6 +10,7 @@ from ..serializers import (
     ClienteInteraccionSerializer, ClienteOportunidadSerializer,
     ClienteRecordatorioSerializer, ClienteAgenteSerializer,
 )
+from rest_framework.permissions import IsAuthenticated
 from gestion_usuarios.permissions import EsAdmin
 
 class ClientePagination(PageNumberPagination):
@@ -19,7 +20,8 @@ class ClientePagination(PageNumberPagination):
 
 class ClienteViewSet(viewsets.ModelViewSet):
     queryset           = Cliente.objects.all().order_by('-creado_en')
-    permission_classes = [EsAdmin]
+    # permission_classes = [EsAdmin]
+    permission_classes = [IsAuthenticated]
     pagination_class   = ClientePagination
 
     def get_serializer_class(self):

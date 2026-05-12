@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.http import FileResponse
@@ -15,7 +15,7 @@ from modulo_contratos.serializers import ContratoSerializer
 class ContratoViewSet(viewsets.ModelViewSet):
     queryset = Contrato.objects.all().order_by('-creado_en')
     serializer_class = ContratoSerializer
-    permission_classes = [AllowAny] #IsAutenticated
+    permission_classes = [IsAuthenticated] #IsAutenticated
 
     search_fields = [
         'codigo_contrato',

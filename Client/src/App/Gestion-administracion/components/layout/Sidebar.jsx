@@ -12,7 +12,7 @@ import {
   Building2,
   HistoryIcon,
   Database,
-  RefreshCcw, // Para "Restaurar"
+  RefreshCcw,
   Calendar, Clock,
   FileText
 } from "lucide-react";
@@ -64,7 +64,7 @@ export const Sidebar = () => {
           title: "Usuarios",
           path: "/dashboard/usuarios",
           icon: Users,
-          roles: ["Administrador", "gestionar usuario"],
+          roles: ["Administrador"],
         },
         {
           title: "Roles",
@@ -107,6 +107,7 @@ export const Sidebar = () => {
           title: "Contratos",
           path: "/dashboard/contratos",
           icon: FileText,
+          roles: ["Administrador", "Agente"],
         },
       ],
     },
