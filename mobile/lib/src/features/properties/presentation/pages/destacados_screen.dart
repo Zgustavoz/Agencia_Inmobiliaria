@@ -7,6 +7,9 @@ import 'package:mobile/src/features/properties/presentation/pages/historial_visi
 import 'package:provider/provider.dart';
 import 'package:mobile/src/features/auth/logic/user_provider.dart';
 
+// Importación de la IA
+import '../../../tasacion_ia/widgets/chat_ia_bottom_sheet.dart';
+
 class DestacadosScreen extends StatefulWidget {
   const DestacadosScreen({super.key});
 
@@ -23,6 +26,15 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
     });
   }
 
+  void _mostrarChatBotIA(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const ChatIABottomSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
@@ -32,16 +44,18 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       endDrawer: _buildRightMenu(context, user?.nombres ?? "Usuario"),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _mostrarChatBotIA(context),
+        backgroundColor: const Color(0xFFF16621),
+        elevation: 4,
+        child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+      ),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Padding(
           padding: EdgeInsets.all(10.w),
-          child: Icon(
-            Icons.search_rounded,
-            color: const Color(0xFFF16621),
-            size: 28.sp,
-          ),
+          child: Icon(Icons.search_rounded, color: const Color(0xFFF16621), size: 28.sp),
         ),
         title: Text(
           "INMOBILIARIA PRO",
@@ -56,11 +70,7 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
         actions: [
           Builder(
             builder: (context) => IconButton(
-              icon: Icon(
-                Icons.menu,
-                color: const Color(0xFFF16621),
-                size: 28.sp,
-              ),
+              icon: Icon(Icons.menu, color: const Color(0xFFF16621), size: 28.sp),
               onPressed: () => Scaffold.of(context).openEndDrawer(),
             ),
           ),
@@ -125,6 +135,37 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildHorizontalCarousel(PropiedadProvider provider) {
+    if (provider.isLoading) {
+      return SizedBox(
+        height: 260.h,
+        child: const Center(child: CircularProgressIndicator(color: Color(0xFFF16621))),
+      );
+    }
+
+    if (provider.destacadas.isEmpty) {
+      return SizedBox(
+        height: 100.h,
+        child: const Center(child: Text("No hay propiedades destacadas disponibles")),
+      );
+    }
+
+    return SizedBox(
+      height: 260.h,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.only(left: 20.w),
+        itemCount: provider.destacadas.length + 1,
+        itemBuilder: (context, index) {
+          if (index == provider.destacadas.length) {
+            return _buildMoreCard();
+          }
+          return PropertyCard(propiedad: provider.destacadas[index]);
+        },
+      ),
     );
   }
 
@@ -205,10 +246,7 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  userName,
-                  style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
-                ),
+                Text(userName, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
                 SizedBox(height: 5.h),
                 GestureDetector(
                   onTap: () {
@@ -263,37 +301,6 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
           Text("Destacados", style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold)),
           Text("Mostrar más", style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp)),
         ],
-      ),
-    );
-  }
-
-  Widget _buildHorizontalCarousel(PropiedadProvider provider) {
-    if (provider.isLoading) {
-      return SizedBox(
-        height: 260.h,
-        child: const Center(child: CircularProgressIndicator(color: Color(0xFFF16621))),
-      );
-    }
-
-    if (provider.destacadas.isEmpty) {
-      return SizedBox(
-        height: 100.h,
-        child: const Center(child: Text("No hay propiedades destacadas disponibles")),
-      );
-    }
-
-    return SizedBox(
-      height: 260.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.only(left: 20.w),
-        itemCount: provider.destacadas.length + 1,
-        itemBuilder: (context, index) {
-          if (index == provider.destacadas.length) {
-            return _buildMoreCard();
-          }
-          return PropertyCard(propiedad: provider.destacadas[index]);
-        },
       ),
     );
   }

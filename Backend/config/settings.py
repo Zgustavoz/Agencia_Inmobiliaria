@@ -51,7 +51,8 @@ LOCAL_APPS = [
     'modulo_administracion_configuracion',
     'modulo_inmuebles',
     'modulo_clientes_seguimiento',
-    'modulo_contratos'
+    'modulo_contratos',
+    'modulo_tasacion_ia'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -204,3 +205,5 @@ R2_ACCESS_KEY_ID     = config('R2_ACCESS_KEY_ID')
 R2_SECRET_ACCESS_KEY = config('R2_SECRET_ACCESS_KEY')
 R2_BUCKET_NAME       = config('R2_BUCKET_NAME')
 R2_ENDPOINT_URL     = config('R2_ENDPOINT_URL')
+# --- Al final de tu settings.py ---
+GEMINI_API_KEY = config('GEMINI_API_KEY')
