@@ -4,6 +4,9 @@ import 'package:mobile/src/features/profile/presentation/pages/editar_perfil_scr
 import 'package:provider/provider.dart';
 import 'package:mobile/src/features/auth/logic/user_provider.dart';
 
+// Importamos el nuevo widget de la IA basándonos en tu estructura de carpetas
+import '../../../tasacion_ia/widgets/chat_ia_bottom_sheet.dart';
+
 class DestacadosScreen extends StatelessWidget {
   const DestacadosScreen({super.key});
 
@@ -15,6 +18,15 @@ class DestacadosScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       endDrawer: _buildRightMenu(context, user?.nombres ?? "Usuario"),
+
+      // El botón flotante llama a nuestro método que ahora levanta el componente separado
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _mostrarChatBotIA(context),
+        backgroundColor: const Color(0xFFF16621),
+        elevation: 4,
+        child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+      ),
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -75,7 +87,9 @@ class DestacadosScreen extends StatelessWidget {
                           color: Colors.white,
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
-                          shadows: const [Shadow(blurRadius: 10, color: Colors.black45)],
+                          shadows: const [
+                            Shadow(blurRadius: 10, color: Colors.black45),
+                          ],
                         ),
                       ),
                       SizedBox(height: 20.h),
@@ -104,6 +118,24 @@ class DestacadosScreen extends StatelessWidget {
     );
   }
 
+  // --- MÉTODOS DEL CHATBOT ---
+
+  // Ahora el método solo se encarga de mostrar el modal e invocar tu widget personalizado
+  void _mostrarChatBotIA(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          const ChatIABottomSheet(), // Instanciamos el nuevo widget
+    );
+  }
+
+  // Se eliminaron por completo _buildChatBotUI y _buildMensajeIA
+  // ya que ahora viven dentro de ChatIABottomSheet
+
+  // --- RESTO DE TUS WIDGETS EXISTENTES ---
+
   Widget _buildFloatingSearch() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w),
@@ -111,7 +143,13 @@ class DestacadosScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -183,36 +221,61 @@ class DestacadosScreen extends StatelessWidget {
               children: [
                 Text(
                   userName,
-                  style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 5.h),
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EditarPerfilScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EditarPerfilScreen(),
+                      ),
+                    );
                   },
                   child: Row(
                     children: [
-                      Text("Editar perfil", style: TextStyle(color: Colors.white, fontSize: 14.sp)),
-                      Icon(Icons.chevron_right, color: Colors.white, size: 18.sp),
+                      Text(
+                        "Editar perfil",
+                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.white,
+                        size: 18.sp,
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          
-          _menuItem(Icons.home_outlined, "Propiedades Destacadas", () => Navigator.pop(context)),
+          _menuItem(
+            Icons.home_outlined,
+            "Propiedades Destacadas",
+            () => Navigator.pop(context),
+          ),
           _menuItem(Icons.favorite_border, "Mis Favoritos", () {}),
-          _menuItem(Icons.calendar_today_outlined, "Mis Citas / Visitas", () {}),
+          _menuItem(
+            Icons.calendar_today_outlined,
+            "Mis Citas / Visitas",
+            () {},
+          ),
           _menuItem(Icons.chat_bubble_outline, "Mensajes con Agentes", () {}),
           _menuItem(Icons.description_outlined, "Mis Contratos", () {}),
-          
           const Spacer(),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
-            title: const Text("Cerrar sesión", style: TextStyle(color: Colors.redAccent)),
+            title: const Text(
+              "Cerrar sesión",
+              style: TextStyle(color: Colors.redAccent),
+            ),
             onTap: () => Navigator.pushReplacementNamed(context, '/'),
           ),
           SizedBox(height: 20.h),
@@ -235,8 +298,14 @@ class DestacadosScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("Destacados", style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold)),
-          Text("Mostrar más", style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp)),
+          Text(
+            "Destacados",
+            style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            "Mostrar más",
+            style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp),
+          ),
         ],
       ),
     );
@@ -249,8 +318,18 @@ class DestacadosScreen extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.only(left: 20.w),
         children: [
-          _card("https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500", "Duplex de lujo", "USD 49.000", const Color(0xFF009191)),
-          _card("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500", "Equipetrol", "Preventa", const Color(0xFF004AC6)),
+          _card(
+            "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500",
+            "Duplex de lujo",
+            "USD 49.000",
+            const Color(0xFF009191),
+          ),
+          _card(
+            "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500",
+            "Equipetrol",
+            "Preventa",
+            const Color(0xFF004AC6),
+          ),
           _buildMoreCard(),
         ],
       ),
@@ -267,15 +346,27 @@ class DestacadosScreen extends StatelessWidget {
           children: [
             Image.network(url, height: 200.h, width: 200.w, fit: BoxFit.cover),
             Positioned(
-              bottom: 0, left: 0, right: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
               child: Container(
                 padding: EdgeInsets.all(10.w),
                 color: c.withOpacity(0.9),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t, style: TextStyle(color: Colors.white, fontSize: 11.sp)),
-                    Text(p, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp)),
+                    Text(
+                      t,
+                      style: TextStyle(color: Colors.white, fontSize: 11.sp),
+                    ),
+                    Text(
+                      p,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -291,7 +382,10 @@ class DestacadosScreen extends StatelessWidget {
       width: 100.w,
       height: 200.h,
       margin: EdgeInsets.only(right: 20.w, bottom: 60.h),
-      decoration: BoxDecoration(color: const Color(0xFFF16621).withOpacity(0.1), borderRadius: BorderRadius.circular(15.r)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF16621).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15.r),
+      ),
       child: Icon(Icons.arrow_forward_ios, color: const Color(0xFFF16621)),
     );
   }
@@ -303,8 +397,10 @@ class DestacadosScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF16621),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(50.r), topRight: Radius.circular(50.r),
-          bottomRight: Radius.circular(50.r), bottomLeft: Radius.circular(10.r),
+          topLeft: Radius.circular(50.r),
+          topRight: Radius.circular(50.r),
+          bottomRight: Radius.circular(50.r),
+          bottomLeft: Radius.circular(10.r),
         ),
       ),
       child: Icon(Icons.search_rounded, color: Colors.white, size: 50.sp),
