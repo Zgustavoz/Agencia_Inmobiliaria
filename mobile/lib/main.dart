@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile/src/features/auth/presentation/login_screen.dart';
 import 'package:mobile/src/features/properties/presentation/pages/destacados_screen.dart';
+import 'package:mobile/src/features/properties/logic/propiedad_provider.dart';
+import 'package:mobile/src/features/properties/logic/visita_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/src/features/auth/logic/user_provider.dart';
 
@@ -13,7 +15,11 @@ Future<void> main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => UserProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => PropiedadProvider()),
+        ChangeNotifierProvider(create: (_) => VisitaProvider()),
+      ],
       child: const MyApp(),
     ),
   );

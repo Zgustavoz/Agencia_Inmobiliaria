@@ -8,6 +8,7 @@ router = DefaultRouter()
 router.register(r'clientes', ClienteViewSet, basename='clientes')
 router.register(r'visitas',  VisitaViewSet,  basename='visitas')
 router.register(r'horarios-disponibilidad', HorarioDisponibilidadViewSet, basename='horarios-disponibilidad')
+router.register(r'horarios', HorarioDisponibilidadViewSet, basename='horarios')
 
 urlpatterns = [
     path('', include(router.urls)),

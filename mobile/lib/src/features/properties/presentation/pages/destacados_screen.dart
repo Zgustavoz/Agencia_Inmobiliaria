@@ -1,42 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/src/features/profile/presentation/pages/editar_perfil_screen.dart';
+import 'package:mobile/src/features/properties/logic/propiedad_provider.dart';
+import 'package:mobile/src/features/properties/presentation/property_card.dart';
+import 'package:mobile/src/features/properties/presentation/pages/historial_visitas_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/src/features/auth/logic/user_provider.dart';
 
-// Importamos el nuevo widget de la IA basándonos en tu estructura de carpetas
+// Importación de la IA
 import '../../../tasacion_ia/widgets/chat_ia_bottom_sheet.dart';
 
-class DestacadosScreen extends StatelessWidget {
+class DestacadosScreen extends StatefulWidget {
   const DestacadosScreen({super.key});
+
+  @override
+  State<DestacadosScreen> createState() => _DestacadosScreenState();
+}
+
+class _DestacadosScreenState extends State<DestacadosScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PropiedadProvider>().cargarDestacadas();
+    });
+  }
+
+  void _mostrarChatBotIA(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const ChatIABottomSheet(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.usuario;
+    final propiedadProvider = Provider.of<PropiedadProvider>(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
       endDrawer: _buildRightMenu(context, user?.nombres ?? "Usuario"),
-
-      // El botón flotante llama a nuestro método que ahora levanta el componente separado
       floatingActionButton: FloatingActionButton(
         onPressed: () => _mostrarChatBotIA(context),
         backgroundColor: const Color(0xFFF16621),
         elevation: 4,
         child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
       ),
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Padding(
           padding: EdgeInsets.all(10.w),
-          child: Icon(
-            Icons.search_rounded,
-            color: const Color(0xFFF16621),
-            size: 28.sp,
-          ),
+          child: Icon(Icons.search_rounded, color: const Color(0xFFF16621), size: 28.sp),
         ),
         title: Text(
           "INMOBILIARIA PRO",
@@ -51,90 +70,104 @@ class DestacadosScreen extends StatelessWidget {
         actions: [
           Builder(
             builder: (context) => IconButton(
-              icon: Icon(
-                Icons.menu,
-                color: const Color(0xFFF16621),
-                size: 28.sp,
-              ),
+              icon: Icon(Icons.menu, color: const Color(0xFFF16621), size: 28.sp),
               onPressed: () => Scaffold.of(context).openEndDrawer(),
             ),
           ),
           SizedBox(width: 10.w),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 380.h,
-                  width: double.infinity,
-                  child: Image.network(
-                    'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Container(height: 380.h, color: Colors.black.withOpacity(0.3)),
-                Positioned.fill(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Alquiler y venta de\ndepartamentos y casas\nen Bolivia",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.bold,
-                          shadows: const [
-                            Shadow(blurRadius: 10, color: Colors.black45),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 20.h),
-                      _buildFloatingSearch(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 30.h),
-            _buildDestacadosHeader(),
-            SizedBox(height: 15.h),
-            _buildHorizontalCarousel(),
-            SizedBox(height: 40.h),
-            Text(
-              "Mirá como InfoCasas\nte puede ayudar",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20.h),
-            _buildOrangeDrop(),
-            SizedBox(height: 50.h),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () => propiedadProvider.cargarDestacadas(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildHeroSection(),
+              SizedBox(height: 30.h),
+              _buildDestacadosHeader(),
+              SizedBox(height: 15.h),
+              _buildHorizontalCarousel(propiedadProvider),
+              SizedBox(height: 40.h),
+              Text(
+                "Mirá como Inmobiliaria Pro\nte puede ayudar",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20.h),
+              _buildOrangeDrop(),
+              SizedBox(height: 50.h),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // --- MÉTODOS DEL CHATBOT ---
-
-  // Ahora el método solo se encarga de mostrar el modal e invocar tu widget personalizado
-  void _mostrarChatBotIA(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) =>
-          const ChatIABottomSheet(), // Instanciamos el nuevo widget
+  Widget _buildHeroSection() {
+    return Stack(
+      children: [
+        SizedBox(
+          height: 380.h,
+          width: double.infinity,
+          child: Image.network(
+            'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800',
+            fit: BoxFit.cover,
+          ),
+        ),
+        Container(height: 380.h, color: Colors.black.withOpacity(0.3)),
+        Positioned.fill(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Alquiler y venta de\ndepartamentos y casas\nen Bolivia",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  shadows: const [Shadow(blurRadius: 10, color: Colors.black45)],
+                ),
+              ),
+              SizedBox(height: 20.h),
+              _buildFloatingSearch(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  // Se eliminaron por completo _buildChatBotUI y _buildMensajeIA
-  // ya que ahora viven dentro de ChatIABottomSheet
+  Widget _buildHorizontalCarousel(PropiedadProvider provider) {
+    if (provider.isLoading) {
+      return SizedBox(
+        height: 260.h,
+        child: const Center(child: CircularProgressIndicator(color: Color(0xFFF16621))),
+      );
+    }
 
-  // --- RESTO DE TUS WIDGETS EXISTENTES ---
+    if (provider.destacadas.isEmpty) {
+      return SizedBox(
+        height: 100.h,
+        child: const Center(child: Text("No hay propiedades destacadas disponibles")),
+      );
+    }
+
+    return SizedBox(
+      height: 260.h,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.only(left: 20.w),
+        itemCount: provider.destacadas.length + 1,
+        itemBuilder: (context, index) {
+          if (index == provider.destacadas.length) {
+            return _buildMoreCard();
+          }
+          return PropertyCard(propiedad: provider.destacadas[index]);
+        },
+      ),
+    );
+  }
 
   Widget _buildFloatingSearch() {
     return Container(
@@ -143,13 +176,7 @@ class DestacadosScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 15, offset: Offset(0, 5))],
       ),
       child: Column(
         children: [
@@ -219,63 +246,36 @@ class DestacadosScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  userName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(userName, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
                 SizedBox(height: 5.h),
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const EditarPerfilScreen(),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EditarPerfilScreen()));
                   },
                   child: Row(
                     children: [
-                      Text(
-                        "Editar perfil",
-                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                      ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.white,
-                        size: 18.sp,
-                      ),
+                      Text("Editar perfil", style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+                      Icon(Icons.chevron_right, color: Colors.white, size: 18.sp),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          _menuItem(
-            Icons.home_outlined,
-            "Propiedades Destacadas",
-            () => Navigator.pop(context),
-          ),
+          _menuItem(Icons.home_outlined, "Propiedades Destacadas", () => Navigator.pop(context)),
           _menuItem(Icons.favorite_border, "Mis Favoritos", () {}),
-          _menuItem(
-            Icons.calendar_today_outlined,
-            "Mis Citas / Visitas",
-            () {},
-          ),
+          _menuItem(Icons.calendar_today_outlined, "Mis Citas / Visitas", () {
+            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const HistorialVisitasScreen()));
+          }),
           _menuItem(Icons.chat_bubble_outline, "Mensajes con Agentes", () {}),
           _menuItem(Icons.description_outlined, "Mis Contratos", () {}),
           const Spacer(),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
-            title: const Text(
-              "Cerrar sesión",
-              style: TextStyle(color: Colors.redAccent),
-            ),
+            title: const Text("Cerrar sesión", style: TextStyle(color: Colors.redAccent)),
             onTap: () => Navigator.pushReplacementNamed(context, '/'),
           ),
           SizedBox(height: 20.h),
@@ -298,81 +298,9 @@ class DestacadosScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "Destacados",
-            style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            "Mostrar más",
-            style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp),
-          ),
+          Text("Destacados", style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold)),
+          Text("Mostrar más", style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp)),
         ],
-      ),
-    );
-  }
-
-  Widget _buildHorizontalCarousel() {
-    return SizedBox(
-      height: 260.h,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.only(left: 20.w),
-        children: [
-          _card(
-            "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500",
-            "Duplex de lujo",
-            "USD 49.000",
-            const Color(0xFF009191),
-          ),
-          _card(
-            "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500",
-            "Equipetrol",
-            "Preventa",
-            const Color(0xFF004AC6),
-          ),
-          _buildMoreCard(),
-        ],
-      ),
-    );
-  }
-
-  Widget _card(String url, String t, String p, Color c) {
-    return Container(
-      width: 200.w,
-      margin: EdgeInsets.only(right: 15.w),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15.r),
-        child: Stack(
-          children: [
-            Image.network(url, height: 200.h, width: 200.w, fit: BoxFit.cover),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: EdgeInsets.all(10.w),
-                color: c.withOpacity(0.9),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t,
-                      style: TextStyle(color: Colors.white, fontSize: 11.sp),
-                    ),
-                    Text(
-                      p,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -380,13 +308,13 @@ class DestacadosScreen extends StatelessWidget {
   Widget _buildMoreCard() {
     return Container(
       width: 100.w,
-      height: 200.h,
-      margin: EdgeInsets.only(right: 20.w, bottom: 60.h),
+      height: 260.h,
+      margin: EdgeInsets.only(right: 20.w),
       decoration: BoxDecoration(
         color: const Color(0xFFF16621).withOpacity(0.1),
         borderRadius: BorderRadius.circular(15.r),
       ),
-      child: Icon(Icons.arrow_forward_ios, color: const Color(0xFFF16621)),
+      child: const Icon(Icons.arrow_forward_ios, color: Color(0xFFF16621)),
     );
   }
 
