@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
+from django.urls import path, include
 
 def health(_request):
     """Endpoint para verificar que el servidor está vivo."""
@@ -13,5 +14,6 @@ urlpatterns = [
     path('api/admin-config/', include('modulo_administracion_configuracion.urls')),
     path('api/inmuebles/', include('modulo_inmuebles.urls')),
     path('api/clientes/', include('modulo_clientes_seguimiento.urls')),
-    path('api/', include('modulo_contratos.urls'))
+    path('api/', include('modulo_contratos.urls')),
+    path('api/vencimientos/', include('modulo_vencimientos.urls')),
 ]
