@@ -43,6 +43,13 @@ class Cliente(models.Model):
         related_name='perfil_cliente'
     )
     
+    # ✓ Multi-tenant: cada cliente pertenece a un tenant
+    tenant = models.ForeignKey(
+        'modulo_administracion_configuracion.Tenant',
+        on_delete=models.CASCADE,
+        related_name='clientes'
+    )
+    
     creado_por       = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, related_name='clientes_creados')
     creado_en        = models.DateTimeField(auto_now_add=True)
     actualizado_en   = models.DateTimeField(auto_now=True)

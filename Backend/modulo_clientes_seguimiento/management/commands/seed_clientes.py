@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from gestion_usuarios.models import Rol, Usuario
+from modulo_administracion_configuracion.models import Tenant
 from modulo_clientes_seguimiento.models import (
     Cliente,
     ClienteAgente,
@@ -17,22 +18,37 @@ class Command(BaseCommand):
     help = "Carga datos de prueba para clientes y sus agentes"
 
     DEFAULT_PASSWORD = "Agente123#"
+    DEFAULT_TENANT_NOMBRE = "Inmobiliaria Demo"
+    DEFAULT_TENANT_DESCRIPCION = "Tenant por defecto para seeds de clientes"
 
     @transaction.atomic
     def handle(self, *args, **kwargs):
+        tenant = self._obtener_o_crear_tenant()
         rol_agente = self._obtener_o_crear_rol_agente()
-        usuarios_base = self._crear_usuarios_base()
-        agentes = self._crear_agentes(rol_agente)
-        resultado = self._crear_clientes(usuarios_base, agentes)
+        usuarios_base = self._crear_usuarios_base(tenant)
+        agentes = self._crear_agentes(tenant, rol_agente)
+        resultado = self._crear_clientes(tenant, usuarios_base, agentes)
 
         self.stdout.write("")
         self.stdout.write(self.style.SUCCESS("Seed de clientes ejecutado correctamente"))
+        self.stdout.write(f"  Tenant listo: {tenant.nombre}")
         self.stdout.write(f"  Usuarios base listos: {len(usuarios_base)}")
         self.stdout.write(f"  Agentes listos: {len(agentes)}")
         self.stdout.write(f"  Clientes procesados: {resultado['clientes']}")
         self.stdout.write(f"  Interacciones procesadas: {resultado['interacciones']}")
         self.stdout.write(f"  Oportunidades procesadas: {resultado['oportunidades']}")
         self.stdout.write(f"  Recordatorios procesados: {resultado['recordatorios']}")
+
+    def _obtener_o_crear_tenant(self):
+        tenant, creado = Tenant.objects.get_or_create(
+            nombre=self.DEFAULT_TENANT_NOMBRE,
+            defaults={
+                "descripcion": self.DEFAULT_TENANT_DESCRIPCION,
+            },
+        )
+        mensaje = "  Tenant demo creado" if creado else "  Tenant demo ya existe"
+        self.stdout.write(mensaje)
+        return tenant
 
     def _obtener_o_crear_rol_agente(self):
         rol_agente, creado = Rol.objects.get_or_create(
@@ -45,7 +61,7 @@ class Command(BaseCommand):
         self.stdout.write(mensaje)
         return rol_agente
 
-    def _crear_usuarios_base(self):
+    def _crear_usuarios_base(self, tenant):
         usuarios_data = [
             {
                 "username": "coordinador.crm",
@@ -88,13 +104,15 @@ class Command(BaseCommand):
             )
             if creado:
                 usuario.set_password(data["password"])
-                usuario.save(update_fields=["password"])
+            if usuario.tenant_id != tenant.id:
+                usuario.tenant = tenant
+            usuario.save()
             usuarios.append(usuario)
 
         self.stdout.write(f"  Usuarios base listos: {len(usuarios)}")
         return usuarios
 
-    def _crear_agentes(self, rol_agente):
+    def _crear_agentes(self, tenant, rol_agente):
         agentes_data = [
             {
                 "username": "agente.sofia",
@@ -142,15 +160,17 @@ class Command(BaseCommand):
             )
             if creado:
                 agente.set_password(self.DEFAULT_PASSWORD)
-                agente.save(update_fields=["password"])
+            if agente.tenant_id != tenant.id:
+                agente.tenant = tenant
 
             agente.roles.add(rol_agente)
+            agente.save()
             agentes.append(agente)
 
         self.stdout.write(f"  Agentes listos: {len(agentes)}")
         return agentes
 
-    def _crear_clientes(self, usuarios_base, agentes):
+    def _crear_clientes(self, tenant, usuarios_base, agentes):
         ahora = timezone.now()
         clientes_data = [
             {
@@ -424,7 +444,9 @@ class Command(BaseCommand):
             interacciones_data = data.pop("interacciones", [])
             oportunidad_data = data.pop("oportunidad", None)
             recordatorios_data = data.pop("recordatorios", [])
+            data["tenant"] = tenant
             cliente, _ = Cliente.objects.get_or_create(
+                tenant=tenant,
                 nro_documento=data["nro_documento"],
                 defaults=data,
             )

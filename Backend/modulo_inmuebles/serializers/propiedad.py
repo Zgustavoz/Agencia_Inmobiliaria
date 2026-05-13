@@ -32,6 +32,7 @@ class PropiedadSerializer(serializers.ModelSerializer):
         # Mantenemos los campos de auditoría como solo lectura
         read_only_fields = (
             'id_propiedad',
+            'tenant',
             'creado_por',
             'creado_en',
             'actualizado_en'

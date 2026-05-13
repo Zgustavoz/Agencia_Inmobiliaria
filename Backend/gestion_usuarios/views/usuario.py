@@ -25,8 +25,7 @@ class UsuarioViewSet(BaseViewSet):
     serializer_class   = UsuarioSerializer
     permission_classes = [IsAuthenticated, EsAdminOSoloLectura | IsSelf]
     pagination_class   = UsuarioPagination
-    permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
+
 
     def get_queryset(self):
         queryset = Usuario.objects.all().prefetch_related('roles').distinct()
@@ -81,7 +80,7 @@ class UsuarioViewSet(BaseViewSet):
             'estado':  usuario.estado
         })
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def me(self, request):
         return Response(self.get_serializer(request.user).data)
     

@@ -12,6 +12,14 @@ class Propiedad(models.Model):
     # Nota: Usa el AUTH_USER_MODEL para referirte a tus usuarios
     id_zona = models.ForeignKey(Zona, on_delete=models.PROTECT, related_name='propiedades')
     id_moneda = models.ForeignKey(Moneda, on_delete=models.PROTECT)
+    
+    # ✓ Multi-tenant: cada propiedad pertenece a un tenant
+    tenant = models.ForeignKey(
+        'modulo_administracion_configuracion.Tenant',
+        on_delete=models.CASCADE,
+        related_name='propiedades'
+    )
+    
     id_agente_publicador = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.SET_NULL, 

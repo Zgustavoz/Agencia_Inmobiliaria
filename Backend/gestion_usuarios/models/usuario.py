@@ -1,6 +1,7 @@
 # pylint: disable=C0114,C0115,C0116,E1101
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.conf import settings
 from .rol import Rol
 from .permiso import Permiso
 
@@ -39,7 +40,16 @@ class Usuario(AbstractBaseUser):
     ci              = models.CharField(max_length=20, blank=True, null=True)
     direccion       = models.CharField(max_length=255, blank=True, null=True)
     ocupacion       = models.CharField(max_length=100, blank=True, null=True)
-    fecha_nacimiento = models.DateField(blank=True, null=True) 
+    fecha_nacimiento = models.DateField(blank=True, null=True)
+    
+    # Multi-tenant: cada usuario pertenece a un tenant (nullable para usuarios legados)
+    tenant = models.ForeignKey(
+        'modulo_administracion_configuracion.Tenant',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='usuarios'
+    )
     
     roles    = models.ManyToManyField(Rol,     through='UsuarioRol',    related_name='usuarios', blank=True)
 
