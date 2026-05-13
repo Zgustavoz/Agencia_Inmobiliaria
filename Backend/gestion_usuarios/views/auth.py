@@ -57,10 +57,25 @@ class LoginView(TokenObtainPairView):
         except TokenError as e:
             raise InvalidToken(e.args[0]) from e
 
+        user = serializer.user
+        
+        # ✓ Validar suscripción del tenant (paso 8 del plan)
+        if user.tenant:
+            if not user.tenant.estado:
+                return Response({
+                    'error': 'Suscripción vencida, realice el pago',
+                    'estado': 'inactivo'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            if user.tenant.esta_vencido():
+                return Response({
+                    'error': 'Suscripción vencida, realice el pago',
+                    'estado': 'vencido'
+                }, status=status.HTTP_403_FORBIDDEN)
+
         access_token  = serializer.validated_data['access']
         refresh_token = serializer.validated_data['refresh']
 
-        user = serializer.user
         user.ultimo_acceso = timezone.now()
         user.es_online = True
         user.save(update_fields=['ultimo_acceso', 'es_online'])
@@ -84,20 +99,35 @@ class LoginView(TokenObtainPairView):
         except:
             pass
 
-        response = Response({
+        # Preparar datos de respuesta incluido tenant_id
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'nombres': user.nombres,
+            'apellidos': user.apellidos,
+            'telefono': getattr(user, 'telefono', ''),
+        }
+        
+        response_data = {
             'message': 'Login exitoso',
             'token': access_token,
             'es_cliente': es_cliente,
             'cliente_id': cliente_id,
-            'user': {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'nombres': user.nombres,
-                'apellidos': user.apellidos,
-                'telefono': getattr(user, 'telefono', ''),
+            'user': user_data,
+        }
+        
+        # Incluir tenant_id si el usuario está asociado a un tenant
+        if user.tenant:
+            response_data['tenant_id'] = user.tenant.id
+            response_data['tenant'] = {
+                'id': user.tenant.id,
+                'nombre': user.tenant.nombre,
+                'plan': user.tenant.plan,
+                'vencido': user.tenant.esta_vencido(),
             }
-        }, status=status.HTTP_200_OK)
+
+        response = Response(response_data, status=status.HTTP_200_OK)
 
         set_auth_cookies(response, access_token, refresh_token)
         return response

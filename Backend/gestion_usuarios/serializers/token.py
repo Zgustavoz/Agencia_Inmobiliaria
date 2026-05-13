@@ -18,4 +18,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username']  = user.username
         token['email']     = user.email
         token['es_admin']  = user.es_admin
+        
+        # Agregar tenant_id al token si el usuario tiene un tenant asignado
+        if user.tenant:
+            token['tenant_id'] = user.tenant.id
+        
         return token
