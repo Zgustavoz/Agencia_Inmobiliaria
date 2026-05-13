@@ -7,7 +7,6 @@ import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-#Agrego esto para que se pueda subir documentos
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 SECRET_KEY = config('SECRET_KEY')
@@ -97,7 +96,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 #         'NAME':     config('DB_NAME'),
 #         'USER':     config('DB_USER'),
 #         'PASSWORD': config('DB_PASSWORD'),
-#        'HOST':     config('DB_HOST', default='localhost'),
+#         'HOST':     config('DB_HOST', default='localhost'),
 #         'PORT':     config('DB_PORT', default='5432'),
 #     }
 # }
@@ -205,5 +204,6 @@ R2_ACCESS_KEY_ID     = config('R2_ACCESS_KEY_ID')
 R2_SECRET_ACCESS_KEY = config('R2_SECRET_ACCESS_KEY')
 R2_BUCKET_NAME       = config('R2_BUCKET_NAME')
 R2_ENDPOINT_URL     = config('R2_ENDPOINT_URL')
-# --- Al final de tu settings.py ---
+
+# ── Gemini ──────────────────────────────────
 GEMINI_API_KEY = config('GEMINI_API_KEY')
