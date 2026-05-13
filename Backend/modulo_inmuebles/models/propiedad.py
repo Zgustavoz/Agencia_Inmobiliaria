@@ -18,7 +18,7 @@ class Propiedad(models.Model):
     # Relaciones con FK confirmadas
     zona = models.ForeignKey(Zona, on_delete=models.PROTECT, db_column='id_zona')
     moneda = models.ForeignKey(Moneda, on_delete=models.PROTECT, db_column='id_moneda')
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='propiedades')
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='propiedades', null=True, blank=True)
     
     # Precios
     precio = models.DecimalField(max_digits=14, decimal_places=2)
