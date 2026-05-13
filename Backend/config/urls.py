@@ -16,6 +16,12 @@ urlpatterns = [
     path('api/notificaciones/', include('notificaciones.urls')),
 =======
     path('api/clientes/', include('modulo_clientes_seguimiento.urls')),
+<<<<<<< HEAD
     path('api/', include('modulo_contratos.urls'))
 >>>>>>> 5f3ba76e83582ab228be23bc9ed9b4651b90fb69
+=======
+    path('api/', include('modulo_contratos.urls')),
+    path('api/vencimientos/', include('modulo_vencimientos.urls')),
+    path('api/tasacion-ia/', include('modulo_tasacion_ia.urls')),
+>>>>>>> 02bcc1fcabe63ec9d796978521336aee582c8cdc
 ]

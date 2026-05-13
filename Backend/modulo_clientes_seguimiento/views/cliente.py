@@ -10,16 +10,17 @@ from ..serializers import (
     ClienteInteraccionSerializer, ClienteOportunidadSerializer,
     ClienteRecordatorioSerializer, ClienteAgenteSerializer,
 )
-from gestion_usuarios.permissions import EsAdmin
+from rest_framework.permissions import IsAuthenticated
+from gestion_usuarios.views.base import TenantAwareViewSet
 
 class ClientePagination(PageNumberPagination):
     page_size             = 10
     page_size_query_param = 'page_size'
     max_page_size         = 50
 
-class ClienteViewSet(viewsets.ModelViewSet):
+class ClienteViewSet(TenantAwareViewSet):
     queryset           = Cliente.objects.all().order_by('-creado_en')
-    permission_classes = [EsAdmin]
+    permission_classes = [IsAuthenticated]
     pagination_class   = ClientePagination
 
     def get_serializer_class(self):
@@ -28,7 +29,10 @@ class ClienteViewSet(viewsets.ModelViewSet):
         return ClienteSerializer
 
     def get_queryset(self):
-        queryset = Cliente.objects.annotate(
+        # Primero aplicar el filtro de tenant (TenantAwareViewSet)
+        queryset = super().get_queryset()
+        
+        queryset = queryset.annotate(
             cnt_interacciones=Count('interacciones', distinct=True),
             cnt_oportunidades=Count('oportunidades', distinct=True),
         ).order_by('-creado_en')
@@ -58,7 +62,8 @@ class ClienteViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(creado_por=self.request.user)
+        # Asignar tenant_id automáticamente (de TenantAwareViewSet)
+        super().perform_create(serializer)
 
     # ── Panel de seguimiento ──────────────────────────────────
     @action(detail=True, methods=['get'])

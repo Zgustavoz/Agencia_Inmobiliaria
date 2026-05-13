@@ -12,7 +12,7 @@ class PropiedadImagenSerializer(serializers.ModelSerializer):
 
 # 2. LUEGO DEFINIR EL DE PROPIEDAD
 class PropiedadSerializer(serializers.ModelSerializer):
-    # Ahora sí Python sabe qué es PropiedadImagenSerializer
+    # Campos que necesita la App Móvil y la Web que no están en el modelo base
     imagenes = PropiedadImagenSerializer(many=True, read_only=True)
     
     imagenes_input = serializers.ListField(
@@ -26,8 +26,17 @@ class PropiedadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Propiedad
+        # Restauramos __all__ para que NO se pierda ningún campo (antiguedad, pisos, etc.)
         fields = '__all__'
-        read_only_fields = ('creado_por', 'creado_en', 'actualizado_en')
+        
+        # Mantenemos los campos de auditoría como solo lectura
+        read_only_fields = (
+            'id_propiedad',
+            'tenant',
+            'creado_por',
+            'creado_en',
+            'actualizado_en'
+        )
 
     def create(self, validated_data):
         imagenes_subidas = validated_data.pop('imagenes_input', [])
@@ -40,6 +49,29 @@ class PropiedadSerializer(serializers.ModelSerializer):
 
         propiedad = super().create(validated_data)
 
+        # Lógica de imágenes
+        self._handle_images(propiedad, imagenes_subidas)
+
+        return propiedad
+
+    def update(self, instance, validated_data):
+        # Extraemos las imágenes si vienen en la petición de edición
+        imagenes_subidas = validated_data.pop('imagenes_input', [])
+        
+        # Actualizamos los campos básicos de la propiedad
+        propiedad = super().update(instance, validated_data)
+
+        # Si se subieron nuevas imágenes, las procesamos
+        if imagenes_subidas:
+            self._handle_images(propiedad, imagenes_subidas)
+
+        return propiedad
+
+    def _handle_images(self, propiedad, imagenes_subidas):
+        """Método auxiliar para procesar y subir imágenes a Cloudinary."""
+        # Calculamos el orden actual para no sobrescribir si ya hay imágenes
+        ultimo_orden = PropiedadImagen.objects.filter(propiedad=propiedad).count()
+        
         for index, file in enumerate(imagenes_subidas):
             try:
                 upload_data = CloudinaryService.upload_image(file, folder="inmuebles/galeria")
@@ -48,10 +80,8 @@ class PropiedadSerializer(serializers.ModelSerializer):
                     propiedad=propiedad,
                     url_imagen=upload_data['url'],
                     nombre_archivo=upload_data['public_id'], 
-                    principal=(index == 0),
-                    orden_visual=index + 1
+                    principal=(ultimo_orden == 0 and index == 0),
+                    orden_visual=ultimo_orden + index + 1
                 )
             except Exception as e:
                 print(f"Error subiendo imagen a Cloudinary: {e}")
-
-        return propiedad

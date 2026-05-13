@@ -1,0 +1,257 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'register_screen.dart';
+import 'client_register_screen.dart';
+import 'package:mobile/src/features/properties/presentation/pages/destacados_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:mobile/src/features/auth/logic/user_provider.dart';
+import 'package:mobile/src/features/auth/data/usuario_model.dart';
+import 'package:mobile/src/core/config/app_config.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _intentarLogin() async {
+    final String username = _userController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    if (username.isEmpty || password.isEmpty) {
+      _mostrarError("Ingresa usuario y contraseña");
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await http.post(
+        Uri.parse('${AppConfig.apiUrl}/gestion_usuarios/auth/login/'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'username': username, 'password': password}),
+      ).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final String token = data['token'];
+        final userData = data['user'];
+        
+        final usuarioReal = Usuario.fromJson(userData);
+        Provider.of<UserProvider>(context, listen: false).setUser(usuarioReal, token);
+
+        Navigator.pushReplacementNamed(context, '/destacados');
+      } else {
+        _mostrarError("Credenciales incorrectas");
+      }
+    } catch (e) {
+      _mostrarError("Error de conexión: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _mostrarError(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje), 
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFDBE1FF), Color(0xFFF7F9FB)],
+              ),
+            ),
+          ),
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: Colors.white.withOpacity(0.4)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Acceso Profesional",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF191C1E),
+                            letterSpacing: -1,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Ingresa a tu panel inmobiliario",
+                          style: TextStyle(
+                            color: Color(0xFF434655),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        _buildLabel("USUARIO"),
+                        _buildTextField(
+                          controller: _userController,
+                          hint: "ejemplo@architecthq.com",
+                          icon: Icons.alternate_email,
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        _buildLabel("CONTRASEÑA"),
+                        _buildTextField(
+                          controller: _passwordController,
+                          hint: "••••••••",
+                          icon: Icons.lock,
+                          isPassword: true,
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        GestureDetector(
+                          onTap: _isLoading ? null : _intentarLogin,
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF004AC6), Color(0xFF2563EB)],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF004AC6).withOpacity(0.3),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (_isLoading)
+                                    const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                  else ...[
+                                    const Text("Iniciar Sesión", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                                    const SizedBox(width: 8),
+                                    const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+                        _buildPartnerDivider(),
+                        const SizedBox(height: 24),
+
+                        // Registro de Clientes
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("¿Buscas Inmuebles?"),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const ClientRegisterScreen()));
+                              },
+                              child: const Text("Registro Cliente", style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF004AC6))),
+                            ),
+                          ],
+                        ),
+
+                        // Registro de Profesionales
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("¿Eres Profesional?"),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+                              },
+                              child: const Text("Regístrate aquí", style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF737686))),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF737686), letterSpacing: 1.2)),
+    );
+  }
+
+  Widget _buildTextField({required String hint, required IconData icon, bool isPassword = false, required TextEditingController controller}) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: const Color(0xFF737686), size: 20),
+        hintText: hint,
+        hintStyle: TextStyle(color: const Color(0xFF737686).withOpacity(0.5)),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 18),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: const Color(0xFFC3C6D7).withOpacity(0.3))),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: const Color(0xFFC3C6D7).withOpacity(0.3))),
+      ),
+    );
+  }
+
+  Widget _buildPartnerDivider() {
+    return Row(
+      children: [
+        Expanded(child: Divider(color: const Color(0xFF737686).withOpacity(0.2))),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Text("ACCESO Y REGISTRO", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF737686), letterSpacing: 2)),
+        ),
+        Expanded(child: Divider(color: const Color(0xFF737686).withOpacity(0.2))),
+      ],
+    );
+  }
+}

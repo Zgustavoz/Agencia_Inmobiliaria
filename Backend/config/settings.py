@@ -1,13 +1,12 @@
-# pylint: disable=W0611
+# pylint: disable=W0611,C0114
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import dj_database_url
-import cloudinary 
+import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-#Agrego esto para que se pueda subir documentos
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 SECRET_KEY = config('SECRET_KEY')
@@ -54,8 +53,13 @@ LOCAL_APPS = [
     'notificaciones',
 =======
     'modulo_clientes_seguimiento',
+<<<<<<< HEAD
     'modulo_contratos'
 >>>>>>> 5f3ba76e83582ab228be23bc9ed9b4651b90fb69
+=======
+    'modulo_contratos',
+    'modulo_tasacion_ia'
+>>>>>>> 02bcc1fcabe63ec9d796978521336aee582c8cdc
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -94,24 +98,24 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # ── Base de datos ─────────────────────────────────────────────
 # # Local
-# DATABASES = {
-#      'default': {
+#DATABASES = {
+#     'default': {
 #         'ENGINE':   'django.db.backends.postgresql',
-#          'NAME':     config('DB_NAME'),
+#         'NAME':     config('DB_NAME'),
 #         'USER':     config('DB_USER'),
 #         'PASSWORD': config('DB_PASSWORD'),
 #         'HOST':     config('DB_HOST', default='localhost'),
-#        'PORT':     config('DB_PORT', default='5432'),
+#         'PORT':     config('DB_PORT', default='5432'),
 #     }
 # }
 
 # Producción
 DATABASES = {
-   'default': dj_database_url.config(
-       default=config('DATABASE_URL'),
-       conn_max_age=600,
-       ssl_require=False
-   )
+ 'default': dj_database_url.config(
+    default=config('DATABASE_URL'),
+     conn_max_age=600,
+    ssl_require=False
+  )
 }
 
 # ── Auth ──────────────────────────────────────────────────────
@@ -211,3 +215,6 @@ R2_ACCESS_KEY_ID     = config('R2_ACCESS_KEY_ID')
 R2_SECRET_ACCESS_KEY = config('R2_SECRET_ACCESS_KEY')
 R2_BUCKET_NAME       = config('R2_BUCKET_NAME')
 R2_ENDPOINT_URL     = config('R2_ENDPOINT_URL')
+
+# ── Gemini ──────────────────────────────────
+GEMINI_API_KEY = config('GEMINI_API_KEY')
