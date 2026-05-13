@@ -8,6 +8,7 @@ import { ResetPasswordPage } from "./App/auth/page/ResetPasswordPage";
 import { SuscripcionesPage } from "./App/auth/page/SuscripcionesPage";
 import { Dashboard } from "./App/Gestion-administracion/Dashboard";
 import { DashboardPage } from "./App/Gestion-administracion/dashboard/page/Dashboard";
+import { SettingsPage } from "./App/Gestion-administracion/settings/page/SettingsPage";
 import { UsuarioPage } from "./App/Gestion-administracion/gestion-usuario/page/UsuarioPage";
 import { RolPage } from "./App/Gestion-administracion/gestion-rol/page/RolPage";
 import { ProtectedRoute } from "./App/auth/components/ProtectedRoute";
@@ -76,6 +77,16 @@ function InmobiliarApp() {
         }
       >
         <Route index element={<DashboardPage />} />
+        <Route
+          path="settings"
+          element={
+            <ProtectedRoute
+              requiredRoles={["Administrador", "Supervisor", "Agente", "Asistente", "Auditor"]}
+            >
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="usuarios"
           element={
