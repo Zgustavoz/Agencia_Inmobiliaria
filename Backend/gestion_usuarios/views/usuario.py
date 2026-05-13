@@ -84,3 +84,50 @@ class UsuarioViewSet(BaseViewSet):
     @action(detail=False, methods=['get'])
     def me(self, request):
         return Response(self.get_serializer(request.user).data)
+    
+    @action(detail=False, methods=['get'])
+    def buscar_clientes(self, request):
+        query = request.query_params.get('q', '')
+
+        usuarios = Usuario.objects.filter(
+            roles__nombre__iexact='Cliente'
+        ).filter(
+            Q(nombres__icontains=query) |
+            Q(apellidos__icontains=query) |
+            Q(username__icontains=query)
+        ).distinct()[:20]
+
+        data = [
+            {
+                'id': u.id,
+                'nombre': f'{u.nombres} {u.apellidos}',
+                'username': u.username
+            }
+            for u in usuarios
+        ]
+
+        return Response(data)
+
+
+    @action(detail=False, methods=['get'])
+    def buscar_agentes(self, request):
+        query = request.query_params.get('q', '')
+
+        usuarios = Usuario.objects.filter(
+            roles__nombre__iexact='Agente'
+        ).filter(
+            Q(nombres__icontains=query) |
+            Q(apellidos__icontains=query) |
+            Q(username__icontains=query)
+        ).distinct()[:20]
+
+        data = [
+            {
+                'id': u.id,
+                'nombre': f'{u.nombres} {u.apellidos}',
+                'username': u.username
+            }
+            for u in usuarios
+        ]
+
+        return Response(data)
