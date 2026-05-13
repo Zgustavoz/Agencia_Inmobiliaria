@@ -5,11 +5,15 @@ export const intanciaAxios = axios.create({
   withCredentials: true,
 })
 
-
 intanciaAxios.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
+
+    if (!originalRequest) {
+      return Promise.reject(error)
+    }
+
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -29,12 +33,3 @@ intanciaAxios.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-intanciaAxios.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token"); // Verifica que este sea el nombre que usas
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
