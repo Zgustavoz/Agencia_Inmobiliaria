@@ -175,3 +175,127 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
         )
 
         return user
+class RegistroTrabajadorSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password]
+    )
+    # Permite al administrador elegir el rol del trabajador al crearlo
+    rol_id = serializers.IntegerField(write_only=True, required=True)
+
+    class Meta:
+        model = Usuario
+        fields = [
+            'username', 'email', 'nombres', 'apellidos',
+            'telefono', 'password', 'rol_id'
+        ]
+
+    def validate_email(self, value):
+        if Usuario.objects.filter(email=value).exists():
+            raise serializers.ValidationError('Ya existe una cuenta con este email')
+        return value
+
+    def validate_username(self, value):
+        if Usuario.objects.filter(username=value).exists():
+            raise serializers.ValidationError('Este username ya está en uso')
+        return value
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        rol_id = validated_data.pop('rol_id')
+        password = validated_data.pop('password')
+
+        # 1. Obtener la agencia del administrador que está creando al trabajador
+        agencia = request.user.agencia
+
+        # 2. Validar Límite del Plan SaaS
+        from ..models import Suscripcion # Asegúrate de importar el modelo
+        suscripcion_activa = Suscripcion.objects.filter(agencia=agencia, estado='activa').first()
+        conteo_usuarios = Usuario.objects.filter(agencia=agencia).count()
+        
+        if suscripcion_activa and conteo_usuarios >= suscripcion_activa.plan.limite_agentes:
+            raise serializers.ValidationError(
+                f"No puedes agregar más trabajadores. Tu plan permite un máximo de {suscripcion_activa.plan.limite_agentes}."
+            )
+
+        # 3. Crear el trabajador
+        validated_data['agencia'] = agencia
+        validated_data['estado'] = True # Entra activo directo porque lo creó el admin
+        
+        user = Usuario.objects.create_user(password=password, **validated_data)
+
+        # 4. Asignar el rol seleccionado (verificando que el rol pertenezca a la agencia)
+        try:
+            rol = Rol.objects.get(id=rol_id, agencia=agencia)
+            user.roles.set([rol])
+        except Rol.DoesNotExist:
+            raise serializers.ValidationError("El rol seleccionado no es válido o no pertenece a tu agencia.")
+
+        return user
+class RegistroAgenciaSerializer(serializers.ModelSerializer):
+    # Datos del dueño
+    email = serializers.EmailField(write_only=True, required=True)
+    nombres = serializers.CharField(write_only=True, required=True)
+    apellidos = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    
+    # Datos de la suscripción
+    plan_id = serializers.IntegerField(write_only=True, required=True)
+
+    class Meta:
+        from ..models import Agencia
+        model = Agencia
+        fields = ['nombre', 'email', 'nombres', 'apellidos', 'password', 'plan_id']
+
+    def validate_email(self, value):
+        if Usuario.objects.filter(email=value).exists():
+            raise serializers.ValidationError('Este correo ya está registrado.')
+        return value
+
+    def create(self, validated_data):
+        from ..models import Agencia, Plan, Suscripcion
+        import timezone
+        from datetime import timedelta
+
+        # Extraemos los datos
+        email = validated_data.pop('email')
+        nombres = validated_data.pop('nombres')
+        apellidos = validated_data.pop('apellidos')
+        password = validated_data.pop('password')
+        plan_id = validated_data.pop('plan_id')
+
+        # 1. Crear la Agencia
+        agencia = Agencia.objects.create(nombre=validated_data['nombre'], estado=True)
+
+        # 2. Crear al Dueño (Administrador principal)
+        # Usamos el email como username temporal o generamos uno
+        username_generado = email.split('@')[0]
+        
+        dueño = Usuario.objects.create_user(
+            username=username_generado,
+            email=email,
+            nombres=nombres,
+            apellidos=apellidos,
+            password=password,
+            agencia=agencia,
+            es_admin=True,
+            estado=True
+        )
+
+        # 3. Asignar el Plan (Suscripción)
+        try:
+            plan_elegido = Plan.objects.get(id=plan_id)
+            # Ejemplo: Le damos 30 días o lo que diga el plan
+            fecha_fin = timezone.now() + timedelta(days=30) 
+            Suscripcion.objects.create(
+                agencia=agencia,
+                plan=plan_elegido,
+                fecha_inicio=timezone.now(),
+                fecha_fin=fecha_fin,
+                estado='activa'
+            )
+        except Plan.DoesNotExist:
+            raise serializers.ValidationError("El plan seleccionado no existe.")
+
+        return agencia # O puedes retornar un diccionario con tokens si quieres loguearlo de inmediat

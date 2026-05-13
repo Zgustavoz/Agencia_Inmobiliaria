@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from .rol import Rol
 from .permiso import Permiso
+from .agencia import Agencia
 
 class UsuarioManager(BaseUserManager):
 
@@ -42,7 +43,14 @@ class Usuario(AbstractBaseUser):
     fecha_nacimiento = models.DateField(blank=True, null=True) 
     
     roles    = models.ManyToManyField(Rol,     through='UsuarioRol',    related_name='usuarios', blank=True)
-
+    agencia = models.ForeignKey(
+        Agencia, 
+        on_delete=models.CASCADE, 
+        related_name='usuarios', 
+        null=True, 
+        blank=True,
+        db_column='id_agencia'
+    )
     objects = UsuarioManager()
 
     USERNAME_FIELD  = 'username'

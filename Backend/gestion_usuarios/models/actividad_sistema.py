@@ -2,6 +2,7 @@
 #Jose creo esto por si esta mal Gustavo no me pegues
 from django.db import models
 from .usuario import Usuario
+from .agencia import Agencia
 
 class ActividadSistema(models.Model):
     id_actividad = models.BigAutoField(primary_key=True)
@@ -17,7 +18,12 @@ class ActividadSistema(models.Model):
     ip_origen    = models.CharField(max_length=50, blank=True, null=True)
     user_agent   = models.TextField(blank=True, null=True)
     fecha_evento = models.DateTimeField(auto_now_add=True)
-
+    agencia = models.ForeignKey(
+        Agencia, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        db_column='id_agencia'
+    )
     class Meta:
         db_table = 'actividad_sistema'
         ordering = ['-fecha_evento'] # Lo más reciente primero

@@ -29,14 +29,23 @@ class RolSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'creado_en', 'usuarios_count']
 
     def validate_nombre(self, value):
-        qs = Rol.objects.filter(nombre=value)
+        request = self.context.get('request')
+        agencia = request.user.agencia if request and hasattr(request, "user") else None
+        
+        # Filtramos por nombre y por LA AGENCIA del usuario
+        qs = Rol.objects.filter(nombre=value, agencia=agencia)
         if self.instance:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
-            raise serializers.ValidationError('Ya existe un rol con este nombre')
+            raise serializers.ValidationError('Ya existe un rol con este nombre en tu inmobiliaria')
         return value
 
     def create(self, validated_data):
+        request = self.context.get('request')
+        # Asignamos la agencia del administrador que está creando el rol
+        if request and hasattr(request, "user") and request.user.agencia:
+            validated_data['agencia'] = request.user.agencia
+
         permisos_data = validated_data.pop('permisos', [])
         rol = Rol.objects.create(**validated_data)
         if permisos_data:
