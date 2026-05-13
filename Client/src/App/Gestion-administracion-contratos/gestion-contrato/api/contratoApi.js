@@ -5,6 +5,9 @@ const DOCUMENTOS_URL = "/api/documentos-contrato/";
 const USUARIOS_URL = "/gestion_usuarios/usuarios/";
 const PROPIEDADES_URL = "/api/inmuebles/propiedades/";
 
+// =====================
+// CONTRATOS
+// =====================
 export const obtenerContratos = async () => {
   const { data } = await intanciaAxios.get(CONTRATOS_URL);
   return data;
@@ -56,29 +59,20 @@ export const obtenerDocumentosContrato = async (idContrato) => {
   const { data } = await intanciaAxios.get(
     `${DOCUMENTOS_URL}?contrato=${idContrato}`
   );
-
   return data;
 };
 
 export const buscarClientes = async (search = "") => {
   const { data } = await intanciaAxios.get(
-    `${USUARIOS_URL}buscar_clientes/`,
-    {
-      params: { q: search }
-    }
+    `${USUARIOS_URL}buscar_clientes/?q=${search}`
   );
-
   return data;
 };
 
 export const buscarAgentes = async (search = "") => {
   const { data } = await intanciaAxios.get(
-    `${USUARIOS_URL}buscar_agentes/`,
-    {
-      params: { q: search }
-    }
+    `${USUARIOS_URL}buscar_agentes/?q=${search}`
   );
-
   return data;
 };
 

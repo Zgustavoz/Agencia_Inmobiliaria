@@ -14,7 +14,7 @@ from django.db.models import Q
 class PropiedadViewSet(viewsets.ModelViewSet):
     queryset = Propiedad.objects.all().order_by('-creado_en')
     serializer_class = PropiedadSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly] #IsAuthenticatedOrReadOnly# Cualquiera ve, solo logueados editan
+    permission_classes = [AllowAny] #IsAuthenticatedOrReadOnly# Cualquiera ve, solo logueados editan
     filter_backends = [filters.SearchFilter]
     search_fields = ['titulo', 'codigo_propiedad']
     def get_queryset(self):
@@ -43,7 +43,7 @@ class PropiedadViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(destacada=val)
 
             return queryset
-    permission_classes = [IsAuthenticatedOrReadOnly] #IsAuthenticatedOrReadOnly
+    permission_classes = [AllowAny] #IsAuthenticatedOrReadOnly
 
     filter_backends = [
         DjangoFilterBackend,

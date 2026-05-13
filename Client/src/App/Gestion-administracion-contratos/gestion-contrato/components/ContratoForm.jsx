@@ -17,7 +17,7 @@ export const ContratoForm = ({
   const [formData, setFormData] = useState({
     codigo_contrato: "",
     estado_contrato: "BORRADOR",
-    tipo_operacion: "VENTA",
+    tipo_operacion: "",
     monto: "",
     garantia: "",
     comision: "",
@@ -35,7 +35,7 @@ export const ContratoForm = ({
       setFormData({
         codigo_contrato: contratoAEditar.codigo_contrato || "",
         estado_contrato: contratoAEditar.estado_contrato || "BORRADOR",
-        tipo_operacion: contratoAEditar.tipo_operacion || "VENTA",
+        tipo_operacion: contratoAEditar.tipo_operacion || "",
         monto: contratoAEditar.monto || "",
         garantia: contratoAEditar.garantia || "",
         comision: contratoAEditar.comision || "",
@@ -86,18 +86,22 @@ export const ContratoForm = ({
 
   const handleSave = async () => {
     try {
+      const payload = {
+        ...formData,
+        garantia: formData.garantia ? Number(formData.garantia) : null,
+        monto: formData.monto ? Number(formData.monto) : null,
+        comision: formData.comision ? Number(formData.comision) : null,
+      };
+
       if (contratoAEditar) {
-        await updateContrato(
-          contratoAEditar.id_contrato,
-          formData
-        );
+        await updateContrato(contratoAEditar.id_contrato, payload);
       } else {
-        await createContrato(formData);
+        await createContrato(payload);
       }
 
       onSuccess();
     } catch (error) {
-      console.error("Error guardando contrato:", error);
+      console.error("Error guardando contrato:", error.response?.data);
     }
   };
 
@@ -138,8 +142,10 @@ export const ContratoForm = ({
           onChange={handleChange}
           className="p-3 rounded-lg border"
         >
+          <option value="">Tipo de operación</option>
           <option value="VENTA">Venta</option>
           <option value="ALQUILER">Alquiler</option>
+          <option value="ANTICRETICO">Anticrético</option>
         </select>
 
         <AsyncSelect
