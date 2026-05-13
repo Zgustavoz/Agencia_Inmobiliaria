@@ -65,3 +65,5 @@ Mobile/build/
 .dart_tool/
 **/build/
 linux/flutter/generated_*
+
+mobile/agenciainmobiliaria-*firebase-adminsdk*.json
