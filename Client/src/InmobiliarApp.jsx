@@ -5,6 +5,7 @@ import { RegisterPage } from "./App/auth/page/RegisterPage";
 import { RegisterClientePage } from "./App/auth/page/RegisterClientePage";
 import { ClientPage } from "./App/auth/page/ClientPage";
 import { ResetPasswordPage } from "./App/auth/page/ResetPasswordPage";
+import { SuscripcionesPage } from "./App/auth/page/SuscripcionesPage";
 import { Dashboard } from "./App/Gestion-administracion/Dashboard";
 import { DashboardPage } from "./App/Gestion-administracion/dashboard/page/Dashboard";
 import { UsuarioPage } from "./App/Gestion-administracion/gestion-usuario/page/UsuarioPage";
@@ -28,6 +29,7 @@ function InmobiliarApp() {
     <Routes>
       {/* ── Rutas públicas ── */}
       <Route element={<PublicLayout />}>
+        <Route path="suscripciones" element={<SuscripcionesPage />} />
         <Route path="/" element={<ClientHomePage />} />
         <Route
           path="restablecer-password/:uidb64/:token"
@@ -109,7 +111,7 @@ function InmobiliarApp() {
               <PropiedadPage />
             </ProtectedRoute>
           }
-       />
+        />
 
         <Route
           path="/dashboard/contratos"
