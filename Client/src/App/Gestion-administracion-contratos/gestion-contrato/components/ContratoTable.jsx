@@ -87,6 +87,7 @@ export const ContratoTable = ({
                     <Download size={16} />
                   </button>
 
+                  {/*
                   <button
                     onClick={() => onVerDocumentos(c)}
                     className="p-2 rounded-lg hover:bg-amber-50 text-amber-600"
@@ -94,7 +95,7 @@ export const ContratoTable = ({
                   >
                     <FolderOpen size={16} />
                   </button>
-
+                  */}
                 </div>
               </td>
             </tr>

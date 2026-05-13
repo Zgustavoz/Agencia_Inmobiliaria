@@ -17,6 +17,7 @@ export const ContratoForm = ({
   const [formData, setFormData] = useState({
     codigo_contrato: "",
     estado_contrato: "BORRADOR",
+    tipo_operacion: "VENTA",
     monto: "",
     garantia: "",
     comision: "",
@@ -34,6 +35,7 @@ export const ContratoForm = ({
       setFormData({
         codigo_contrato: contratoAEditar.codigo_contrato || "",
         estado_contrato: contratoAEditar.estado_contrato || "BORRADOR",
+        tipo_operacion: contratoAEditar.tipo_operacion || "VENTA",
         monto: contratoAEditar.monto || "",
         garantia: contratoAEditar.garantia || "",
         comision: contratoAEditar.comision || "",
@@ -60,7 +62,7 @@ export const ContratoForm = ({
 
     return data.map((c) => ({
       value: c.id,
-      label: `${c.nombres} ${c.apellidos}`
+      label: c.nombre
     }));
   };
 
@@ -69,7 +71,7 @@ export const ContratoForm = ({
 
     return data.map((a) => ({
       value: a.id,
-      label: `${a.nombres} ${a.apellidos}`
+      label: a.nombre
     }));
   };
 
@@ -128,6 +130,16 @@ export const ContratoForm = ({
           <option value="ACTIVO">Activo</option>
           <option value="FINALIZADO">Finalizado</option>
           <option value="VENCIDO">Vencido</option>
+        </select>
+        
+        <select
+          name="tipo_operacion"
+          value={formData.tipo_operacion}
+          onChange={handleChange}
+          className="p-3 rounded-lg border"
+        >
+          <option value="VENTA">Venta</option>
+          <option value="ALQUILER">Alquiler</option>
         </select>
 
         <AsyncSelect

@@ -16,8 +16,13 @@ export const obtenerResumenContratos = async () => {
 };
 
 export const createContrato = async (payload) => {
-  const { data } = await intanciaAxios.post(CONTRATOS_URL, payload);
-  return data;
+  try {
+    const { data } = await intanciaAxios.post(CONTRATOS_URL, payload);
+    return data;
+  } catch (error) {
+    console.log("ERROR BACKEND:", error.response?.data);
+    throw error;
+  }
 };
 
 export const updateContrato = async (id, payload) => {
@@ -57,18 +62,24 @@ export const obtenerDocumentosContrato = async (idContrato) => {
 
 export const buscarClientes = async (search = "") => {
   const { data } = await intanciaAxios.get(
-    `${USUARIOS_URL}?search=${search}`
+    `${USUARIOS_URL}buscar_clientes/`,
+    {
+      params: { q: search }
+    }
   );
 
-  return data.results || data;
+  return data;
 };
 
 export const buscarAgentes = async (search = "") => {
   const { data } = await intanciaAxios.get(
-    `${USUARIOS_URL}?search=${search}`
+    `${USUARIOS_URL}buscar_agentes/`,
+    {
+      params: { q: search }
+    }
   );
 
-  return data.results || data;
+  return data;
 };
 
 export const buscarPropiedades = async (search = "") => {
