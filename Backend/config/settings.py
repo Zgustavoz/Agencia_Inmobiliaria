@@ -52,7 +52,8 @@ LOCAL_APPS = [
     'modulo_inmuebles',
     'modulo_clientes_seguimiento',
     'modulo_contratos',
-    'modulo_tasacion_ia'
+    'modulo_tasacion_ia',
+    'modulo_pagos'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

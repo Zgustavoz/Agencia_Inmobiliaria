@@ -26,6 +26,8 @@ export const AuthProvider = ({ children }) => {
     es_admin:  perfil.es_admin,
     es_online: perfil.es_online,
     foto_url:  perfil.foto_url,
+    // Multi-tenant: información de la inmobiliaria/tenant
+    tenant:    perfil.tenant || null,
   })
 
   useEffect(() => {
@@ -37,6 +39,15 @@ export const AuthProvider = ({ children }) => {
 
   const login  = (perfil) => setUser(construirUsuario(perfil))
   const logout = () => setUser(null)
+  
+  const refreshUser = async () => {
+    try {
+      const perfil = await obtenerPerfil()
+      setUser(construirUsuario(perfil))
+    } catch (e) {
+      setUser(null)
+    }
+  }
 
   const tieneAcceso = (rolesRequeridos = []) => userHasAccess(user, rolesRequeridos)
 
@@ -44,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     userHasPermission(user, rolOModulo, codigo)
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, tieneAcceso, tienePermiso }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser, tieneAcceso, tienePermiso }}>
       {children}
     </AuthContext.Provider>
   )

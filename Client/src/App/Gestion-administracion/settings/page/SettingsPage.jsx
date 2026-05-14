@@ -4,61 +4,94 @@ import { Settings, CreditCard, Zap, Calendar, ArrowRight, CheckCircle, AlertCirc
 
 import { Link } from 'react-router'
 import { useAuth } from '../../../auth/context/AuthContext'
+import { intanciaAxios } from '../../../../config/axios'
 
 export const SettingsPage = () => {
   const { user, logout } = useAuth()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showChangePlanModal, setShowChangePlanModal] = useState(false)
   const [showInvoicesModal, setShowInvoicesModal] = useState(false)
+  const [loadingPayment, setLoadingPayment] = useState(false)
 
-  // Mock subscription data
+  const tenant = user?.tenant
+
+  const getPlanLabel = (plan) => {
+    const labels = {
+      'basico': 'Básico',
+      'profesional': 'Profesional',
+      'empresa': 'Empresa'
+    }
+    return labels[plan] || 'Básico'
+  }
+
+  const getPlanPrice = (plan) => {
+    const prices = {
+      'basico': '0',
+      'profesional': '29',
+      'empresa': '99'
+    }
+    return prices[plan] || '0'
+  }
+
+  const handleUpgrade = async (planId) => {
+    setLoadingPayment(true)
+    try {
+      const { data } = await intanciaAxios.post("/api/pagos/checkout/", { plan_id: planId })
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error("Error al iniciar el pago:", error)
+      alert("Hubo un error al procesar el pago. Por favor intenta de nuevo.")
+    } finally {
+      setLoadingPayment(false)
+    }
+  }
+
+  // Real subscription data from user context
   const subscriptionData = {
-    plan: 'Pro',
-    status: 'activo',
-    price: '$29',
+    plan: getPlanLabel(tenant?.plan),
+    status: tenant?.estado ? 'activo' : 'inactivo',
+    price: `$${getPlanPrice(tenant?.plan)}`,
     period: 'mes',
-    nextBillingDate: '15 de Junio, 2026',
-    startDate: '15 de Mayo, 2025',
-    maxPropiedades: 3,
-    currentPropiedades: 3,
-    features: [
+    nextBillingDate: tenant?.fecha_vencimiento_pago || 'No disponible',
+    maxPropiedades: tenant?.max_propiedades || 3,
+    // Aquí podrías pasar el conteo real si lo tuvieras en el perfil, sino 0
+    currentPropiedades: 0, 
+    features: tenant?.plan === 'basico' ? [
       'Máx. 3 propiedades',
+      'Soporte por email',
+      'Reportes básicos',
+      'Acceso a 1 usuario',
+    ] : [
+      `Máx. ${tenant?.max_propiedades} propiedades`,
       'Soporte prioritario',
       'Reportes avanzados',
-      'Acceso a 5 usuarios',
+      'Acceso multi-usuario',
       'API integrada',
     ],
   }
 
-  // Mock plans for upgrade
+  // Actual plans for upgrade
   const plans = [
     {
-      id: 'basico',
-      name: 'Básico',
-      price: '0',
-      period: 'mes',
-      description: 'Perfecto para comenzar',
-      features: ['Hasta 3 propiedades', 'Soporte por email', 'Reportes básicos', '1 usuario'],
-      current: false,
-    },
-    {
       id: 'pro',
-      name: 'Pro',
+      name: 'Profesional',
       price: '29',
       period: 'mes',
       description: 'Lo más popular',
       features: ['Hasta 50 propiedades', 'Soporte prioritario', 'Reportes avanzados', '5 usuarios', 'API integrada'],
-      current: true,
+      current: tenant?.plan === 'profesional',
       popular: true,
     },
     {
       id: 'enterprise',
-      name: 'Enterprise',
-      price: 'Personalizado',
-      period: 'consulta',
+      name: 'Empresa',
+      price: '99',
+      period: 'mes',
       description: 'Para grandes equipos',
       features: ['Propiedades ilimitadas', 'Soporte 24/7', 'Análisis avanzado', 'Usuarios ilimitados', 'Integraciones custom'],
-      current: false,
+      current: tenant?.plan === 'empresa',
     },
   ]
 
@@ -378,17 +411,14 @@ export const SettingsPage = () => {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    disabled={plan.current}
-                    onClick={() => {
-                      alert(`Cambio a plan ${plan.name} procesado`)
-                      setShowChangePlanModal(false)
-                    }}
+                    disabled={plan.current || loadingPayment}
+                    onClick={() => handleUpgrade(plan.id)}
                     className={`w-full py-2 rounded-lg font-semibold transition ${plan.current
                       ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                       }`}
                   >
-                    {plan.current ? 'Plan Actual' : 'Seleccionar'}
+                    {loadingPayment ? 'Procesando...' : plan.current ? 'Plan Actual' : 'Seleccionar'}
                   </motion.button>
                 </motion.div>
               ))}

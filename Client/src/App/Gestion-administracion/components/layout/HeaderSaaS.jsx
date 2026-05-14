@@ -5,24 +5,31 @@ import { useAuth } from "../../../auth/context/AuthContext";
 import { Link } from "react-router";
 import VozReporte from "../button/VozReporte";
 
-export const HeaderSaaS = ({
-  tenantInfo,
-  propiedadCount = 0,
-  maxPropiedades = 50,
-}) => {
-  const { user, logout } = useAuth();
-  const [showMenu, setShowMenu] = useState(false);
-  const usagePercent = ((propiedadCount / maxPropiedades) * 100).toFixed(0);
-  const isNearLimit = propiedadCount >= maxPropiedades * 0.8;
+export const HeaderSaaS = ({ propiedadCount = 0 }) => {
+  const { user, logout } = useAuth()
+  const tenantInfo = user?.tenant
+  const maxPropiedades = tenantInfo?.max_propiedades || 3
+  const [showMenu, setShowMenu] = useState(false)
+  const usagePercent = ((propiedadCount / maxPropiedades) * 100).toFixed(0)
+  const isNearLimit = propiedadCount >= maxPropiedades * 0.8
 
   const planBadgeColor = (plan) => {
     const colors = {
-      Pro: "from-purple-500 to-purple-600",
-      Básico: "from-gray-500 to-gray-600",
-      Enterprise: "from-amber-500 to-amber-600",
+      profesional: "from-purple-500 to-purple-600",
+      basico: "from-gray-500 to-gray-600",
+      empresa: "from-amber-500 to-amber-600",
     };
     return colors[plan] || "from-gray-500 to-gray-600";
   };
+
+  const getPlanLabel = (plan) => {
+    const labels = {
+      'basico': 'Básico',
+      'profesional': 'Profesional',
+      'empresa': 'Empresa'
+    }
+    return labels[plan] || 'Básico'
+  }
 
   return (
     <motion.header
@@ -47,7 +54,7 @@ export const HeaderSaaS = ({
             whileHover={{ scale: 1.05 }}
             className={`px-3 py-1 rounded-full text-xs font-semibold text-white bg-linear-to-r ${planBadgeColor(tenantInfo?.plan)}`}
           >
-            {tenantInfo?.plan || "Básico"} Plan
+            {getPlanLabel(tenantInfo?.plan)} Plan
           </motion.div>
 
           {/* Usage Progress */}
