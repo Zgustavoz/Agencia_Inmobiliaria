@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
+from django.conf.urls.static import static
+from django.conf import settings
 
 def health(_request):
     """Endpoint para verificar que el servidor está vivo."""
@@ -16,4 +18,4 @@ urlpatterns = [
     path('api/', include('modulo_contratos.urls')),
     path('api/vencimientos/', include('modulo_vencimientos.urls')),
     path('api/tasacion-ia/', include('modulo_tasacion_ia.urls')),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
