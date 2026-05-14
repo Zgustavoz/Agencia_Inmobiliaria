@@ -7,6 +7,18 @@ export const SuscripcionesPage = () => {
   const navigate = useNavigate()
   const [hoveredPlan, setHoveredPlan] = useState(null)
 
+  const handleUpgrade = async (planId) => {
+    try {
+      const { data } = await intanciaAxios.post("/api/pagos/checkout/", { plan_id: planId })
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error("Error al iniciar el pago:", error)
+      alert("Hubo un error al procesar el pago. Por favor intenta de nuevo.")
+    }
+  }
+
   const planes = [
     {
       id: 'basic',
@@ -40,7 +52,7 @@ export const SuscripcionesPage = () => {
       ],
       icon: Zap,
       btnTexto: 'Actualizar a Pro',
-      btnAccion: () => alert('Redirigir a pasarela de pago'),
+      btnAccion: () => handleUpgrade('pro'),
       highlight: true,
     },
     {
@@ -57,8 +69,8 @@ export const SuscripcionesPage = () => {
         'Integraciones custom',
       ],
       icon: Crown,
-      btnTexto: 'Contactar Ventas',
-      btnAccion: () => alert('Contactar equipo de ventas'),
+      btnTexto: 'Actualizar a Enterprise',
+      btnAccion: () => handleUpgrade('enterprise'),
       highlight: false,
     },
   ]
