@@ -58,7 +58,7 @@ export const MOCK_CLIENTES = [
     nombre: "Constructora ABC",
     codigo: "CLI-002",
     email: "info@abc.com",
-    telefono: "+34 913 456 789",
+    telefono: null,
     estado: "nuevo",
     agente_asignado: null,
     fecha_registro: "2026-05-10"
@@ -117,13 +117,22 @@ export const MOCK_CLIENTES = [
     id: 8,
     nombre: "Nueva Inversión SL",
     codigo: "CLI-008",
-    email: "contacto@nuevainv.com",
+    email: null,
     telefono: "+34 919 012 345",
     estado: "nuevo",
     agente_asignado: null,
     fecha_registro: "2026-05-08"
   }
 ];
+
+// Helper to detect incomplete fields
+const detectarCamposIncompletos = (cliente) => {
+  const campos = [];
+  if (!cliente.email) campos.push("email");
+  if (!cliente.telefono) campos.push("telefono");
+  if (!cliente.codigo) campos.push("codigo");
+  return campos;
+};
 
 export const agenteAPI = {
   obtenerClientesConAgentes: (buscar = "", filtroEstado = "todos") => {
@@ -133,12 +142,16 @@ export const agenteAPI = {
 
         if (buscar.trim()) {
           const query = buscar.toLowerCase();
-          filtrados = filtrados.filter(
-            (cliente) =>
-              cliente.nombre.toLowerCase().includes(query) ||
-              cliente.email.toLowerCase().includes(query) ||
-              cliente.codigo.toLowerCase().includes(query)
-          );
+          filtrados = filtrados.filter((cliente) => {
+            const nombre = (cliente.nombre || "").toLowerCase();
+            const email = (cliente.email || "").toLowerCase();
+            const codigo = (cliente.codigo || "").toLowerCase();
+            return (
+              nombre.includes(query) ||
+              email.includes(query) ||
+              codigo.includes(query)
+            );
+          });
         }
 
         if (filtroEstado !== "todos") {
@@ -163,6 +176,69 @@ export const agenteAPI = {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve([...MOCK_AGENTES]);
+      }, 400);
+    });
+  },
+
+  // Buscar coincidencias parciales y marcar campos incompletos
+  buscarClientesParciales: (buscar = "") => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const q = buscar.toLowerCase().trim();
+        if (!q) {
+          resolve([]);
+          return;
+        }
+
+        const encontrados = MOCK_CLIENTES.filter((c) => {
+          const nombre = (c.nombre || "").toLowerCase();
+          const email = (c.email || "").toLowerCase();
+          const codigo = (c.codigo || "").toLowerCase();
+          return (
+            nombre.includes(q) ||
+            email.includes(q) ||
+            codigo.includes(q)
+          );
+        }).map((cliente) => ({
+          ...cliente,
+          incompleteFields: detectarCamposIncompletos(cliente)
+        }));
+
+        resolve(encontrados.slice(0, 8));
+      }, 350);
+    });
+  },
+
+  crearClienteRapido: (data) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const nuevoId = MOCK_CLIENTES.reduce((max, c) => Math.max(max, c.id), 0) + 1;
+        const nuevo = {
+          id: nuevoId,
+          nombre: data.nombre || `Cliente ${nuevoId}`,
+          codigo: data.codigo || `CLI-${String(nuevoId).padStart(3, "0")}`,
+          email: data.email || null,
+          telefono: data.telefono || null,
+          estado: data.estado || "nuevo",
+          agente_asignado: null,
+          fecha_registro: new Date().toISOString().split("T")[0]
+        };
+        MOCK_CLIENTES.push(nuevo);
+        resolve(nuevo);
+      }, 450);
+    });
+  },
+
+  actualizarClientePartial: (clienteId, data) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const cliente = MOCK_CLIENTES.find((c) => c.id === clienteId);
+        if (!cliente) {
+          reject(new Error("Cliente no encontrado"));
+          return;
+        }
+        Object.assign(cliente, data);
+        resolve({ success: true, cliente });
       }, 400);
     });
   },

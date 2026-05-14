@@ -11,11 +11,22 @@ export const AsignarAgenteModal = ({
   onClose,
   loading,
   error
+  , onRequestComplete
 }) => {
   const [agenteSeleccionado, setAgenteSeleccionado] = useState(
     cliente?.agente_asignado || null
   );
   const [mensaje, setMensaje] = useState(null);
+
+  const camposIncompletos = (() => {
+    if (!cliente) return [];
+    const campos = [];
+    if (!cliente.nombre) campos.push("nombre");
+    if (!cliente.email) campos.push("email");
+    if (!cliente.telefono) campos.push("telefono");
+    if (!cliente.codigo) campos.push("codigo");
+    return campos;
+  })();
 
   const handleAsignar = async () => {
     if (!agenteSeleccionado) return;
@@ -108,6 +119,22 @@ export const AsignarAgenteModal = ({
                   </motion.div>
                 ) : (
                   <>
+                    {camposIncompletos.length > 0 && (
+                      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+                        <div className="text-sm text-amber-700">No puedes asignar un agente hasta completar: {camposIncompletos.join(", ")}</div>
+                        <div>
+                          <button
+                            onClick={() => {
+                              // pedir al parent que abra el editor inline
+                              if (onRequestComplete) onRequestComplete(cliente);
+                            }}
+                            className="text-sm text-amber-700 underline"
+                          >
+                            Completar datos
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div className="space-y-3 mb-6">
                       <label className="text-sm font-medium text-gray-700">Selecciona un agente</label>
                       <div className="space-y-2 max-h-72 overflow-y-auto">
@@ -168,7 +195,7 @@ export const AsignarAgenteModal = ({
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleAsignar}
-                        disabled={loading || !agenteSeleccionado}
+                        disabled={loading || !agenteSeleccionado || camposIncompletos.length > 0}
                         className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loading ? "Asignando..." : "Asignar"}
