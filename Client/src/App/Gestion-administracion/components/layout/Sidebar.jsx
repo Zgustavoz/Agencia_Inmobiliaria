@@ -123,12 +123,12 @@ export const Sidebar = () => {
           icon: Database,
           roles: ["Administrador"],
         },
-        {
-          title: "Restaurar Datos",
-          path: "/dashboard/restaurar",
-          icon: RefreshCcw,
-          roles: ["Administrador"],
-        },
+        // {
+        //   title: "Restaurar Datos",
+        //   path: "/dashboard/restaurar",
+        //   icon: RefreshCcw,
+        //   roles: ["Administrador"],
+        // },
       ],
     },
     {
