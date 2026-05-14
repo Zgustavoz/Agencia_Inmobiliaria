@@ -139,7 +139,7 @@ export const SettingsPage = () => {
           {/* Current Plan Card */}
           <motion.div
             variants={itemVariants}
-            className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden"
+            className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden "
           >
             <div className="bg-linear-to-r from-blue-600 to-blue-700 p-6 text-white">
               <div className="flex items-start justify-between mb-6">
@@ -320,7 +320,7 @@ export const SettingsPage = () => {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-screen overflow-y-auto p-6"
+            className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-screen overflow-y-auto p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
@@ -351,7 +351,7 @@ export const SettingsPage = () => {
                     </div>
                   )}
                   {plan.current && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full">
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full">
                       Plan Actual
                     </div>
                   )}
@@ -360,8 +360,8 @@ export const SettingsPage = () => {
                   <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
 
                   <div className="mb-4">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
+                    <div className="grid gap-1">
+                      <span className="text-xl font-bold text-wrap text-gray-900">${plan.price}</span>
                       <span className="text-gray-600">/ {plan.period}</span>
                     </div>
                   </div>
@@ -408,7 +408,7 @@ export const SettingsPage = () => {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-screen overflow-y-auto p-6"
+            className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-screen overflow-y-auto p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
