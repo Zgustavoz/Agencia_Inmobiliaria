@@ -8,6 +8,9 @@ export const useAsignarAgentes = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [typeaheadSuggestions, setTypeaheadSuggestions] = useState([]);
+  const [searchingSuggestions, setSearchingSuggestions] = useState(false);
+  const debounceRef = { current: null };
 
   useEffect(() => {
     cargarDatos();
@@ -45,6 +48,58 @@ export const useAsignarAgentes = () => {
       setClientesConAgentes(clientes);
     } catch (err) {
       setError(err.message || "Error al buscar clientes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Typeahead / suggestions
+  const buscarSugerencias = (query) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!query || !query.trim()) {
+      setTypeaheadSuggestions([]);
+      return;
+    }
+    setSearchingSuggestions(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const sugerencias = await agenteAPI.buscarClientesParciales(query);
+        setTypeaheadSuggestions(sugerencias);
+      } catch (err) {
+        setTypeaheadSuggestions([]);
+      } finally {
+        setSearchingSuggestions(false);
+      }
+    }, 250);
+  };
+
+  const crearClienteRapido = async (data) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const nuevo = await agenteAPI.crearClienteRapido(data);
+      await buscarClientes("");
+      return { success: true, cliente: nuevo };
+    } catch (err) {
+      const errorMsg = err.message || "Error al crear cliente";
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const actualizarClientePartial = async (clienteId, data) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await agenteAPI.actualizarClientePartial(clienteId, data);
+      await buscarClientes(searchQuery);
+      return { success: true, cliente: res.cliente };
+    } catch (err) {
+      const errorMsg = err.message || "Error al actualizar cliente";
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
     } finally {
       setLoading(false);
     }
@@ -97,6 +152,11 @@ export const useAsignarAgentes = () => {
     filtrarPorEstado,
     asignarAgente,
     desasignarAgente,
-    setError
+    setError,
+    typeaheadSuggestions,
+    buscarSugerencias,
+    searchingSuggestions,
+    crearClienteRapido,
+    actualizarClientePartial
   };
 };

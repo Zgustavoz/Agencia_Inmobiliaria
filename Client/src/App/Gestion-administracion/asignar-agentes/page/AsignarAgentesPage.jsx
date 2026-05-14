@@ -4,6 +4,8 @@ import { Users, Search, TrendingUp, AlertCircle } from "lucide-react";
 import { useAsignarAgentes } from "../hooks/useAsignarAgentes";
 import { ClienteAgenteList } from "../components/ClienteAgenteList";
 import { AsignarAgenteModal } from "../components/AsignarAgenteModal";
+import ClientQuickAddModal from "../components/ClientQuickAddModal";
+import ClientCompleteModal from "../components/ClientCompleteModal";
 
 const ESTADO_OPTIONS = [
   { value: "todos", label: "Todos" },
@@ -25,12 +27,19 @@ export const AsignarAgentesPage = () => {
     buscarClientes,
     filtrarPorEstado,
     asignarAgente,
-    desasignarAgente
+    desasignarAgente,
+    typeaheadSuggestions,
+    buscarSugerencias,
+    searchingSuggestions,
+    crearClienteRapido,
+    actualizarClientePartial
   } = useAsignarAgentes();
 
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mensajeExito, setMensajeExito] = useState(null);
+  const [mostrarQuickAdd, setMostrarQuickAdd] = useState(false);
+  const [clienteParaEditar, setClienteParaEditar] = useState(null);
 
   const clientesSinAgente = clientesConAgentes.filter(c => !c.agente_asignado).length;
   const clientesConAgente = clientesConAgentes.filter(c => c.agente_asignado).length;
@@ -41,6 +50,17 @@ export const AsignarAgentesPage = () => {
   const handleCambiarAgente = (cliente) => {
     setClienteSeleccionado(cliente);
     setMostrarModal(true);
+  };
+
+  const handleSeleccionarSugerencia = (sugerencia) => {
+    // si tiene campos incompletos, abrir inline form
+    if (sugerencia.incompleteFields && sugerencia.incompleteFields.length > 0) {
+      setClienteParaEditar(sugerencia);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // abrir asignación directamente
+      handleCambiarAgente(sugerencia);
+    }
   };
 
   const handleAsignar = async (clienteId, agenteId) => {
@@ -148,9 +168,34 @@ export const AsignarAgentesPage = () => {
                   type="text"
                   placeholder="Buscar por nombre, email o código de cliente..."
                   value={searchQuery}
-                  onChange={(e) => buscarClientes(e.target.value)}
+                  onChange={(e) => { buscarClientes(e.target.value); buscarSugerencias(e.target.value); }}
                   className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {/* Suggestions dropdown */}
+                <div className="relative">
+                  {searchQuery && typeaheadSuggestions && typeaheadSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow z-20 max-h-64 overflow-y-auto">
+                      {typeaheadSuggestions.map((s) => (
+                        <button key={s.id} onClick={() => handleSeleccionarSugerencia(s)} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-sm text-gray-900">{s.nombre}</div>
+                            <div className="text-xs text-gray-500">{s.email || "sin email"} • {s.codigo}</div>
+                          </div>
+                          {s.incompleteFields && s.incompleteFields.length > 0 && (
+                            <div className="text-xs text-amber-600">Incompleto</div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {searchQuery && (!typeaheadSuggestions || typeaheadSuggestions.length === 0) && (
+                    <div className="absolute left-0 right-0 mt-2 flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3 z-20">
+                      <div className="text-sm text-gray-600">No hay coincidencias.</div>
+                      <button onClick={() => setMostrarQuickAdd(true)} className="text-sm text-blue-600">Agregar cliente</button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -223,8 +268,39 @@ export const AsignarAgentesPage = () => {
           setMostrarModal(false);
           setClienteSeleccionado(null);
         }}
+        onRequestComplete={(cliente) => {
+          // cerrar modal y abrir inline editor para completar datos
+          setMostrarModal(false);
+          setClienteParaEditar(cliente);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
         loading={loading}
         error={error}
+      />
+
+      <ClientQuickAddModal
+        isOpen={mostrarQuickAdd}
+        onClose={() => setMostrarQuickAdd(false)}
+        onCreate={crearClienteRapido}
+        loading={loading}
+      />
+
+      <ClientCompleteModal
+        isOpen={!!clienteParaEditar}
+        cliente={clienteParaEditar}
+        onClose={() => setClienteParaEditar(null)}
+        onSave={async (clienteId, data) => {
+          const res = await actualizarClientePartial(clienteId, data);
+          if (res.success) {
+            // abrir modal de asignación para este cliente
+            setClienteParaEditar(null);
+            // cargar cliente actualizado como seleccionado
+            setClienteSeleccionado(res.cliente);
+            setMostrarModal(true);
+          }
+          return res;
+        }}
+        loading={loading}
       />
     </div>
   );
