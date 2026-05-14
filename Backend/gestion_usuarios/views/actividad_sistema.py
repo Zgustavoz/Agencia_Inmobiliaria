@@ -22,12 +22,13 @@ class ActividadSistemaViewSet(
     queryset = ActividadSistema.objects.all().select_related('usuario')
     serializer_class = ActividadSistemaSerializer
     permission_classes = [EsAdmin]
+    access_cookie_name = 'bitacora_access'
 
-    def _session_key(self):
-        return f'bitacora_access_granted_{self.request.user.id}'
+    def _get_cookie_value(self):
+        return str(self.request.user.id)
 
     def _require_password_access(self):
-        if not self.request.session.get(self._session_key()):
+        if self.request.COOKIES.get(self.access_cookie_name) != self._get_cookie_value():
             raise PermissionDenied(detail='Debes ingresar la contrasena de bitacora.')
 
     def get_queryset(self):
@@ -68,9 +69,16 @@ class ActividadSistemaViewSet(
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        request.session[self._session_key()] = True
-        request.session.modified = True
-        return Response(
+        response = Response(
             {'message': 'Acceso a bitacora concedido.'},
             status=status.HTTP_200_OK
         )
+        response.set_cookie(
+            key=self.access_cookie_name,
+            value=self._get_cookie_value(),
+            httponly=True,
+            secure=settings.SIMPLE_JWT.get('AUTH_COOKIE_SECURE', False),
+            samesite=settings.SIMPLE_JWT.get('AUTH_COOKIE_SAMESITE', 'Lax'),
+            max_age=60 * 60 * 12,
+        )
+        return response
