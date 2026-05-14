@@ -55,7 +55,11 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
         elevation: 0,
         leading: Padding(
           padding: EdgeInsets.all(10.w),
-          child: Icon(Icons.search_rounded, color: const Color(0xFFF16621), size: 28.sp),
+          child: Icon(
+            Icons.search_rounded,
+            color: const Color(0xFFF16621),
+            size: 28.sp,
+          ),
         ),
         title: Text(
           "INMOBILIARIA PRO",
@@ -70,7 +74,11 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
         actions: [
           Builder(
             builder: (context) => IconButton(
-              icon: Icon(Icons.menu, color: const Color(0xFFF16621), size: 28.sp),
+              icon: Icon(
+                Icons.menu,
+                color: const Color(0xFFF16621),
+                size: 28.sp,
+              ),
               onPressed: () => Scaffold.of(context).openEndDrawer(),
             ),
           ),
@@ -126,7 +134,9 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
                   color: Colors.white,
                   fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
-                  shadows: const [Shadow(blurRadius: 10, color: Colors.black45)],
+                  shadows: const [
+                    Shadow(blurRadius: 10, color: Colors.black45),
+                  ],
                 ),
               ),
               SizedBox(height: 20.h),
@@ -142,14 +152,18 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
     if (provider.isLoading) {
       return SizedBox(
         height: 260.h,
-        child: const Center(child: CircularProgressIndicator(color: Color(0xFFF16621))),
+        child: const Center(
+          child: CircularProgressIndicator(color: Color(0xFFF16621)),
+        ),
       );
     }
 
     if (provider.destacadas.isEmpty) {
       return SizedBox(
         height: 100.h,
-        child: const Center(child: Text("No hay propiedades destacadas disponibles")),
+        child: const Center(
+          child: Text("No hay propiedades destacadas disponibles"),
+        ),
       );
     }
 
@@ -176,7 +190,13 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(15.r),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 15, offset: Offset(0, 5))],
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 15,
+            offset: Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -246,36 +266,67 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(userName, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
+                Text(
+                  userName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 SizedBox(height: 5.h),
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EditarPerfilScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EditarPerfilScreen(),
+                      ),
+                    );
                   },
                   child: Row(
                     children: [
-                      Text("Editar perfil", style: TextStyle(color: Colors.white, fontSize: 14.sp)),
-                      Icon(Icons.chevron_right, color: Colors.white, size: 18.sp),
+                      Text(
+                        "Editar perfil",
+                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.white,
+                        size: 18.sp,
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          _menuItem(Icons.home_outlined, "Propiedades Destacadas", () => Navigator.pop(context)),
-          _menuItem(Icons.favorite_border, "Mis Favoritos", () {}),
+          _menuItem(
+            Icons.home_outlined,
+            "Propiedades Destacadas",
+            () => Navigator.pop(context),
+          ),
+          //_menuItem(Icons.favorite_border, "Mis Favoritos", () {}),
           _menuItem(Icons.calendar_today_outlined, "Mis Citas / Visitas", () {
             Navigator.pop(context);
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const HistorialVisitasScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HistorialVisitasScreen(),
+              ),
+            );
           }),
-          _menuItem(Icons.chat_bubble_outline, "Mensajes con Agentes", () {}),
-          _menuItem(Icons.description_outlined, "Mis Contratos", () {}),
+          //_menuItem(Icons.chat_bubble_outline, "Mensajes con Agentes", () {}),
+          //_menuItem(Icons.description_outlined, "Mis Contratos", () {}),
           const Spacer(),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
-            title: const Text("Cerrar sesión", style: TextStyle(color: Colors.redAccent)),
+            title: const Text(
+              "Cerrar sesión",
+              style: TextStyle(color: Colors.redAccent),
+            ),
             onTap: () => Navigator.pushReplacementNamed(context, '/'),
           ),
           SizedBox(height: 20.h),
@@ -298,8 +349,14 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("Destacados", style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold)),
-          Text("Mostrar más", style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp)),
+          Text(
+            "Destacados",
+            style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            "Mostrar más",
+            style: TextStyle(color: const Color(0xFFF16621), fontSize: 14.sp),
+          ),
         ],
       ),
     );
