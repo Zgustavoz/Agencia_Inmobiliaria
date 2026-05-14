@@ -9,6 +9,8 @@ class Command(BaseCommand):
         self._crear_permisos()
         self._crear_roles()
         self._crear_admin()
+        self._crear_agente()
+        self._crear_cliente()
         self.stdout.write(self.style.SUCCESS('Seed ejecutado correctamente'))
 
     def _crear_permisos(self):
@@ -58,3 +60,38 @@ class Command(BaseCommand):
             self.stdout.write('  Admin creado')
         else:
             self.stdout.write('  Admin ya existe')
+
+    def _crear_cliente(self):
+        if not Usuario.objects.filter(username='cliente').exists():
+            cliente = Usuario.objects.create_user(
+                username='cliente',
+                email='cliente@test.com',
+                password='Cliente123#',
+                nombres='Carlos',
+                apellidos='Mendoza'
+            )
+
+            rol_cliente = Rol.objects.get(nombre='Cliente')
+            cliente.roles.add(rol_cliente)
+
+            self.stdout.write('  Cliente creado')
+        else:
+            self.stdout.write('  Cliente ya existe')
+
+    
+    def _crear_agente(self):
+        if not Usuario.objects.filter(username='agente').exists():
+            agente = Usuario.objects.create_user(
+                username='agente',
+                email='agente@test.com',
+                password='Agente123#',
+                nombres='Laura',
+                apellidos='Fernandez'
+            )
+
+            rol_agente = Rol.objects.get(nombre='Agente')
+            agente.roles.add(rol_agente)
+
+            self.stdout.write('  Agente creado')
+        else:
+            self.stdout.write('  Agente ya existe')
