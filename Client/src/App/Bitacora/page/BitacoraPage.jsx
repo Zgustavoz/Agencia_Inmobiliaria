@@ -68,6 +68,12 @@ export const BitacoraPage = () => {
     verificarClave.mutate(password)
   }
 
+  const cerrarModal = () => {
+    setPassword("")
+    setMensajeError("")
+    window.history.back()
+  }
+
   const limpiarFiltros = () => {
     setSearch("")
     setModuloFiltro("")
@@ -290,8 +296,18 @@ export const BitacoraPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0px_28px_80px_rgba(15,23,42,0.28)]">
             <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-700 px-6 py-5 text-white">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12">
-                <Lock className="h-6 w-6" />
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12">
+                  <Lock className="h-6 w-6" />
+                </div>
+                <button
+                  type="button"
+                  onClick={cerrarModal}
+                  className="rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+                  aria-label="Cerrar modal de bitacora"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
               <h2 className="text-xl font-bold">Proteccion de bitacora</h2>
               <p className="mt-2 text-sm text-white/80">
