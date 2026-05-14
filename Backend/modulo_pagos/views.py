@@ -73,7 +73,7 @@ class CreateCheckoutSessionView(APIView):
                     },
                 ],
                 mode='payment',
-                success_url=config('FRONTEND_URL') + '/dashboard?payment=success',
+                success_url=config('FRONTEND_URL') + '/dashboard/settings?payment=success',
                 cancel_url=config('FRONTEND_URL') + '/suscripciones?payment=cancel',
                 metadata={
                     'tenant_id': tenant_id,

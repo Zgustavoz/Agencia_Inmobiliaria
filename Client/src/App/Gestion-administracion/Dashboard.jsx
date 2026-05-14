@@ -1,23 +1,31 @@
+import { useEffect } from "react"
 import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "motion/react"
+import { Outlet, useLocation, useSearchParams } from "react-router"
 import { Sidebar } from "./components/layout/Sidebar"
 import { HeaderSaaS } from "./components/layout/HeaderSaaS"
-import { Outlet, useLocation } from "react-router"
+import { useAuth } from "../auth/context/AuthContext"
 
 export const Dashboard = () => {
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const shouldReduceMotion = useReducedMotion()
+  const { refreshUser } = useAuth()
 
-  // Mock tenant data - en producción vendrá de context/API
-  const tenantInfo = {
-    nombre: 'Mi Inmobiliaria Pro',
-    plan: 'Pro',
-  }
+  useEffect(() => {
+    if (searchParams.get("payment") !== "success") return
+
+    refreshUser().finally(() => {
+      const nextParams = new URLSearchParams(searchParams)
+      nextParams.delete("payment")
+      setSearchParams(nextParams, { replace: true })
+    })
+  }, [refreshUser, searchParams, setSearchParams])
 
   return (
     <div className="flex h-screen bg-(--surface)">
       <Sidebar />
       <main className="flex-1 overflow-auto flex flex-col bg-(--surface-container-low)">
-        <HeaderSaaS tenantInfo={tenantInfo} propiedadCount={3} maxPropiedades={3} />
+        <HeaderSaaS propiedadCount={3} />
         <LazyMotion features={domAnimation}>
           <AnimatePresence mode="wait">
             <m.div

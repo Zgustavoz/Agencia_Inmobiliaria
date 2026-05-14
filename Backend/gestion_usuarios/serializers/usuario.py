@@ -3,9 +3,11 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from ..models import Usuario, Rol, Permiso
 from .rol import RolSerializer
+from modulo_administracion_configuracion.serializers.tenant import TenantSerializer
 
 class UsuarioSerializer(serializers.ModelSerializer):
     roles_info       = RolSerializer(source='roles', many=True, read_only=True)
+    tenant           = TenantSerializer(read_only=True)
     roles_ids        = serializers.PrimaryKeyRelatedField(
         queryset=Rol.objects.filter(estado=True),
         many=True,
@@ -29,11 +31,12 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'es_online', 'ultimo_acceso', 'creado_en', 'actualizado_en',
             'roles', 'roles_info', 'roles_ids',
             'password', 'permisos', 'permisos_codigos',
+            'tenant',
         ]
         read_only_fields = [
             'id', 'creado_en', 'actualizado_en',
             'es_online', 'ultimo_acceso',
-            'permisos', 'permisos_codigos',
+            'permisos', 'permisos_codigos', 'tenant',
         ]
 
     def get_permisos(self, obj):
