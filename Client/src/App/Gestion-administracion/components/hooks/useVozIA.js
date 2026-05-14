@@ -33,9 +33,9 @@ export const useVozIA = () => {
         // --- DEBUG: LOG DE TAMAÑO ---
         console.log("Tamaño del audio generado:", audioBlob.size, "bytes");
         // --- DEBUG: PRUEBA DE REPRODUCCIÓN (Escúchalo tú mismo) ---
-        const urlBusqueda = URL.createObjectURL(audioBlob);
-        const previewAudio = new Audio(urlBusqueda);
-        previewAudio.play(); // El navegador debería sonar lo que grabaste
+        // const urlBusqueda = URL.createObjectURL(audioBlob);
+        // const previewAudio = new Audio(urlBusqueda);
+        // previewAudio.play(); // El navegador debería sonar lo que grabaste
         console.log("Reproduciendo previsualización...");
 
         if (audioBlob.size < 1000) {
