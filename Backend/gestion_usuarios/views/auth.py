@@ -60,7 +60,7 @@ class LoginView(TokenObtainPairView):
         user = serializer.user
         
         # ✓ Validar suscripción del tenant (paso 8 del plan)
-        if user.tenant:
+        if user.tenant and not user.es_admin:
             if not user.tenant.estado:
                 return Response({
                     'error': 'Suscripción vencida, realice el pago',
