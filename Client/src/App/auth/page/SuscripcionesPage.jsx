@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { motion } from 'motion/react'
 import { Check, AlertCircle, Zap, Crown, ArrowRight } from 'lucide-react'
+import { intanciaAxios } from '../../../config/axios'
 
 export const SuscripcionesPage = () => {
   const navigate = useNavigate()

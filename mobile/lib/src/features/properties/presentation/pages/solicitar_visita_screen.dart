@@ -54,10 +54,24 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
     }
 
     final diasDisponibles = _horariosDisponibles.map((h) => h.diaSemana).toSet();
+    print("DEBUG: Días disponibles: $diasDisponibles");
+
+    // Calcular el primer día que coincida con los disponibles
+    DateTime initialDate = DateTime.now().add(const Duration(days: 1));
+    for (int i = 0; i < 30; i++) {
+      final day = DateTime.now().add(Duration(days: i + 1));
+      final diaDjango = day.weekday - 1;
+      print("DEBUG: Verificando ${day.toIso8601String()}, weekday=${day.weekday}, diaDjango=$diaDjango, en disponibles=${diasDisponibles.contains(diaDjango)}");
+      if (diasDisponibles.contains(diaDjango)) {
+        initialDate = day;
+        print("DEBUG: InitialDate seleccionado: ${initialDate.toIso8601String()}");
+        break;
+      }
+    }
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
+      initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 30)),
       locale: const Locale('es', 'BO'),

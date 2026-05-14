@@ -19,9 +19,13 @@ class VisitaService {
           "Authorization": "Bearer $token",
         },
       );
+      print("DEBUG: Horarios Response Status: ${response.statusCode}");
+      print("DEBUG: Horarios Response Body: ${response.body}");
       if (response.statusCode == 200) {
         final dynamic data = jsonDecode(utf8.decode(response.bodyBytes));
+        print("DEBUG: Parsed JSON: $data");
         List<dynamic> results = (data is Map) ? data['results'] : data;
+        print("DEBUG: Results: $results, Count: ${results.length}");
         return results.map((json) => HorarioDisponibilidad.fromJson(json)).toList();
       }
       return [];

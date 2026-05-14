@@ -70,10 +70,19 @@ class PropiedadViewSet(TenantAwareViewSet):
         'dormitorios'
     ]
 
+    def _is_true_param(self, value):
+        return str(value).lower() in ['true', '1', 'yes']
+
     def get_queryset(self):
-        """Filtra por tenant + aplica filtros adicionales del usuario."""
-        # Primero aplicar el filtro de tenant (TenantAwareViewSet)
-        queryset = super().get_queryset()
+        """Filtra por tenant y permite el catalogo publico publicado para mobile."""
+        publicado_movil = self.request.query_params.get('publicado_movil')
+
+        if hasattr(self.request, 'tenant_id') and self.request.tenant_id:
+            queryset = super().get_queryset()
+        elif publicado_movil is not None and self._is_true_param(publicado_movil):
+            queryset = Propiedad.objects.all().order_by('-creado_en').filter(publicado_movil=True)
+        else:
+            queryset = Propiedad.objects.none()
 
         # Filtro por zona
         zona_id = self.request.query_params.get('zona_id')
@@ -83,8 +92,7 @@ class PropiedadViewSet(TenantAwareViewSet):
         # Filtro por publicación móvil
         publicado_movil = self.request.query_params.get('publicado_movil')
         if publicado_movil is not None:
-            val = publicado_movil.lower() in ['true', '1', 'yes']
-            queryset = queryset.filter(publicado_movil=val)
+            queryset = queryset.filter(publicado_movil=self._is_true_param(publicado_movil))
 
         # Filtro por estado de la propiedad
         estado = self.request.query_params.get('estado_propiedad')
@@ -94,8 +102,7 @@ class PropiedadViewSet(TenantAwareViewSet):
         # Filtro por destacada
         destacada = self.request.query_params.get('destacada')
         if destacada is not None:
-            val = destacada.lower() in ['true', '1', 'yes']
-            queryset = queryset.filter(destacada=val)
+            queryset = queryset.filter(destacada=self._is_true_param(destacada))
 
         return queryset
 
