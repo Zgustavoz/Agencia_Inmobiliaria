@@ -20,6 +20,7 @@ ALLOWED_HOSTS = ['*']
 # ]
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+BITACORA_ACCESS_PASSWORD = config('BITACORA_ACCESS_PASSWORD', default='')
 
 CSRF_TRUSTED_ORIGINS = [
     FRONTEND_URL,

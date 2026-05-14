@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
-import { motion } from 'motion/react'
-import { Bell, Settings, LogOut, Zap, TrendingUp } from 'lucide-react'
-import { useAuth } from '../../../auth/context/AuthContext'
-import { Link } from 'react-router'
+import React, { useState } from "react";
+import { motion } from "motion/react";
+import { Bell, Settings, LogOut, Zap, TrendingUp } from "lucide-react";
+import { useAuth } from "../../../auth/context/AuthContext";
+import { Link } from "react-router";
+import VozReporte from "../button/VozReporte";
 
 export const HeaderSaaS = ({ propiedadCount = 0 }) => {
   const { user, logout } = useAuth()
@@ -14,12 +15,12 @@ export const HeaderSaaS = ({ propiedadCount = 0 }) => {
 
   const planBadgeColor = (plan) => {
     const colors = {
-      'profesional': 'from-purple-500 to-purple-600',
-      'basico': 'from-gray-500 to-gray-600',
-      'empresa': 'from-amber-500 to-amber-600',
-    }
-    return colors[plan] || 'from-gray-500 to-gray-600'
-  }
+      profesional: "from-purple-500 to-purple-600",
+      basico: "from-gray-500 to-gray-600",
+      empresa: "from-amber-500 to-amber-600",
+    };
+    return colors[plan] || "from-gray-500 to-gray-600";
+  };
 
   const getPlanLabel = (plan) => {
     const labels = {
@@ -40,9 +41,11 @@ export const HeaderSaaS = ({ propiedadCount = 0 }) => {
         {/* Left: Tenant Info + Usage */}
         <div className="flex items-center gap-6">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Cuenta</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Cuenta
+            </p>
             <p className="text-lg font-semibold text-gray-900">
-              {tenantInfo?.nombre || 'Mi Inmobiliaria'}
+              {tenantInfo?.nombre || "Mi Inmobiliaria"}
             </p>
           </div>
 
@@ -58,8 +61,12 @@ export const HeaderSaaS = ({ propiedadCount = 0 }) => {
           <div className="flex items-center gap-3">
             <div className="w-48">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs text-gray-600 font-medium">Propiedades</label>
-                <span className={`text-xs font-semibold ${isNearLimit ? 'text-red-600' : 'text-gray-600'}`}>
+                <label className="text-xs text-gray-600 font-medium">
+                  Propiedades
+                </label>
+                <span
+                  className={`text-xs font-semibold ${isNearLimit ? "text-red-600" : "text-gray-600"}`}
+                >
                   {propiedadCount}/{maxPropiedades}
                 </span>
               </div>
@@ -67,8 +74,9 @@ export const HeaderSaaS = ({ propiedadCount = 0 }) => {
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${usagePercent}%` }}
-                  className={`h-2 rounded-full transition-colors ${isNearLimit ? 'bg-red-500' : 'bg-green-500'
-                    }`}
+                  className={`h-2 rounded-full transition-colors ${
+                    isNearLimit ? "bg-red-500" : "bg-green-500"
+                  }`}
                 />
               </div>
             </div>
@@ -87,6 +95,10 @@ export const HeaderSaaS = ({ propiedadCount = 0 }) => {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-4 relative">
+          {/* 2. INSERTAMOS EL MICRÓFONO AQUÍ */}
+          <div className="flex items-center">
+            <VozReporte />
+          </div>
           {/* Notifications */}
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -104,15 +116,21 @@ export const HeaderSaaS = ({ propiedadCount = 0 }) => {
               className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition"
             >
               <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                {user?.nombres?.[0] || 'U'}
+                {user?.nombres?.[0] || "U"}
               </div>
-              <span className="text-sm font-medium text-gray-700">{user?.nombres}</span>
+              <span className="text-sm font-medium text-gray-700">
+                {user?.nombres}
+              </span>
             </motion.button>
 
             {/* Dropdown Menu */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
-              animate={showMenu ? { opacity: 1, y: 0 } : { opacity: 0, y: -10, pointerEvents: 'none' }}
+              animate={
+                showMenu
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: -10, pointerEvents: "none" }
+              }
               transition={{ duration: 0.15 }}
               className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
             >
@@ -126,8 +144,8 @@ export const HeaderSaaS = ({ propiedadCount = 0 }) => {
               </Link>
               <button
                 onClick={() => {
-                  logout()
-                  setShowMenu(false)
+                  logout();
+                  setShowMenu(false);
                 }}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-red-600 text-sm font-medium transition w-full text-left"
               >
@@ -139,7 +157,7 @@ export const HeaderSaaS = ({ propiedadCount = 0 }) => {
         </div>
       </div>
     </motion.header>
-  )
-}
+  );
+};
 
-export default HeaderSaaS
+export default HeaderSaaS;
