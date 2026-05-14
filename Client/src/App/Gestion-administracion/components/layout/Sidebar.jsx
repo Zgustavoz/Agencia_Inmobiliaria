@@ -14,7 +14,8 @@ import {
   Database,
   RefreshCcw,
   Calendar, Clock,
-  FileText
+  FileText,
+  UserPlus
 } from "lucide-react";
 import {
   AnimatePresence,
@@ -165,6 +166,12 @@ export const Sidebar = () => {
           icon: HistoryIcon,
           roles: ["Administrador", "Supervisor", "Auditor"],
         },
+        {
+          title: "Asignacion de clientes",
+          path: "/dashboard/asignar-agentes",
+          icon: UserPlus,
+          roles: ["Administrador", "Supervisor", "Auditor"],
+        },
       ],
     },
   ];
@@ -257,11 +264,10 @@ export const Sidebar = () => {
                     <button
                       type="button"
                       onClick={() => toggleSubmenu(item.key)}
-                      className={`flex items-center w-full px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                        active
-                          ? "bg-(--primary) text-(--on-primary)"
-                          : "text-(--on-surface-variant) hover:bg-(--surface-container) hover:text-(--on-surface)"
-                      }`}
+                      className={`flex items-center w-full px-3 py-2.5 rounded-lg text-sm transition-colors ${active
+                        ? "bg-(--primary) text-(--on-primary)"
+                        : "text-(--on-surface-variant) hover:bg-(--surface-container) hover:text-(--on-surface)"
+                        }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
                       {expanded && (
@@ -282,11 +288,10 @@ export const Sidebar = () => {
                     <Link
                       to={item.path}
                       onClick={closeMobile}
-                      className={`flex items-center px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                        isActive(item.path)
-                          ? "bg-(--primary) text-(--on-primary)"
-                          : "text-(--on-surface-variant) hover:bg-(--surface-container) hover:text-(--on-surface)"
-                      }`}
+                      className={`flex items-center px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive(item.path)
+                        ? "bg-(--primary) text-(--on-primary)"
+                        : "text-(--on-surface-variant) hover:bg-(--surface-container) hover:text-(--on-surface)"
+                        }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
                       {expanded && (
@@ -315,11 +320,10 @@ export const Sidebar = () => {
                                 key={sub.title}
                                 to={sub.path}
                                 onClick={closeMobile}
-                                className={`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
-                                  isActive(sub.path)
-                                    ? "bg-(--surface-container) text-(--on-surface) font-medium"
-                                    : "text-(--on-surface-variant) hover:bg-(--surface-container-low) hover:text-(--on-surface)"
-                                }`}
+                                className={`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${isActive(sub.path)
+                                  ? "bg-(--surface-container) text-(--on-surface) font-medium"
+                                  : "text-(--on-surface-variant) hover:bg-(--surface-container-low) hover:text-(--on-surface)"
+                                  }`}
                               >
                                 <SubIcon className="w-3.5 h-3.5 shrink-0" />
                                 <span className="ml-2.5">{sub.title}</span>
