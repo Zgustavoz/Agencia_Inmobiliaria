@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from ..models import Usuario, Rol
 from modulo_clientes_seguimiento.models import Cliente
+from modulo_administracion_configuracion.models import Tenant
 
 class RegistroSerializer(serializers.ModelSerializer):
     password  = serializers.CharField(
@@ -11,12 +12,13 @@ class RegistroSerializer(serializers.ModelSerializer):
         validators=[validate_password]
     )
     password2 = serializers.CharField(write_only=True, required=True)
+    tenant_id = serializers.IntegerField(required=False, write_only=True)
 
     class Meta:
         model  = Usuario
         fields = [
             'username', 'email', 'nombres', 'apellidos',
-            'telefono', 'password', 'password2',
+            'telefono', 'password', 'password2', 'tenant_id'
         ]
 
     def validate_email(self, value):
@@ -37,7 +39,15 @@ class RegistroSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
         password = validated_data.pop('password')
-        user     = Usuario.objects.create_user(password=password, **validated_data)
+        tenant_id = validated_data.pop('tenant_id', None)
+        
+        # Si no viene tenant_id, intentar buscar el primero activo como fallback
+        if not tenant_id:
+            t = Tenant.objects.filter(estado=True).order_by('id').first()
+            if t:
+                tenant_id = t.id
+
+        user = Usuario.objects.create_user(password=password, tenant_id=tenant_id, **validated_data)
 
         # Asignar rol Cliente por defecto
         try:
@@ -61,12 +71,13 @@ class RegistroAgenteSerializer(serializers.ModelSerializer):
         required=False
     )
     foto_url = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    tenant_id = serializers.IntegerField(required=False, write_only=True)
 
     class Meta:
         model = Usuario
         fields = [
             'username', 'email', 'nombres', 'apellidos',
-            'telefono', 'password_hash', 'foto_url', 'role',
+            'telefono', 'password_hash', 'foto_url', 'role', 'tenant_id'
         ]
 
     def validate_email(self, value):
@@ -82,7 +93,15 @@ class RegistroAgenteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         role = validated_data.pop('role', 'agent')
         password = validated_data.pop('password_hash')
-        user = Usuario.objects.create_user(password=password, **validated_data)
+        tenant_id = validated_data.pop('tenant_id', None)
+
+        # Fallback de tenant
+        if not tenant_id:
+            t = Tenant.objects.filter(estado=True).order_by('id').first()
+            if t:
+                tenant_id = t.id
+
+        user = Usuario.objects.create_user(password=password, tenant_id=tenant_id, **validated_data)
 
         role_name = 'Administrador' if role == 'admin' else 'Agente'
         try:
@@ -111,13 +130,14 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
     fecha_nacimiento = serializers.DateField(required=False, allow_null=True)
     telefono         = serializers.CharField(required=False, allow_blank=True)
     whatsapp         = serializers.CharField(required=False, allow_blank=True)
+    tenant_id        = serializers.IntegerField(required=False, write_only=True)
 
     class Meta:
         model  = Usuario
         fields = [
             'username', 'email', 'nombres', 'apellidos',
             'telefono', 'password', 'password2',
-            'ci', 'direccion', 'ocupacion', 'fecha_nacimiento', 'whatsapp'
+            'ci', 'direccion', 'ocupacion', 'fecha_nacimiento', 'whatsapp', 'tenant_id'
         ]
 
     def validate_email(self, value):
@@ -142,13 +162,20 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
         ocupacion = validated_data.pop('ocupacion', None)
         fecha_nacimiento = validated_data.pop('fecha_nacimiento', None)
         whatsapp = validated_data.pop('whatsapp', None)
+        tenant_id = validated_data.pop('tenant_id', None)
+        
+        # Fallback de tenant
+        if not tenant_id:
+            t = Tenant.objects.filter(estado=True).order_by('id').first()
+            if t:
+                tenant_id = t.id
         
         # Quitamos password2 porque create_user no lo usa
         validated_data.pop('password2')
         password = validated_data.pop('password')
         
         # 1. Crear el Usuario (para el login)
-        user = Usuario.objects.create_user(password=password, **validated_data)
+        user = Usuario.objects.create_user(password=password, tenant_id=tenant_id, **validated_data)
         
         # Asignar rol Cliente por defecto
         try:
@@ -159,6 +186,7 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
 
         # 2. Crear la ficha en la tabla Cliente (para el CRM) y vincularlo
         Cliente.objects.create(
+            tenant_id=tenant_id,
             usuario=user,
             nombres=user.nombres,
             apellidos=user.apellidos,
@@ -175,3 +203,4 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
         )
 
         return user
+

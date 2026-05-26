@@ -138,7 +138,12 @@ class RegistroView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = RegistroSerializer(data=request.data)
+        tenant_id = request.data.get('tenant_id') or request.META.get('HTTP_X_TENANT_ID')
+        data = request.data.copy()
+        if tenant_id and 'tenant_id' not in data:
+            data['tenant_id'] = tenant_id
+
+        serializer = RegistroSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
@@ -168,7 +173,12 @@ class RegistroAgenteView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
-        serializer = RegistroAgenteSerializer(data=request.data)
+        tenant_id = request.data.get('tenant_id') or request.META.get('HTTP_X_TENANT_ID')
+        data = request.data.copy()
+        if tenant_id and 'tenant_id' not in data:
+            data['tenant_id'] = tenant_id
+
+        serializer = RegistroAgenteSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response({
@@ -188,7 +198,12 @@ class RegistroClienteView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
-        serializer = RegistroClienteSerializer(data=request.data)
+        tenant_id = request.data.get('tenant_id') or request.META.get('HTTP_X_TENANT_ID')
+        data = request.data.copy()
+        if tenant_id and 'tenant_id' not in data:
+            data['tenant_id'] = tenant_id
+
+        serializer = RegistroClienteSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response({
@@ -201,6 +216,7 @@ class RegistroClienteView(APIView):
                 'apellidos': user.apellidos,
             }
         }, status=status.HTTP_201_CREATED)
+
 
 
 class RefreshView(APIView):
