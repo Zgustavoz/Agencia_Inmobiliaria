@@ -11,6 +11,7 @@ export const CreateClienteModal = ({ onClose }) => {
   const [form, setForm] = useState({
     nombres: "", apellidos: "", email: "", telefono: "",
     whatsapp: "", direccion: "", ocupacion: "",
+    tipo_documento: "CI", nro_documento: "",
     origen: "web", estado: "nuevo", observaciones: "",
   })
   const [errors, setErrors] = useState({})
@@ -62,6 +63,22 @@ export const CreateClienteModal = ({ onClose }) => {
               <label className="block text-sm font-medium text-(--on-surface) mb-1">Apellidos</label>
               <input name="apellidos" value={form.apellidos} onChange={handleChange} placeholder="Pérez" className={inputClass("apellidos")} />
               {errors.apellidos && <p className="text-(--error) text-xs mt-1">{errors.apellidos}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-(--on-surface) mb-1">Tipo Doc.</label>
+              <select name="tipo_documento" value={form.tipo_documento} onChange={handleChange} className={inputClass("tipo_documento")}>
+                <option value="CI">Cédula de Identidad</option>
+                <option value="NIT">NIT</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-(--on-surface) mb-1">Nro. Documento</label>
+              <input name="nro_documento" value={form.nro_documento} onChange={handleChange} placeholder="1234567" className={inputClass("nro_documento")} />
             </div>
           </div>
 

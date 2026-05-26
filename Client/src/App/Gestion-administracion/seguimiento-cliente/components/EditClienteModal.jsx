@@ -16,6 +16,8 @@ export const EditClienteModal = ({ cliente, onClose }) => {
     whatsapp:     cliente.whatsapp     || "",
     direccion:    cliente.direccion    || "",
     ocupacion:    cliente.ocupacion    || "",
+    tipo_documento: cliente.tipo_documento || "CI",
+    nro_documento:  cliente.nro_documento  || "",
     origen:       cliente.origen       || "web",
     estado:       cliente.estado       || "nuevo",
     observaciones: cliente.observaciones || "",
@@ -72,6 +74,22 @@ export const EditClienteModal = ({ cliente, onClose }) => {
               <label className="block text-sm font-medium text-(--on-surface) mb-1">Apellidos</label>
               <input name="apellidos" value={form.apellidos} onChange={handleChange} className={inputClass("apellidos")} />
               {errors.apellidos && <p className="text-(--error) text-xs mt-1">{errors.apellidos}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-(--on-surface) mb-1">Tipo Doc.</label>
+              <select name="tipo_documento" value={form.tipo_documento} onChange={handleChange} className={inputClass("tipo_documento")}>
+                <option value="CI">Cédula de Identidad</option>
+                <option value="NIT">NIT</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-(--on-surface) mb-1">Nro. Documento</label>
+              <input name="nro_documento" value={form.nro_documento} onChange={handleChange} className={inputClass("nro_documento")} />
             </div>
           </div>
 

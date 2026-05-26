@@ -80,8 +80,9 @@ class ClienteSerializer(serializers.ModelSerializer):
             'creado_por', 'creado_por_nombre', 'creado_en', 'actualizado_en',
             'interacciones', 'oportunidades', 'recordatorios', 'agentes',
             'total_interacciones', 'total_oportunidades',
+            'usuario', # Agregamos el campo usuario
         ]
-        read_only_fields = ['id', 'codigo_cliente', 'creado_en', 'actualizado_en']
+        read_only_fields = ['id', 'codigo_cliente', 'creado_en', 'actualizado_en', 'usuario']
 
     def get_creado_por_nombre(self, obj):
         if obj.creado_por:
@@ -93,6 +94,53 @@ class ClienteSerializer(serializers.ModelSerializer):
 
     def get_total_oportunidades(self, obj):
         return obj.oportunidades.count()
+
+    def create(self, validated_data):
+        from gestion_usuarios.models import Usuario, Rol
+        import random
+        import string
+
+        email = validated_data.get('email')
+        tenant = validated_data.get('tenant')
+        
+        # Si tiene email, intentamos crearle una cuenta de usuario automáticamente
+        if email:
+            # Verificar si ya existe un usuario con ese email
+            user = Usuario.objects.filter(email=email).first()
+            
+            if not user:
+                # Generar un username basado en el email o nombres
+                username = email.split('@')[0]
+                if Usuario.objects.filter(username=username).exists():
+                    username = f"{username}_{''.join(random.choices(string.digits, k=4))}"
+                
+                # Crear el usuario con una contraseña temporal (usamos una por defecto para que el admin pueda comunicarla)
+                temp_pass = "Cliente123#"
+                user = Usuario.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=temp_pass,
+                    nombres=validated_data.get('nombres', ''),
+                    apellidos=validated_data.get('apellidos', ''),
+                    telefono=validated_data.get('telefono', ''),
+                    tenant=tenant,
+                    estado=True
+                )
+                
+                # Asignar rol Cliente
+                try:
+                    rol_cliente = Rol.objects.get(nombre='Cliente')
+                    user.roles.add(rol_cliente)
+                except Rol.DoesNotExist:
+                    pass
+            
+            validated_data['usuario'] = user
+
+        # Asegurar tipo_documento por defecto si no viene
+        if not validated_data.get('tipo_documento'):
+            validated_data['tipo_documento'] = 'CI'
+
+        return super().create(validated_data)
 
 
 class ClienteListSerializer(serializers.ModelSerializer):
@@ -108,6 +156,10 @@ class ClienteListSerializer(serializers.ModelSerializer):
             'email', 'telefono', 'whatsapp', 'estado', 'origen',
             'creado_en', 'total_interacciones', 'total_oportunidades',
             'agente_principal',
+            'nro_documento', 
+            'ocupacion',
+            'direccion',
+            'observaciones',
         ]
 
     def get_total_interacciones(self, obj):

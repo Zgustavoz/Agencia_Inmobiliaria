@@ -63,7 +63,11 @@ class ClienteViewSet(TenantAwareViewSet):
 
     def perform_create(self, serializer):
         # Asignar tenant_id automáticamente (de TenantAwareViewSet)
-        super().perform_create(serializer)
+        # y asignar el usuario que lo crea
+        serializer.save(
+            tenant_id=self.request.tenant_id,
+            creado_por=self.request.user
+        )
 
     # ── Panel de seguimiento ──────────────────────────────────
     @action(detail=True, methods=['get'])
