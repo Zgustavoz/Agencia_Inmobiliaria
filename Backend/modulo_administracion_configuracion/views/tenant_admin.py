@@ -9,7 +9,8 @@ from ..models import Tenant
 from ..serializers.tenant import SuperAdminTenantSerializer, TenantProvisioningSerializer
 from gestion_usuarios.permissions.superadmin import IsGlobalSuperAdmin
 from modulo_inmuebles.models import Propiedad
-from gestion_usuarios.models import Usuario, Rol, UsuarioRol
+from gestion_usuarios.models import Usuario, Rol, UsuarioRol 
+from ..serializers.tenant import SuperAdminTenantSerializer, TenantProvisioningSerializer, SuperAdminTenantDetailSerializer
 
 class SuperAdminTenantViewSet(viewsets.ModelViewSet):
     """
@@ -29,6 +30,19 @@ class SuperAdminTenantViewSet(viewsets.ModelViewSet):
             total_clientes=Count('clientes', distinct=True),
             total_usuarios=Count('usuarios', distinct=True)
         ).order_by('-creado_en')
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Volvemos a anotar la instancia individual para asegurar que los conteos estén presentes
+        annotated_instance = Tenant.objects.filter(pk=instance.pk).annotate(
+            total_propiedades=Count('propiedades', distinct=True),
+            total_clientes=Count('clientes', distinct=True),
+            total_usuarios=Count('usuarios', distinct=True)
+        ).first()
+
+        serializer = SuperAdminTenantDetailSerializer(annotated_instance)
+        return Response(serializer.data)
+
 
     @action(detail=False, methods=['post'])
     def provisionar(self, request):

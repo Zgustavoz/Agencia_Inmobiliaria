@@ -31,6 +31,7 @@ import { SuperAdminLayout } from "./App/SuperAdmin/components/layout/SuperAdminL
 import { SuperAdminDashboard } from "./App/SuperAdmin/pages/SuperAdminDashboard";
 import { TenantListPage } from "./App/SuperAdmin/pages/TenantListPage";
 import { ProvisionTenantPage } from "./App/SuperAdmin/pages/ProvisionTenantPage";
+import { GlobalBitacoraPage } from "./App/SuperAdmin/pages/GlobalBitacoraPage";
 
 function InmobiliarApp() {
   return (
@@ -222,6 +223,8 @@ function InmobiliarApp() {
         <Route index element={<SuperAdminDashboard />} />
         <Route path="tenants" element={<TenantListPage />} />
         <Route path="provisionar" element={<ProvisionTenantPage />} />
+        <Route path="bitacora" element={<GlobalBitacoraPage />} />
+        <Route path="backups" element={<BackupsPage />} />
         <Route path="stats" element={<div className="p-4">Estadísticas Detalladas (En desarrollo...)</div>} />
         <Route path="settings" element={<div className="p-4">Configuración Global (En desarrollo...)</div>} />
       </Route>

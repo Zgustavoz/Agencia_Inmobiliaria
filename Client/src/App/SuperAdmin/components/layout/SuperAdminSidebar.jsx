@@ -9,9 +9,10 @@ import {
   Menu,
   X,
   ShieldCheck,
-  Globe,
   PlusCircle,
-  Activity
+  Activity,
+  History,
+  Database
 } from "lucide-react";
 import {
   AnimatePresence,
@@ -58,6 +59,16 @@ export const SuperAdminSidebar = () => {
         title: "Nuevo Registro",
         path: "/superadmin/provisionar",
         icon: PlusCircle,
+    },
+    {
+        title: "Bitácora Global",
+        path: "/superadmin/bitacora",
+        icon: History,
+    },
+    {
+        title: "Backups Sistema",
+        path: "/superadmin/backups",
+        icon: Database,
     },
     {
       title: "Estadísticas",

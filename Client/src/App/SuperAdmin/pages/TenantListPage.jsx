@@ -12,16 +12,18 @@ import {
   Filter
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { AnimatePresence } from "motion/react";
+import { TenantDetailModal } from "../components/modal/TenantDetailModal";
 
 export const TenantListPage = () => {
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTenantId, setSelectedTenantId] = useState(null);
 
   useEffect(() => {
     fetchTenants();
   }, []);
-
   const fetchTenants = async () => {
     try {
       const data = await getTenants();
@@ -138,7 +140,10 @@ export const TenantListPage = () => {
                 </span>
               </div>
               
-              <button className="text-indigo-600 hover:text-indigo-700 text-xs font-bold flex items-center gap-1 transition-colors">
+              <button 
+                onClick={() => setSelectedTenantId(tenant.id)}
+                className="text-indigo-600 hover:text-indigo-700 text-xs font-bold flex items-center gap-1 transition-colors"
+              >
                 Ver detalle
                 <ExternalLink className="w-3 h-3" />
               </button>
@@ -146,6 +151,15 @@ export const TenantListPage = () => {
           </div>
         ))}
       </div>
+
+      <AnimatePresence>
+        {selectedTenantId && (
+          <TenantDetailModal 
+            tenantId={selectedTenantId} 
+            onClose={() => setSelectedTenantId(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

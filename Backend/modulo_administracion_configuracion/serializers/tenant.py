@@ -54,6 +54,44 @@ class SuperAdminTenantSerializer(TenantSerializer):
         ]
 
 
+class UsuarioSimpleSerializer(serializers.ModelSerializer):
+    rol_nombre = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Usuario
+        fields = ['id', 'username', 'email', 'nombres', 'apellidos', 'es_admin', 'rol_nombre']
+
+    def get_rol_nombre(self, obj):
+        rol = obj.roles.first()
+        return rol.nombre if rol else "Sin Rol"
+
+
+class PropiedadSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Propiedad
+        fields = ['id_propiedad', 'titulo', 'precio', 'estado_propiedad', 'creado_en']
+
+
+class SuperAdminTenantDetailSerializer(SuperAdminTenantSerializer):
+    """
+    Serializer para el detalle profundo de un Tenant.
+    Incluye la lista de usuarios y las propiedades más recientes.
+    """
+    usuarios_lista = UsuarioSimpleSerializer(source='usuarios', many=True, read_only=True)
+    propiedades_recientes = serializers.SerializerMethodField()
+
+    class Meta(SuperAdminTenantSerializer.Meta):
+        fields = SuperAdminTenantSerializer.Meta.fields + [
+            'usuarios_lista',
+            'propiedades_recientes',
+        ]
+
+    def get_propiedades_recientes(self, obj):
+        # Obtenemos solo las últimas 5 propiedades para no sobrecargar
+        recent = obj.propiedades.all().order_by('-creado_en')[:5]
+        return PropiedadSimpleSerializer(recent, many=True).data
+
+
 class TenantProvisioningSerializer(serializers.Serializer):
     """
     Serializer para crear un Tenant y su Usuario Administrador inicial en un solo paso.

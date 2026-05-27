@@ -10,6 +10,13 @@ export const getTenants = async () => {
     return response.data;
 };
 
+export const getTenantDetail = async (id) => {
+    const response = await axios.get(`${API_URL}/admin-config/admin-tenants/${id}/`, {
+        withCredentials: true
+    });
+    return response.data;
+};
+
 export const getGlobalStats = async () => {
     const response = await axios.get(`${API_URL}/admin-config/admin-tenants/stats_globales/`, {
         withCredentials: true

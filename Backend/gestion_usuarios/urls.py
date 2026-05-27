@@ -8,12 +8,14 @@ from .views import (
     RegistroAgenteView, RegistroClienteView, UploadImageView
 )
 from .views.actividad_sistema import ActividadSistemaViewSet  #JOSe agrego esto para la bitacora
+from .views.actividad_global import GlobalActividadSistemaViewSet
 
 router = DefaultRouter()
 router.register('roles',    RolViewSet,     basename='roles')
 router.register('permisos', PermisoViewSet, basename='permisos')
 router.register('usuarios', UsuarioViewSet, basename='usuarios')
 router.register('bitacora', ActividadSistemaViewSet, basename='bitacora') #JOSe agrego esto para la bitacora
+router.register('global-bitacora', GlobalActividadSistemaViewSet, basename='global-bitacora')
 
 urlpatterns = [
     path('',                                      include(router.urls)),
