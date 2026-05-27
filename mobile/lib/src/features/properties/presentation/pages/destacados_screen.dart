@@ -9,6 +9,7 @@ import 'package:mobile/src/features/auth/logic/user_provider.dart';
 
 // Importación de la IA
 import '../../../tasacion_ia/widgets/chat_ia_bottom_sheet.dart';
+import '../../../tasacion_ia/widgets/buscador_ia_bottom_sheet.dart';
 
 class DestacadosScreen extends StatefulWidget {
   const DestacadosScreen({super.key});
@@ -18,6 +19,11 @@ class DestacadosScreen extends StatefulWidget {
 }
 
 class _DestacadosScreenState extends State<DestacadosScreen> {
+  // 🛠️ VARIABLES DE ESTADO AGREGADAS PARA CORREGIR LOS ERRORES
+  String _modalidadSeleccionada = "Venta";
+  String _tipoSeleccionado = "Apartment";
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -26,12 +32,95 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
     });
   }
 
-  void _mostrarChatBotIA(BuildContext context) {
+  // 🛠️ LIMPIEZA DEL CONTROLADOR
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _mostrarSelectorDeIA(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 15.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "¿En qué te puedo ayudar hoy?",
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                // Chat 1: Tasador
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: const Color(0xFFF16621).withOpacity(0.2),
+                    child: const Icon(
+                      Icons.calculate,
+                      color: Color(0xFFF16621),
+                    ),
+                  ),
+                  title: const Text("Tasador IA"),
+                  subtitle: const Text("Calcula el precio de tu propiedad"),
+                  onTap: () {
+                    Navigator.pop(context); // Cerramos el menú
+                    _mostrarChatTasador(
+                      context,
+                    ); // Abrimos el chat de tasación (el que ya tienes)
+                  },
+                ),
+                const Divider(),
+                // Chat 2: Buscador Semántico
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blue.withOpacity(
+                      0.2,
+                    ), // Color distinto para diferenciar
+                    child: const Icon(Icons.search_rounded, color: Colors.blue),
+                  ),
+                  title: const Text("Buscador IA"),
+                  subtitle: const Text("Encuentra tu casa ideal conversando"),
+                  onTap: () {
+                    Navigator.pop(context); // Cerramos el menú
+                    _mostrarChatBuscador(context); // Abrimos el NUEVO chat
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Renombra tu antigua función a _mostrarChatTasador
+  void _mostrarChatTasador(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const ChatIABottomSheet(),
+      builder: (context) => const ChatIABottomSheet(), // Tu widget actual
+    );
+  }
+
+  // Esta será la función para tu nuevo chat
+  void _mostrarChatBuscador(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          const BuscadorIABottomSheet(), // Se quitó el const que causaba conflicto aquí
     );
   }
 
@@ -45,7 +134,7 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
       backgroundColor: Colors.white,
       endDrawer: _buildRightMenu(context, user?.nombres ?? "Usuario"),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _mostrarChatBotIA(context),
+        onPressed: () => _mostrarSelectorDeIA(context),
         backgroundColor: const Color(0xFFF16621),
         elevation: 4,
         child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
@@ -90,7 +179,7 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _buildHeroSection(),
+              _buildHeroSection(propiedadProvider),
               SizedBox(height: 30.h),
               _buildDestacadosHeader(),
               SizedBox(height: 15.h),
@@ -111,7 +200,7 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(PropiedadProvider provider) {
     return Stack(
       children: [
         SizedBox(
@@ -124,24 +213,26 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
         ),
         Container(height: 380.h, color: Colors.black.withOpacity(0.3)),
         Positioned.fill(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Alquiler y venta de\ndepartamentos y casas\nen Bolivia",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                  shadows: const [
-                    Shadow(blurRadius: 10, color: Colors.black45),
-                  ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Alquiler y venta de\ndepartamentos y casas\nen Bolivia",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                    shadows: const [
+                      Shadow(blurRadius: 10, color: Colors.black45),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 20.h),
-              _buildFloatingSearch(),
-            ],
+                SizedBox(height: 20.h),
+                _buildFloatingSearch(provider),
+              ],
+            ),
           ),
         ),
       ],
@@ -183,7 +274,7 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
     );
   }
 
-  Widget _buildFloatingSearch() {
+  Widget _buildFloatingSearch(PropiedadProvider provider) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w),
       padding: EdgeInsets.all(10.w),
@@ -202,9 +293,31 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
         children: [
           Row(
             children: [
-              Expanded(child: _buildSmallDropdown("Venta")),
+              // 3. Dropdown de Modalidad (Venta / Alquiler)
+              Expanded(
+                child: _buildRealDropdown(
+                  value: _modalidadSeleccionada,
+                  items: const ["Venta", "Alquiler"],
+                  onChanged: (val) {
+                    setState(() {
+                      _modalidadSeleccionada = val!;
+                    });
+                  },
+                ),
+              ),
               SizedBox(width: 10.w),
-              Expanded(child: _buildSmallDropdown("Casa, Depart...")),
+              // 4. Dropdown de Tipo de Inmueble
+              Expanded(
+                child: _buildRealDropdown(
+                  value: _tipoSeleccionado,
+                  items: const ["Casa", "Apartment", "Terreno"],
+                  onChanged: (val) {
+                    setState(() {
+                      _tipoSeleccionado = val!;
+                    });
+                  },
+                ),
+              ),
             ],
           ),
           SizedBox(height: 10.h),
@@ -212,6 +325,7 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
             children: [
               Expanded(
                 child: TextField(
+                  controller: _searchController, // <-- Asigna el controlador
                   style: TextStyle(fontSize: 13.sp),
                   decoration: const InputDecoration(
                     hintText: "Buscá por ubicación o p...",
@@ -221,13 +335,29 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
                   ),
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF16621),
-                  borderRadius: BorderRadius.circular(8.r),
+              // 5. Envía la petición cuando el usuario toca la lupa
+              GestureDetector(
+                onTap: () {
+                  // Cerramos el teclado
+                  FocusScope.of(context).unfocus();
+
+                  // Ejecutamos la búsqueda con los parámetros actuales
+                  provider.buscarPropiedades(
+                    modalidad: _modalidadSeleccionada == "Venta"
+                        ? "Para Vender"
+                        : "Para Alquilar", // Ajusta según tu DB
+                    tipoInmueble: _tipoSeleccionado,
+                    busquedaLibre: _searchController.text,
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF16621),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  padding: EdgeInsets.all(12.w),
+                  child: Icon(Icons.search, color: Colors.white, size: 20.sp),
                 ),
-                padding: EdgeInsets.all(12.w),
-                child: Icon(Icons.search, color: Colors.white, size: 20.sp),
               ),
             ],
           ),
@@ -236,19 +366,34 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
     );
   }
 
-  Widget _buildSmallDropdown(String text) {
+  Widget _buildRealDropdown({
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: 12.w,
+        vertical: 2.h,
+      ), // Ajuste vertical
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8.r),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(text, style: TextStyle(fontSize: 11.sp)),
-          Icon(Icons.keyboard_arrow_down, size: 16.sp),
-        ],
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true, // Para que tome todo el ancho
+          icon: Icon(Icons.keyboard_arrow_down, size: 16.sp),
+          style: TextStyle(fontSize: 11.sp, color: Colors.black87),
+          onChanged: onChanged,
+          items: items.map<DropdownMenuItem<String>>((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item, overflow: TextOverflow.ellipsis),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

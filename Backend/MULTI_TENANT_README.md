@@ -62,6 +62,7 @@ curl -X POST http://localhost:8000/gestion_usuarios/auth/login/ \
 ```
 
 **Respuesta**:
+
 ```json
 {
   "message": "Login exitoso",
@@ -93,6 +94,7 @@ curl -X POST http://localhost:8000/api/inmuebles/propiedades/ \
 ```
 
 **Resultado**:
+
 - El `tenant_id` se asigna **automáticamente** al valor del usuario autenticado
 - Es imposible asignar otro tenant
 - Si el usuario está vencido, recibe 403 antes de poder crear
@@ -105,6 +107,7 @@ curl -X GET http://localhost:8000/api/inmuebles/propiedades/ \
 ```
 
 **Resultado**:
+
 - Solo devuelve propiedades de su tenant
 - Filtra automáticamente por `tenant_id`
 
@@ -114,12 +117,12 @@ curl -X GET http://localhost:8000/api/inmuebles/propiedades/ \
 
 ### Componentes Clave
 
-| Componente | Responsabilidad | Ubicación |
-|-----------|-----------------|-----------|
-| **Tenant** | Administra suscripción, plan y límites | `modulo_administracion_configuracion/models/tenant.py` |
-| **Usuario** | Asociado a un tenant (1:N) | `gestion_usuarios/models/usuario.py` |
-| **CookieJWTAuthentication** | Extrae y valida tenant_id de cada petición | `gestion_usuarios/authentication.py` |
-| **TenantAwareViewSet** | Base de todas las vistas, filtra por tenant automáticamente | `gestion_usuarios/views/base.py` |
+| Componente                  | Responsabilidad                                             | Ubicación                                              |
+| --------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ |
+| **Tenant**                  | Administra suscripción, plan y límites                      | `modulo_administracion_configuracion/models/tenant.py` |
+| **Usuario**                 | Asociado a un tenant (1:N)                                  | `gestion_usuarios/models/usuario.py`                   |
+| **CookieJWTAuthentication** | Extrae y valida tenant_id de cada petición                  | `gestion_usuarios/authentication.py`                   |
+| **TenantAwareViewSet**      | Base de todas las vistas, filtra por tenant automáticamente | `gestion_usuarios/views/base.py`                       |
 
 ### Flujo de una Petición
 
@@ -161,6 +164,7 @@ class MiModeloViewSet(TenantAwareViewSet):
 ```
 
 **¡Eso es todo!** Automáticamente:
+
 - Filtra por tenant en listados
 - Valida propiedad en detalle
 - Asigna tenant_id en creación
@@ -207,24 +211,28 @@ class MiModeloViewSet(TenantAwareViewSet):
 ### Escenario 1: Usuario intenta modificar su JWT
 
 **¿Qué pasa?**
+
 - Si modifica el payload, la firma no coincide
 - Resultado: 401 Unauthorized
 
 ### Escenario 2: Usuario envía X-Tenant-ID: 999
 
 **¿Qué pasa?**
+
 - Backend valida que 999 coincida con su tenant_id real
 - Si no coincide: 401 Unauthorized
 
 ### Escenario 3: Usuario intenta GET /propiedades/5 (de otro tenant)
 
 **¿Qué pasa?**
+
 - `get_object()` compara `propiedad.tenant_id != usuario.tenant_id`
 - Si no coincide: 403 Forbidden
 
 ### Escenario 4: Usuario intenta POST /propiedades/ (sin tenant_id en payload)
 
 **¿Qué pasa?**
+
 - `perform_create()` asigna automáticamente `tenant_id = usuario.tenant_id`
 - El cliente NO puede sobrescribir esto
 

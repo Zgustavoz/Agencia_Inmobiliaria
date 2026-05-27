@@ -17,6 +17,7 @@ from modulo_clientes_seguimiento.models.cliente import Cliente
 import google.generativeai as genai
 # Configurar Gemini (Asegúrate de tener GEMINI_API_KEY en tu .env de Django)
 #genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+from gestion_usuarios.models.usuario import Usuario
 
 class ChatTasacionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -24,38 +25,38 @@ class ChatTasacionViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_queryset(self):
-        try:
-            # Intentamos obtener el cliente vinculado al usuario del token
-            cliente = Cliente.objects.get(usuario=self.request.user)
-            return TasacionIA.objects.filter(cliente=cliente)
-        except Cliente.DoesNotExist:
-            # Si no es un cliente (ej. es un admin puro), devolvemos lista vacía
-            return TasacionIA.objects.none()
+        """
+        Retorna las tasaciones del usuario autenticado.
+        Ya no depende de si es cliente o no, solo de quién hizo la consulta.
+        """
+        return TasacionIA.objects.filter(usuario=self.request.user)
+        # try:
+        #     # Intentamos obtener el cliente vinculado al usuario del token
+        #     cliente = Cliente.objects.get(usuario=self.request.user)
+        #     return TasacionIA.objects.filter(cliente=cliente)
+        # except Cliente.DoesNotExist:
+        #     # Si no es un cliente (ej. es un admin puro), devolvemos lista vacía
+        #     return TasacionIA.objects.none()
 
     def create(self, request, *args, **kwargs):
-        # Esto nos dirá si Flutter realmente está enviando algo
-        print("--- DATA CRUDA RECIBIDA ---")
-        print(f"DATOS RECIBIDOS: {request.data}")
-        print(f"POST Data: {request.POST}") # Aquí deberían salir los textos
-        print(f"FILES Data: {request.FILES}") # Aquí deberían salir las imágenes
-        try:
-            cliente = Cliente.objects.get(usuario=self.request.user)
-        except Cliente.DoesNotExist:
-            return Response({"error": "No eres cliente"}, status=403)
+        # 1. Intentamos buscar si este usuario tiene un perfil de cliente
+        # Si no existe, cliente_perfil será None
+        cliente_perfil = Cliente.objects.filter(usuario=self.request.user).first()
 
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
-            print(f"ERRORES DE VALIDACIÓN: {serializer.errors}")
             return Response(serializer.errors, status=400)
             
-        # Al guardar, se sube a Cloudinary
-        instance = serializer.save(cliente=cliente)
+        # 2. Guardamos la instancia vinculando el usuario actual del token
+        # y el perfil de cliente (si lo tiene)
+        instance = serializer.save(
+            usuario=self.request.user,
+            cliente=cliente_perfil 
+        )
         
-        # FORZAR REFRESH: Esto asegura que 'instance' tenga las URLs de Cloudinary y el texto guardado
         instance.refresh_from_db() 
-        
-        print(f"DEBUG DESPUES DE GUARDAR: {instance.mensaje_usuario}")
 
+        # 3. Procesar con Gemini
         try:
             self.procesar_con_ia(instance)
         except Exception as e:
@@ -63,6 +64,36 @@ class ChatTasacionViewSet(viewsets.ModelViewSet):
             instance.save()
 
         return Response(self.get_serializer(instance).data, status=201)
+        # # Esto nos dirá si Flutter realmente está enviando algo
+        # print("--- DATA CRUDA RECIBIDA ---")
+        # print(f"DATOS RECIBIDOS: {request.data}")
+        # print(f"POST Data: {request.POST}") # Aquí deberían salir los textos
+        # print(f"FILES Data: {request.FILES}") # Aquí deberían salir las imágenes
+        # try:
+        #     cliente = Cliente.objects.get(usuario=self.request.user)
+        # except Cliente.DoesNotExist:
+        #     return Response({"error": "No eres cliente"}, status=403)
+
+        # serializer = self.get_serializer(data=request.data)
+        # if not serializer.is_valid():
+        #     print(f"ERRORES DE VALIDACIÓN: {serializer.errors}")
+        #     return Response(serializer.errors, status=400)
+            
+        # # Al guardar, se sube a Cloudinary
+        # instance = serializer.save(cliente=cliente)
+        
+        # # FORZAR REFRESH: Esto asegura que 'instance' tenga las URLs de Cloudinary y el texto guardado
+        # instance.refresh_from_db() 
+        
+        # print(f"DEBUG DESPUES DE GUARDAR: {instance.mensaje_usuario}")
+
+        # try:
+        #     self.procesar_con_ia(instance)
+        # except Exception as e:
+        #     instance.respuesta_ia = f"Error: {str(e)}"
+        #     instance.save()
+
+        # return Response(self.get_serializer(instance).data, status=201)
 
     def procesar_con_ia(self, instance):
         # 1. Obtenemos la llave desde settings (decouple ya la cargó del .env)
