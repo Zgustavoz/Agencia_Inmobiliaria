@@ -29,23 +29,23 @@ class _VisitaDetalleScreenState extends State<VisitaDetalleScreen> {
   Future<void> _guardarFeedback() async {
     setState(() => _submitting = true);
     final token = context.read<UserProvider>().token;
-    
-    final success = await VisitaService.actualizarVisita(
-      widget.visita.id,
-      {
-        "comentario_cliente": _comentarioController.text,
-        "calificacion": _calificacion,
-      },
-      token!,
-    );
+
+    final success = await VisitaService.actualizarVisita(widget.visita.id, {
+      "comentario_cliente": _comentarioController.text,
+      "calificacion": _calificacion,
+    }, token!);
 
     setState(() => _submitting = false);
     if (mounted) {
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Feedback guardado con éxito")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Feedback guardado con éxito")),
+        );
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al guardar feedback")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error al guardar feedback")),
+        );
       }
     }
   }
@@ -59,24 +59,39 @@ class _VisitaDetalleScreenState extends State<VisitaDetalleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.visita.propiedadTitulo, style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
+            Text(
+              widget.visita.propiedadTitulo,
+              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 10.h),
             Text("Fecha: ${widget.visita.fecha} | ${widget.visita.horaInicio}"),
             SizedBox(height: 20.h),
             const Text("Tu comentario:"),
-            TextField(controller: _comentarioController, maxLines: 3, decoration: const InputDecoration(border: OutlineInputBorder())),
+            TextField(
+              controller: _comentarioController,
+              maxLines: 3,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+            ),
             SizedBox(height: 20.h),
             const Text("Califica tu experiencia:"),
             Row(
-              children: List.generate(5, (index) => IconButton(
-                icon: Icon(index < _calificacion ? Icons.star : Icons.star_border, color: Colors.amber),
-                onPressed: () => setState(() => _calificacion = index + 1),
-              )),
+              children: List.generate(
+                5,
+                (index) => IconButton(
+                  icon: Icon(
+                    index < _calificacion ? Icons.star : Icons.star_border,
+                    color: Colors.amber,
+                  ),
+                  onPressed: () => setState(() => _calificacion = index + 1),
+                ),
+              ),
             ),
             SizedBox(height: 30.h),
             ElevatedButton(
               onPressed: _submitting ? null : _guardarFeedback,
-              child: _submitting ? const CircularProgressIndicator() : const Text("Guardar Feedback"),
+              child: _submitting
+                  ? const CircularProgressIndicator()
+                  : const Text("Guardar Feedback"),
             ),
           ],
         ),
