@@ -26,6 +26,10 @@ import { ClientesHistorialPage } from "./App/modulo-clientes-seguimiento/gestion
 import { VencimientosPage } from "./App/Gestion-administracion/gestion-vencimientos/page/VencimientosPage";
 import { ContratoPage } from "./App/Gestion-administracion-contratos/gestion-contrato/page/ContratoPage";
 
+// --- IMPORTACIONES SUPERADMIN ---
+import { SuperAdminLayout } from "./App/SuperAdmin/components/layout/SuperAdminLayout";
+import { SuperAdminDashboard } from "./App/SuperAdmin/pages/SuperAdminDashboard";
+
 function InmobiliarApp() {
   return (
     <Routes>
@@ -65,7 +69,7 @@ function InmobiliarApp() {
         </Route>
       </Route>
 
-      {/* ── Dashboard (con Sidebar) ── */}
+      {/* ── Dashboard Inmobiliaria (con Sidebar estándar) ── */}
       <Route
         path="dashboard"
         element={
@@ -78,6 +82,7 @@ function InmobiliarApp() {
         }
       >
         <Route index element={<DashboardPage />} />
+        {/* ... (resto de rutas del dashboard se mantienen igual) ... */}
         <Route
           path="settings"
           element={
@@ -199,7 +204,24 @@ function InmobiliarApp() {
             </ProtectedRoute>
           }
         />
-        {/* <Route path="permisos" element={<ProtectedRoute requiredRoles={["Administrador"]}><PermisoPage /></ProtectedRoute>} /> */}
+      </Route>
+
+      {/* ── Dashboard SUPERADMIN (Acceso Global) ── */}
+      <Route
+        path="superadmin"
+        element={
+          <ProtectedRoute
+            requiredRoles={["Superadmin"]}
+          >
+            <SuperAdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<SuperAdminDashboard />} />
+        <Route path="tenants" element={<div className="p-4">Gestión de Empresas (En desarrollo...)</div>} />
+        <Route path="provisionar" element={<div className="p-4">Provisionar Nueva Empresa (En desarrollo...)</div>} />
+        <Route path="stats" element={<div className="p-4">Estadísticas Detalladas (En desarrollo...)</div>} />
+        <Route path="settings" element={<div className="p-4">Configuración Global (En desarrollo...)</div>} />
       </Route>
 
       {/* ── 404 ── */}
@@ -207,5 +229,6 @@ function InmobiliarApp() {
     </Routes>
   );
 }
+
 
 export default InmobiliarApp;

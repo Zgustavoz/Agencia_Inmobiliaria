@@ -1,7 +1,11 @@
 # pylint: disable=C0114,C0115,C0116
 from rest_framework import serializers
 from ..models import Tenant
+from modulo_inmuebles.models import Propiedad
+from modulo_clientes_seguimiento.models import Cliente
+from django.contrib.auth import get_user_model
 
+Usuario = get_user_model()
 
 class TenantSerializer(serializers.ModelSerializer):
     plan_display = serializers.CharField(source='get_plan_display', read_only=True)
@@ -31,3 +35,52 @@ class TenantSerializer(serializers.ModelSerializer):
     
     def get_puede_crear_propiedad(self, obj):
         return obj.puede_crear_propiedad()
+
+
+class SuperAdminTenantSerializer(TenantSerializer):
+    """
+    Serializer extendido para el Dashboard de Superadmin.
+    Incluye conteos de recursos por tenant.
+    """
+    total_propiedades = serializers.IntegerField(read_only=True)
+    total_clientes = serializers.IntegerField(read_only=True)
+    total_usuarios = serializers.IntegerField(read_only=True)
+
+    class Meta(TenantSerializer.Meta):
+        fields = TenantSerializer.Meta.fields + [
+            'total_propiedades',
+            'total_clientes',
+            'total_usuarios',
+        ]
+
+
+class TenantProvisioningSerializer(serializers.Serializer):
+    """
+    Serializer para crear un Tenant y su Usuario Administrador inicial en un solo paso.
+    """
+    # Datos del Tenant
+    tenant_nombre = serializers.CharField(max_length=255)
+    tenant_plan = serializers.ChoiceField(choices=[('basico', 'Básico'), ('profesional', 'Profesional'), ('empresa', 'Empresa')])
+    tenant_max_propiedades = serializers.IntegerField(default=3)
+    
+    # Datos del Admin
+    admin_username = serializers.CharField(max_length=50)
+    admin_email = serializers.EmailField()
+    admin_password = serializers.CharField(write_only=True)
+    admin_nombres = serializers.CharField(max_length=100)
+    admin_apellidos = serializers.CharField(max_length=100)
+
+    def validate_tenant_nombre(self, value):
+        if Tenant.objects.filter(nombre=value).exists():
+            raise serializers.ValidationError("Ya existe una empresa con este nombre.")
+        return value
+
+    def validate_admin_username(self, value):
+        if Usuario.objects.filter(username=value).exists():
+            raise serializers.ValidationError("El nombre de usuario ya está en uso.")
+        return value
+
+    def validate_admin_email(self, value):
+        if Usuario.objects.filter(email=value).exists():
+            raise serializers.ValidationError("El email ya está registrado.")
+        return value

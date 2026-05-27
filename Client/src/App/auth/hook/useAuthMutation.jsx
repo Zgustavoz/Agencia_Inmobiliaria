@@ -25,6 +25,16 @@ export const useAuth = () => {
       contextLogin(perfil)
       toast.success("¡Bienvenido!")
       const roles = normalizeRoles(perfil.roles_info?.map(r => r.nombre) || [])
+      
+      // 1. Prioridad: Superadmin Global (Sin Tenant)
+      const esSuperadminGlobal = roles.includes("Superadmin") && !perfil.tenant;
+      
+      if (esSuperadminGlobal) {
+        navigate("/superadmin");
+        return;
+      }
+
+      // 2. Dashboards de Inmobiliaria
       const puedeEntrarDashboard = perfil.es_admin || roles.some((rol) =>
         ["Administrador", "Supervisor", "Agente", "Asistente", "Auditor"].includes(rol)
       )

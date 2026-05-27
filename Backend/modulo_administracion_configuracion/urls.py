@@ -2,11 +2,13 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views.moneda import MonedaViewSet
 from .views.backup import BackupManagerView, RestoreBackupView
+from .views.tenant_admin import SuperAdminTenantViewSet
 # Importamos la nueva vista de IA
 from .views.reportes_ia import recibir_audio_reporte 
 
 router = DefaultRouter()
 router.register(r'monedas', MonedaViewSet, basename='moneda')
+router.register(r'admin-tenants', SuperAdminTenantViewSet, basename='admin-tenants')
 
 urlpatterns = [
     path('', include(router.urls)),
