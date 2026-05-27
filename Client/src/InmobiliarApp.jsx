@@ -29,6 +29,8 @@ import { ContratoPage } from "./App/Gestion-administracion-contratos/gestion-con
 // --- IMPORTACIONES SUPERADMIN ---
 import { SuperAdminLayout } from "./App/SuperAdmin/components/layout/SuperAdminLayout";
 import { SuperAdminDashboard } from "./App/SuperAdmin/pages/SuperAdminDashboard";
+import { TenantListPage } from "./App/SuperAdmin/pages/TenantListPage";
+import { ProvisionTenantPage } from "./App/SuperAdmin/pages/ProvisionTenantPage";
 
 function InmobiliarApp() {
   return (
@@ -218,8 +220,8 @@ function InmobiliarApp() {
         }
       >
         <Route index element={<SuperAdminDashboard />} />
-        <Route path="tenants" element={<div className="p-4">Gestión de Empresas (En desarrollo...)</div>} />
-        <Route path="provisionar" element={<div className="p-4">Provisionar Nueva Empresa (En desarrollo...)</div>} />
+        <Route path="tenants" element={<TenantListPage />} />
+        <Route path="provisionar" element={<ProvisionTenantPage />} />
         <Route path="stats" element={<div className="p-4">Estadísticas Detalladas (En desarrollo...)</div>} />
         <Route path="settings" element={<div className="p-4">Configuración Global (En desarrollo...)</div>} />
       </Route>

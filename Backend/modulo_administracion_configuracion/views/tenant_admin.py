@@ -1,4 +1,5 @@
 from django.db import transaction, models as django_models
+from django.db.models import Count, Q
 from django.utils import timezone
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
@@ -44,6 +45,7 @@ class SuperAdminTenantViewSet(viewsets.ModelViewSet):
                 vencimiento = timezone.now().date() + timezone.timedelta(days=30)
                 tenant = Tenant.objects.create(
                     nombre=data['tenant_nombre'],
+                    descripcion=data.get('tenant_descripcion', ''),
                     plan=data['tenant_plan'],
                     max_propiedades=data['tenant_max_propiedades'],
                     fecha_vencimiento_pago=vencimiento,
@@ -58,7 +60,7 @@ class SuperAdminTenantViewSet(viewsets.ModelViewSet):
                     nombres=data['admin_nombres'],
                     apellidos=data['admin_apellidos'],
                     tenant=tenant,
-                    es_admin=False # Es admin del tenant, no global
+                    es_admin=True # Es admin de su propio sistema/tenant
                 )
 
                 # 3. Asignar el Rol 'Administrador'

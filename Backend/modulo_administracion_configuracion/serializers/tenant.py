@@ -60,6 +60,7 @@ class TenantProvisioningSerializer(serializers.Serializer):
     """
     # Datos del Tenant
     tenant_nombre = serializers.CharField(max_length=255)
+    tenant_descripcion = serializers.CharField(required=False, allow_blank=True)
     tenant_plan = serializers.ChoiceField(choices=[('basico', 'Básico'), ('profesional', 'Profesional'), ('empresa', 'Empresa')])
     tenant_max_propiedades = serializers.IntegerField(default=3)
     
