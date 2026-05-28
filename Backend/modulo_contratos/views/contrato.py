@@ -10,6 +10,8 @@ from ..utils.pdf_generator import generar_contrato_pdf
 
 from modulo_contratos.models import Contrato
 from modulo_contratos.serializers import ContratoSerializer
+from modulo_contratos.serializers.reporte_contrato import ReporteContratoSerializer
+from shared.services.reportes_utils import filter_periodo, build_pdf_response
 
 
 class ContratoViewSet(viewsets.ModelViewSet):
@@ -85,3 +87,48 @@ class ContratoViewSet(viewsets.ModelViewSet):
             as_attachment=True,
             filename=f"contrato_{contrato.codigo_contrato}.pdf"
         )
+
+    @action(detail=False, methods=['get'])
+    def reporte(self, request):
+        queryset = self.get_queryset()
+
+        estado = request.query_params.get('estado_contrato')
+        if estado:
+            queryset = queryset.filter(estado_contrato=estado)
+
+        tipo = request.query_params.get('tipo_operacion')
+        if tipo:
+            queryset = queryset.filter(tipo_operacion=tipo)
+
+        fecha_inicio = request.query_params.get('fecha_inicio')
+        fecha_fin = request.query_params.get('fecha_fin')
+        queryset = filter_periodo(queryset, 'fecha_inicio', fecha_inicio, fecha_fin)
+
+        serializer = ReporteContratoSerializer(queryset, many=True)
+        data = serializer.data
+
+        if request.query_params.get('format') == 'pdf':
+            headers = [
+                'Codigo', 'Estado', 'Tipo', 'Inicio', 'Fin', 'Monto', 'Cliente', 'Propiedad'
+            ]
+            rows = [
+                [
+                    item.get('codigo_contrato'),
+                    item.get('estado_contrato'),
+                    item.get('tipo_operacion'),
+                    item.get('fecha_inicio'),
+                    item.get('fecha_fin'),
+                    item.get('monto'),
+                    item.get('cliente_nombre'),
+                    item.get('propiedad_codigo'),
+                ]
+                for item in data
+            ]
+            return build_pdf_response(
+                'Reporte de Contratos',
+                headers,
+                rows,
+                filename='reporte_contratos.pdf'
+            )
+
+        return Response(data)

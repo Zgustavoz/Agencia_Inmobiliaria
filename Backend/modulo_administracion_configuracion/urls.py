@@ -4,7 +4,8 @@ from .views.moneda import MonedaViewSet
 from .views.backup import BackupManagerView, RestoreBackupView
 from .views.tenant_admin import SuperAdminTenantViewSet
 # Importamos la nueva vista de IA
-from .views.reportes_ia import recibir_audio_reporte 
+from .views.reportes_ia import recibir_audio_reporte
+from .views.reportes_globales import ReportesGlobalesView
 
 router = DefaultRouter()
 router.register(r'monedas', MonedaViewSet, basename='moneda')
@@ -17,4 +18,5 @@ urlpatterns = [
     
     # Nueva ruta para el procesamiento de voz
     path('reporte-voz/', recibir_audio_reporte, name='reportes_ia'),
+    path('reportes-globales/', ReportesGlobalesView.as_view(), name='reportes-globales'),
 ]

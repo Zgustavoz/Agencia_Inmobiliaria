@@ -1,3 +1,4 @@
 from .contrato import ContratoSerializer
 from .pago_contrato import PagoContratoSerializer
 from .documento_contrato import DocumentoContratoSerializer
+from .reporte_operacion import ReporteOperacionSerializer

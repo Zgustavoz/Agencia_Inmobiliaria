@@ -10,6 +10,8 @@ from ..serializers import (
     ClienteInteraccionSerializer, ClienteOportunidadSerializer,
     ClienteRecordatorioSerializer, ClienteAgenteSerializer,
 )
+from ..serializers.reporte_cliente import ReporteClienteSerializer
+from shared.services.reportes_utils import filter_periodo, build_pdf_response
 from rest_framework.permissions import IsAuthenticated
 from gestion_usuarios.views.base import TenantAwareViewSet
 
@@ -166,3 +168,39 @@ class ClienteViewSet(TenantAwareViewSet):
                 many=True
             ).data,
         })
+
+    @action(detail=False, methods=['get'])
+    def reporte(self, request):
+        queryset = self.get_queryset()
+
+        fecha_inicio = request.query_params.get('fecha_inicio')
+        fecha_fin = request.query_params.get('fecha_fin')
+        queryset = filter_periodo(queryset, 'creado_en', fecha_inicio, fecha_fin)
+
+        serializer = ReporteClienteSerializer(queryset, many=True)
+        data = serializer.data
+
+        if request.query_params.get('format') == 'pdf':
+            headers = [
+                'Codigo', 'Nombre', 'Email', 'Telefono', 'Estado', 'Origen', 'Creado'
+            ]
+            rows = [
+                [
+                    item.get('codigo_cliente'),
+                    item.get('nombre_completo'),
+                    item.get('email'),
+                    item.get('telefono'),
+                    item.get('estado'),
+                    item.get('origen'),
+                    item.get('creado_en'),
+                ]
+                for item in data
+            ]
+            return build_pdf_response(
+                'Reporte de Clientes',
+                headers,
+                rows,
+                filename='reporte_clientes.pdf'
+            )
+
+        return Response(data)
