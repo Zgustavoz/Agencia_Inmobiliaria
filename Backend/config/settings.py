@@ -210,3 +210,6 @@ R2_ENDPOINT_URL     = config('R2_ENDPOINT_URL')
 
 # ── Gemini ──────────────────────────────────
 GEMINI_API_KEY = config('GEMINI_API_KEY')
+
+# ── Firebase ────────────────────────────────
+FIREBASE_SERVICE_ACCOUNT_JSON = config('FIREBASE_SERVICE_ACCOUNT_JSON', default=None)

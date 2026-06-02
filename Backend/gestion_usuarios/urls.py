@@ -5,7 +5,8 @@ from .views import (
     RolViewSet, PermisoViewSet, UsuarioViewSet,
     LoginView, RegistroView, RefreshView,
     LogoutView, PasswordResetView, RestablecerPasswordView,
-    RegistroAgenteView, RegistroClienteView, UploadImageView
+    RegistroAgenteView, RegistroClienteView, UploadImageView,
+    FCMTokenView
 )
 from .views.actividad_sistema import ActividadSistemaViewSet  #JOSe agrego esto para la bitacora
 from .views.actividad_global import GlobalActividadSistemaViewSet
@@ -23,6 +24,7 @@ urlpatterns = [
     path('auth/registro/',                        RegistroView.as_view(),           name='registro'),
     path('auth/registro-agente/',                 RegistroAgenteView.as_view(),     name='registro_agente'),
     path('auth/registro-cliente/',                RegistroClienteView.as_view(),    name='registro_cliente'),
+    path('auth/fcm-token/',                       FCMTokenView.as_view(),           name='fcm_token'),
     path('auth/refresh/',                         RefreshView.as_view(),            name='refresh'),
     path('auth/logout/',                          LogoutView.as_view(),             name='logout'),
     path('auth/recuperar-password/',              PasswordResetView.as_view(),      name='recuperar_password'),

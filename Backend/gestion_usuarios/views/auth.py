@@ -22,12 +22,23 @@ from ..serializers import (
     RegistroSerializer,
     RegistroAgenteSerializer,
     RegistroClienteSerializer, # <--- ASEGURAMOS ESTA IMPORTACIÓN
-    UsuarioSerializer
+    UsuarioSerializer,
+    FCMDeviceSerializer
 )
 from ..models import Usuario
 
 
 from ..services.bitacora import BitacoraService
+
+class FCMTokenView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = FCMDeviceSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Token registrado exitosamente'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def set_auth_cookies(response, access_token, refresh_token=None):
     access_lifetime  = int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())

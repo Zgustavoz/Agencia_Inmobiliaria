@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final userData = data['user'];
 
         final usuarioReal = Usuario.fromJson(userData);
-        Provider.of<UserProvider>(
+        await Provider.of<UserProvider>(
           context,
           listen: false,
         ).setUser(usuarioReal, token);
