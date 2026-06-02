@@ -50,7 +50,7 @@ LOCAL_APPS = [
     'gestion_usuarios',
     'modulo_administracion_configuracion',
     'modulo_inmuebles',
-    'modulo_clientes_seguimiento',
+    'modulo_clientes_seguimiento.apps.ModuloClientesSeguimientoConfig',
     'modulo_contratos',
     'modulo_tasacion_ia',
     'modulo_pagos'

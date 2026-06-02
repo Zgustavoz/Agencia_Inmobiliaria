@@ -1,7 +1,28 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models.visita import Visita
+from .models.cliente_oportunidad import ClienteOportunidad
 from shared.services.firebase_service import FirebaseService
+
+@receiver(post_save, sender=ClienteOportunidad)
+def enviar_notificacion_oportunidad(sender, instance, created, **kwargs):
+    """Envía notificación al cliente cuando se crea una nueva oportunidad"""
+    if created:  # Solo cuando se crea, no cuando se actualiza
+        cliente_user = instance.cliente.usuario
+        if cliente_user:
+            print(f"DEBUG: Enviando notificación push de nueva oportunidad al usuario {cliente_user.username}")
+            
+            FirebaseService.send_push_notification(
+                user=cliente_user,
+                title=f"🎯 Nueva Oportunidad: {instance.nombre}",
+                body=f"Se ha registrado una nueva oportunidad para ti. Etapa: {instance.get_etapa_display()}",
+                data={
+                    "tipo": "oportunidad_nueva",
+                    "id_oportunidad": str(instance.id),
+                    "nombre": instance.nombre,
+                    "etapa": instance.etapa
+                }
+            )
 
 @receiver(post_save, sender=Visita)
 def enviar_notificacion_cambio_estado(sender, instance, created, **kwargs):
