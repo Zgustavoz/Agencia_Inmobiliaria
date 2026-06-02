@@ -93,8 +93,8 @@ const buildDashboardData = (tipo, period, refreshSeed) => {
   const palette = colorSets[tipo];
 
   const baseSeries = months.map((_, index) => {
-    const trend = 55 + index * 8 + Math.round(rnd() * 18);
-    return Math.max(12, trend);
+    const trend = 1 + index * 2 + Math.round(rnd() * 7);
+    return Math.max(5, trend);
   });
 
   const statusLabelsByType = {
@@ -122,9 +122,9 @@ const buildDashboardData = (tipo, period, refreshSeed) => {
   const detailLabels = detailLabelsByType[tipo];
   const rowLabels = rowLabelsByType[tipo];
 
-  const statusValues = statusLabels.map((_, index) => 15 + Math.round(rnd() * 35) + index * 4);
-  const detailValues = detailLabels.map((_, index) => 22 + Math.round(rnd() * 30) + index * 3);
-  const lineValues = baseSeries.map((value, index) => value + Math.round(rnd() * 10) + index * 2);
+  const statusValues = statusLabels.map((_, index) => 6 + Math.round(rnd() * 14) + index * 2);
+  const detailValues = detailLabels.map((_, index) => 8 + Math.round(rnd() * 12) + index * 2);
+  const lineValues = baseSeries.map((value, index) => value + Math.round(rnd() * 4) + index);
 
   const totals = lineValues.reduce((acc, value) => acc + value, 0);
   const active = Math.max(1, Math.round(totals * (0.58 + rnd() * 0.18)));
@@ -137,7 +137,7 @@ const buildDashboardData = (tipo, period, refreshSeed) => {
   }));
 
   const rows = rowLabels.map((code, index) => {
-    const amount = 12000 + Math.round(rnd() * 60000) + index * 4200;
+    const amount = 1800 + Math.round(rnd() * 12000) + index * 650;
     return {
       codigo: code,
       nombre: detailLabels[index % detailLabels.length],
@@ -151,25 +151,25 @@ const buildDashboardData = (tipo, period, refreshSeed) => {
   const cards = [
     {
       label: "Volumen total",
-      value: totals,
+      value: Math.max(10, totals),
       suffix: "registros",
       detail: "+18% vs. mes anterior",
     },
     {
       label: "Activos",
-      value: active,
+      value: Math.max(3, active),
       suffix: "activos",
       detail: "Crecimiento constante",
     },
     {
       label: "Cerrados",
-      value: closed,
+      value: Math.max(2, closed),
       suffix: "cerrados",
       detail: "Conversión saludable",
     },
     {
       label: "Pendientes",
-      value: pending,
+      value: Math.max(1, pending),
       suffix: "por cerrar",
       detail: "Seguimiento requerido",
     },
