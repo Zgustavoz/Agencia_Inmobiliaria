@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from modulo_contratos.models import Contrato
-
+from datetime import date
+from dateutil.relativedelta import relativedelta
+from modulo_contratos.models import PagoContrato
+from modulo_contratos.utils.pagos import generar_pagos_contrato_alquiler
 
 class ContratoSerializer(serializers.ModelSerializer):
 
@@ -60,3 +63,10 @@ class ContratoSerializer(serializers.ModelSerializer):
     
     def get_propiedad_nombre(self, obj):
         return f"{obj.propiedad.codigo_propiedad} - {obj.propiedad.titulo}"
+    
+    def create(self, validated_data):
+        contrato = super().create(validated_data)
+
+        generar_pagos_contrato_alquiler(contrato)
+
+        return contrato
