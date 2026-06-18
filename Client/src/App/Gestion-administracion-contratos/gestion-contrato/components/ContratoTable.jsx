@@ -2,14 +2,16 @@ import {
   FileText,
   Pencil,
   Download,
-  FolderOpen
+  FolderOpen,
+  CreditCard
 } from "lucide-react";
 
 export const ContratoTable = ({
   contratos,
   onEditar,
   onExportar,
-  onVerDocumentos
+  onVerDocumentos,
+  onPagos
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -70,6 +72,14 @@ export const ContratoTable = ({
 
               <td className="p-4">
                 <div className="flex gap-2">
+
+                  <button
+                    onClick={() => onPagos(c)}
+                    className="p-2 rounded-lg hover:bg-violet-50 text-violet-600"
+                    title="Pagos"
+                  >
+                    <CreditCard size={16} />
+                  </button>
 
                   <button
                     onClick={() => onEditar(c)}

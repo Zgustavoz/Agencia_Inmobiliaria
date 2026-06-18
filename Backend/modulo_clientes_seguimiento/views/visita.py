@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from ..models.visita import Visita, HorarioDisponibilidad
 from ..serializers.visita import VisitaSerializer, HorarioDisponibilidadSerializer
+from shared.services.firebase_service import FirebaseService
 
 class HorarioDisponibilidadViewSet(ModelViewSet):
     queryset = HorarioDisponibilidad.objects.all()
@@ -28,6 +29,9 @@ class VisitaViewSet(ModelViewSet):
             serializer.save(cliente=user.perfil_cliente)
         else:
             serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
 
     def get_queryset(self):
         queryset = super().get_queryset()

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/src/features/auth/data/usuario_model.dart';
+import 'package:mobile/src/shared/services/notification_service.dart';
+import 'package:mobile/src/core/config/app_config.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class UserProvider with ChangeNotifier {
   Usuario? _usuario;
@@ -8,9 +12,44 @@ class UserProvider with ChangeNotifier {
   Usuario? get usuario => _usuario;
   String? get token => _token;
 
-  void setUser(Usuario user, String token) {
+  Future<void> setUser(Usuario user, String token) async {
     _usuario = user;
     _token = token;
-    notifyListeners(); // Esto avisa a Flutter que debe redibujar el nombre
+    notifyListeners();
+    
+    // Registrar el token de Firebase automáticamente al iniciar sesión
+    // NO usamos await aquí para que el login no se quede trabado si Firebase tarda
+    _registrarDispositivoEnBackend().catchError((e) {
+      debugPrint('Error en registro de dispositivo: $e');
+    });
+  }
+
+  Future<void> _registrarDispositivoEnBackend() async {
+    if (_token == null) return;
+
+    final fcmToken = await NotificationService.getToken();
+    if (fcmToken == null) return;
+
+    try {
+      final response = await http.post(
+        Uri.parse('${AppConfig.apiUrl}/gestion_usuarios/auth/fcm-token/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_token',
+        },
+        body: jsonEncode({
+          'fcm_token': fcmToken,
+          'dispositivo_id': 'mobile_app', // Opcional: podrías usar device_info_plus para algo más único
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print('Dispositivo registrado en FCM backend exitosamente');
+      } else {
+        print('Error al registrar dispositivo en FCM: ${response.body}');
+      }
+    } catch (e) {
+      print('Error de conexión al registrar FCM: $e');
+    }
   }
 }

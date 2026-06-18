@@ -11,6 +11,7 @@ import {
 import { useContratos } from "../hooks/useContratos";
 import { ContratoTable } from "../components/ContratoTable";
 import { ContratoForm } from "../components/ContratoForm";
+import { PagoContratoPage } from "./PagoContratoPage";
 
 import {
   exportarContratoPDF,
@@ -50,9 +51,15 @@ export const ContratoPage = () => {
     setShowDocs(true);
   };
 
+  const handlePagos = (contrato) => {
+    setContratoSeleccionado(contrato);
+    setViewMode("pagos");
+  };
+
   return (
     <div className="p-8 bg-[#F8F9FB] min-h-screen font-sans text-neutral-600">
-      {viewMode === "list" ? (
+
+      {viewMode === "list" && (
         <div className="max-w-[1400px] mx-auto">
 
           {/* Header */}
@@ -125,11 +132,15 @@ export const ContratoPage = () => {
                 onEditar={handleEditar}
                 onExportar={handleExportar}
                 onVerDocumentos={handleVerDocumentos}
+                onPagos={handlePagos}
               />
             </div>
           </div>
+
         </div>
-      ) : (
+      )}
+
+      {viewMode === "form" && (
         <ContratoForm
           contratoAEditar={contratoSeleccionado}
           onCancel={() => setViewMode("list")}
@@ -140,12 +151,20 @@ export const ContratoPage = () => {
         />
       )}
 
+      {viewMode === "pagos" && (
+        <PagoContratoPage
+          contrato={contratoSeleccionado}
+          onVolver={() => setViewMode("list")}
+        />
+      )}
+
       {showDocs && (
         <DocumentosContratoModal
           documentos={documentos}
           onClose={() => setShowDocs(false)}
         />
       )}
+
     </div>
   );
 };

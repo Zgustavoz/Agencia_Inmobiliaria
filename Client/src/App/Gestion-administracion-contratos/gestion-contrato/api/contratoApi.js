@@ -83,3 +83,10 @@ export const buscarPropiedades = async (search = "") => {
 
   return data.results || data;
 };
+
+export const obtenerPagosContrato = async (idContrato) => {
+  const { data } = await intanciaAxios.get(
+    `/api/pagos/?contrato=${idContrato}`
+  );
+  return data;
+};
