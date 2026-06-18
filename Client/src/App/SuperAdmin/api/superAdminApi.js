@@ -1,11 +1,4 @@
-<<<<<<< HEAD
-import axios from 'axios';
-
-// Usamos la URL base configurada en el proyecto
-const API_URL = import.meta.env.VITE_APP_BASE_URL || 'http://localhost:8000/api';
-=======
 import { intanciaAxios } from '../../../config/axios';
->>>>>>> af027a66c56978e6544e79698df34c465b47eca1
 
 export const getTenants = async () => {
     const response = await intanciaAxios.get("/api/admin-config/admin-tenants/");

@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_APP_BASE_URL || "http://localhost:8000/api";
-=======
 import { intanciaAxios } from "../../../config/axios";
->>>>>>> af027a66c56978e6544e79698df34c465b47eca1
 
 const ENDPOINTS = {
   propiedades: "/api/inmuebles/propiedades/reporte/",
