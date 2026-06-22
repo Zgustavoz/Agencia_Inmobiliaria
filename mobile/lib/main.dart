@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:mobile/firebase_options.dart';
+import 'package:mobile/src/shared/services/notification_service.dart';
 import 'package:mobile/src/features/auth/presentation/login_screen.dart';
 import 'package:mobile/src/features/properties/presentation/pages/destacados_screen.dart';
 import 'package:mobile/src/features/properties/logic/propiedad_provider.dart';
@@ -11,7 +14,26 @@ import 'package:mobile/src/features/auth/logic/user_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    
+    // Inicializar servicio de notificaciones (no bloqueante para que la app arranque)
+    NotificationService.initialize().catchError((e) {
+      print("Error inicializando notificaciones: $e");
+    });
+  } catch (e) {
+    print("Error inicializando Firebase: $e");
+  }
+
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    print("Error cargando .env: $e");
+    // Puedes decidir si continuar o no sin .env
+  }
 
   runApp(
     MultiProvider(

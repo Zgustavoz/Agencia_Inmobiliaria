@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "52092334690",
+    "project_id": "inmobiliaria-app-3d87f",
+    "storage_bucket": "inmobiliaria-app-3d87f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52092334690:android:96de722c65e670a9fdd73b",
+        "android_client_info": {
+          "package_name": "com.proyecto.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "tutokendeapikeyaqui"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

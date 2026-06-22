@@ -76,13 +76,15 @@ export const ContratoForm = ({
   };
 
   const loadPropiedades = async (input) => {
-    const data = await buscarPropiedades(input);
+      const data = await buscarPropiedades(input);
 
-    return data.map((p) => ({
-      value: p.id_propiedad || p.id,
-      label: p.codigo_propiedad || p.nombre
-    }));
-  };
+      console.log("PROPIEDADES:", data);
+
+      return data.map((p) => ({
+        value: p.id_propiedad || p.id,
+        label: p.codigo_propiedad || p.nombre
+      }));
+    };
 
   const handleSave = async () => {
     try {
@@ -139,8 +141,8 @@ export const ContratoForm = ({
         <select
           name="tipo_operacion"
           value={formData.tipo_operacion}
-          onChange={handleChange}
-          className="p-3 rounded-lg border"
+          disabled
+          className="p-3 rounded-lg border bg-gray-100"
         >
           <option value="">Tipo de operación</option>
           <option value="VENTA">Venta</option>
@@ -179,7 +181,15 @@ export const ContratoForm = ({
           onChange={(v) =>
             setFormData({
               ...formData,
-              propiedad: v.value
+
+              propiedad: v.value,
+
+              tipo_operacion:
+                v.modalidad_operacion?.toUpperCase() || "",
+
+              monto: v.precio || "",
+
+              agente: v.agente_id || null
             })
           }
         />
@@ -187,9 +197,8 @@ export const ContratoForm = ({
         <input
           name="monto"
           value={formData.monto}
-          placeholder="Monto"
-          onChange={handleChange}
-          className="p-3 rounded-lg border"
+          readOnly
+          className="p-3 rounded-lg border bg-gray-100"
         />
 
         <input

@@ -145,3 +145,43 @@ class PropiedadViewSet(TenantAwareViewSet):
         ]
 
         return Response(data)
+
+    @action(detail=False, methods=['get'])
+    def reporte(self, request):
+        from ..serializers.reporte_propiedad import ReportePropiedadSerializer
+        from shared.services.reportes_utils import filter_periodo, build_pdf_response
+
+        queryset = self.get_queryset()
+
+        fecha_inicio = request.query_params.get('fecha_inicio')
+        fecha_fin = request.query_params.get('fecha_fin')
+        queryset = filter_periodo(queryset, 'creado_en', fecha_inicio, fecha_fin)
+
+        serializer = ReportePropiedadSerializer(queryset, many=True)
+        data = serializer.data
+
+        if request.query_params.get('format') == 'pdf':
+            headers = [
+                'ID', 'Codigo', 'Titulo', 'Estado', 'Precio', 'Zona', 'Ciudad', 'Creado'
+            ]
+            rows = [
+                [
+                    item.get('id_propiedad'),
+                    item.get('codigo_propiedad'),
+                    item.get('titulo'),
+                    item.get('estado_propiedad'),
+                    item.get('precio'),
+                    item.get('zona_nombre'),
+                    item.get('zona_ciudad'),
+                    item.get('creado_en'),
+                ]
+                for item in data
+            ]
+            return build_pdf_response(
+                'Reporte de Propiedades',
+                headers,
+                rows,
+                filename='reporte_propiedades.pdf'
+            )
+
+        return Response(data)

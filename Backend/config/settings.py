@@ -50,7 +50,7 @@ LOCAL_APPS = [
     'gestion_usuarios',
     'modulo_administracion_configuracion',
     'modulo_inmuebles',
-    'modulo_clientes_seguimiento',
+    'modulo_clientes_seguimiento.apps.ModuloClientesSeguimientoConfig',
     'modulo_contratos',
     'modulo_tasacion_ia',
     'modulo_pagos'
@@ -210,3 +210,6 @@ R2_ENDPOINT_URL     = config('R2_ENDPOINT_URL')
 
 # ── Gemini ──────────────────────────────────
 GEMINI_API_KEY = config('GEMINI_API_KEY')
+
+# ── Firebase ────────────────────────────────
+FIREBASE_SERVICE_ACCOUNT_JSON = config('FIREBASE_SERVICE_ACCOUNT_JSON', default=None)

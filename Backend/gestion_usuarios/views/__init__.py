@@ -4,6 +4,6 @@ from .usuario import UsuarioViewSet
 from .auth    import (
     LoginView, RegistroView, RefreshView,
     LogoutView, PasswordResetView, RestablecerPasswordView,
-    RegistroAgenteView, RegistroClienteView,
+    RegistroAgenteView, RegistroClienteView, FCMTokenView
 )
 from .cloudinary import UploadImageView
