@@ -1,8 +1,10 @@
 from django.db import models
 from modulo_administracion_configuracion.models import Tenant
+from modulo_contratos.models import PagoContrato
 
 class Pago(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='pagos')
+    pago_contrato = models.ForeignKey(PagoContrato, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagos_stripe')
     stripe_checkout_id = models.CharField(max_length=255, unique=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     moneda = models.CharField(max_length=10, default='usd')
