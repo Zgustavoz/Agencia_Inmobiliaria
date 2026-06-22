@@ -15,7 +15,7 @@ import {
   RefreshCcw,
   Calendar, Clock,
   FileText,
-  UserPlus
+  UserPlus,BarChart3
 } from "lucide-react";
 import {
   AnimatePresence,
