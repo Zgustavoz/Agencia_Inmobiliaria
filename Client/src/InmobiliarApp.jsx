@@ -25,6 +25,7 @@ import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-vi
 import { ClientesHistorialPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/ClientesHistorialPage";
 import { VencimientosPage } from "./App/Gestion-administracion/gestion-vencimientos/page/VencimientosPage";
 import { ContratoPage } from "./App/Gestion-administracion-contratos/gestion-contrato/page/ContratoPage";
+import { EstadisticasPage } from "./App/Gestion-administracion/estadisticas/page/EstadisticasPage";
 
 // --- IMPORTACIONES SUPERADMIN ---
 import { SuperAdminLayout } from "./App/SuperAdmin/components/layout/SuperAdminLayout";
@@ -205,6 +206,16 @@ function InmobiliarApp() {
           element={
             <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Auditor"]}>
               <ClientesHistorialPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="estadisticas"
+          element={
+            <ProtectedRoute
+              requiredRoles={["Administrador", "Supervisor", "Agente", "Asistente", "Auditor"]}>
+              <EstadisticasPage />
             </ProtectedRoute>
           }
         />

@@ -7,6 +7,8 @@ from .views.tenant_admin import SuperAdminTenantViewSet
 from .views.reportes_ia import recibir_audio_reporte
 from .views.reportes_globales import ReportesGlobalesView
 
+from .views.estadisticas import DashboardEstadisticasView, DashboardGlobalView
+
 router = DefaultRouter()
 router.register(r'monedas', MonedaViewSet, basename='moneda')
 router.register(r'admin-tenants', SuperAdminTenantViewSet, basename='admin-tenants')
@@ -19,4 +21,8 @@ urlpatterns = [
     # Nueva ruta para el procesamiento de voz
     path('reporte-voz/', recibir_audio_reporte, name='reportes_ia'),
     path('reportes-globales/', ReportesGlobalesView.as_view(), name='reportes-globales'),
+
+    #Estadisticas
+    path('estadisticas/', DashboardEstadisticasView.as_view(), name='estadisticas-tenant'),
+    path('estadisticas-globales/', DashboardGlobalView.as_view(), name='estadisticas-globales'),
 ]
