@@ -53,6 +53,36 @@ class ContratoSerializer(serializers.ModelSerializer):
                 'La fecha fin no puede ser menor que la fecha inicio.'
             )
 
+        # Validación: evitar que la misma propiedad tenga contratos superpuestos
+        propiedad = attrs.get('propiedad')
+        # cuando es update, instancia existente puede aportar datos faltantes
+        if not propiedad and getattr(self, 'instance', None):
+            propiedad = getattr(self.instance, 'propiedad', None)
+
+        if propiedad and fecha_inicio:
+            # obtener contratos existentes para la propiedad (salvo la misma instancia)
+            qs = Contrato.objects.filter(propiedad=propiedad)
+            if getattr(self, 'instance', None):
+                qs = qs.exclude(pk=getattr(self.instance, 'pk'))
+
+            # normalizar nuevo intervalo
+            nuevo_inicio = fecha_inicio
+            nuevo_fin = fecha_fin if fecha_fin is not None else date.max
+
+            for c in qs:
+                # ignorar contratos anulados
+                if c.estado_contrato == 'ANULADO':
+                    continue
+
+                existente_inicio = c.fecha_inicio
+                existente_fin = c.fecha_fin if c.fecha_fin is not None else date.max
+
+                # chequear solapamiento: (a.start <= b.end) and (a.end >= b.start)
+                if (nuevo_inicio <= existente_fin) and (nuevo_fin >= existente_inicio):
+                    raise serializers.ValidationError(
+                        f"La propiedad ya está asociada a otro contrato que se superpone: {c.codigo_contrato}"
+                    )
+
         return attrs
 
     def get_cliente_nombre_completo(self, obj):

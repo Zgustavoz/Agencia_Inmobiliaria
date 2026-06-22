@@ -55,6 +55,11 @@ export const exportarContratoPDF = async (id) => {
   window.URL.revokeObjectURL(url);
 };
 
+export const obtenerContrato = async (id) => {
+  const { data } = await intanciaAxios.get(`${CONTRATOS_URL}${id}/`);
+  return data;
+};
+
 export const obtenerDocumentosContrato = async (idContrato) => {
   const { data } = await intanciaAxios.get(
     `${DOCUMENTOS_URL}?contrato=${idContrato}`

@@ -3,12 +3,14 @@ import {
   Pencil,
   Download,
   FolderOpen,
-  CreditCard
+  CreditCard,
+  Eye
 } from "lucide-react";
 
 export const ContratoTable = ({
   contratos,
   onEditar,
+  onVerDetalle,
   onExportar,
   onVerDocumentos,
   onPagos
@@ -79,6 +81,14 @@ export const ContratoTable = ({
                     title="Pagos"
                   >
                     <CreditCard size={16} />
+                  </button>
+
+                  <button
+                    onClick={() => onVerDetalle(c)}
+                    className="p-2 rounded-lg hover:bg-slate-50 text-slate-600"
+                    title="Ver detalles"
+                  >
+                    <Eye size={16} />
                   </button>
 
                   <button

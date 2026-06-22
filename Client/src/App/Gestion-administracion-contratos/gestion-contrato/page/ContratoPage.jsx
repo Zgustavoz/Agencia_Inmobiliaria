@@ -7,6 +7,7 @@ import {
   Archive,
   Edit
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { useContratos } from "../hooks/useContratos";
 import { ContratoTable } from "../components/ContratoTable";
@@ -26,6 +27,7 @@ export const ContratoPage = () => {
   const [documentos, setDocumentos] = useState([]);
   const [showDocs, setShowDocs] = useState(false);
 
+  const navigate = useNavigate();
   const { contratos, stats, refetch } = useContratos();
 
   const handleNuevo = () => {
@@ -36,6 +38,10 @@ export const ContratoPage = () => {
   const handleEditar = (contrato) => {
     setContratoSeleccionado(contrato);
     setViewMode("form");
+  };
+
+  const handleVerDetalle = (contrato) => {
+    navigate(`/dashboard/contratos/${contrato.id_contrato}`);
   };
 
   const handleExportar = async (contrato) => {
@@ -130,6 +136,7 @@ export const ContratoPage = () => {
               <ContratoTable
                 contratos={contratos}
                 onEditar={handleEditar}
+                onVerDetalle={handleVerDetalle}
                 onExportar={handleExportar}
                 onVerDocumentos={handleVerDocumentos}
                 onPagos={handlePagos}
