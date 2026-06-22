@@ -1,4 +1,4 @@
-import { intanciaAxios } from "../../../../config/axios"
+import { intanciaAxios } from "../../../../config/axios";
 
 const CONTRATOS_URL = "/api/contratos/";
 const DOCUMENTOS_URL = "/api/documentos-contrato/";
@@ -37,12 +37,12 @@ export const exportarContratoPDF = async (id) => {
   const response = await intanciaAxios.get(
     `${CONTRATOS_URL}${id}/exportar_pdf/`,
     {
-      responseType: "blob"
-    }
+      responseType: "blob",
+    },
   );
 
   const blob = new Blob([response.data], {
-    type: "application/pdf"
+    type: "application/pdf",
   });
 
   const url = window.URL.createObjectURL(blob);
@@ -57,28 +57,28 @@ export const exportarContratoPDF = async (id) => {
 
 export const obtenerDocumentosContrato = async (idContrato) => {
   const { data } = await intanciaAxios.get(
-    `${DOCUMENTOS_URL}?contrato=${idContrato}`
+    `${DOCUMENTOS_URL}?contrato=${idContrato}`,
   );
   return data;
 };
 
 export const buscarClientes = async (search = "") => {
   const { data } = await intanciaAxios.get(
-    `${USUARIOS_URL}buscar_clientes/?q=${search}`
+    `${USUARIOS_URL}buscar_clientes/?q=${search}`,
   );
   return data;
 };
 
 export const buscarAgentes = async (search = "") => {
   const { data } = await intanciaAxios.get(
-    `${USUARIOS_URL}buscar_agentes/?q=${search}`
+    `${USUARIOS_URL}buscar_agentes/?q=${search}`,
   );
   return data;
 };
 
 export const buscarPropiedades = async (search = "") => {
   const { data } = await intanciaAxios.get(
-    `${PROPIEDADES_URL}?search=${search}`
+    `${PROPIEDADES_URL}?search=${search}`,
   );
 
   return data.results || data;
@@ -86,7 +86,7 @@ export const buscarPropiedades = async (search = "") => {
 
 export const obtenerPagosContrato = async (idContrato) => {
   const { data } = await intanciaAxios.get(
-    `/api/pagos/?contrato=${idContrato}`
+    `/api/pagos/?contrato=${idContrato}`,
   );
   return data;
 };
