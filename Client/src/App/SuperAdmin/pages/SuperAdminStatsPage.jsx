@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArcElement,
   BarElement,
@@ -12,9 +12,8 @@ import {
   Tooltip,
 } from "chart.js";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import {
+  LoaderCircle,
   Building2,
   Download,
   FileSignature,
@@ -25,6 +24,10 @@ import {
   Users,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import {
+  downloadReporteGlobalPdf,
+  fetchReporteGlobal,
+} from "../api/reportesApi";
 
 ChartJS.register(
   ArcElement,
@@ -46,9 +49,9 @@ const REPORT_TYPES = [
 ];
 
 const PERIODS = [
-  { value: "6m", label: "Últimos 6 meses" },
-  { value: "12m", label: "Últimos 12 meses" },
-  { value: "ytd", label: "Año en curso" },
+  { value: "6m", label: "Ultimos 6 meses" },
+  { value: "12m", label: "Ultimos 12 meses" },
+  { value: "ytd", label: "Ano en curso" },
 ];
 
 const DOWNLOAD_FORMATS = [
@@ -64,132 +67,230 @@ const colorSets = {
   operaciones: ["#ec4899", "#d946ef", "#8b5cf6", "#3b82f6", "#14b8a6"],
 };
 
-const monthsByPeriod = {
-  "6m": ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
-  "12m": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-  ytd: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul"],
-};
+const MONTH_LABELS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-const createSeededRandom = (seed) => {
-  let value = seed % 2147483647;
-  if (value <= 0) value += 2147483646;
-  return () => {
-    value = (value * 16807) % 2147483647;
-    return (value - 1) / 2147483646;
-  };
+const TYPE_CONFIG = {
+  propiedades: {
+    codeField: "codigo_propiedad",
+    nameField: "titulo",
+    statusField: "estado_propiedad",
+    amountField: "precio",
+    dateField: "creado_en",
+    segmentField: "zona_ciudad",
+    segmentLabel: "Distribucion por ciudad",
+    statusLabel: "Estados de propiedad",
+    tableLabel: "Ultimas propiedades registradas",
+  },
+  clientes: {
+    codeField: "codigo_cliente",
+    nameField: "nombre_completo",
+    statusField: "estado",
+    amountField: null,
+    dateField: "creado_en",
+    segmentField: "origen",
+    segmentLabel: "Distribucion por origen",
+    statusLabel: "Estados de cliente",
+    tableLabel: "Ultimos clientes registrados",
+  },
+  contratos: {
+    codeField: "codigo_contrato",
+    nameField: "cliente_nombre",
+    statusField: "estado_contrato",
+    amountField: "monto",
+    dateField: "fecha_inicio",
+    segmentField: "tipo_operacion",
+    segmentLabel: "Distribucion por tipo de operacion",
+    statusLabel: "Estados de contrato",
+    tableLabel: "Ultimos contratos registrados",
+  },
+  operaciones: {
+    codeField: "codigo_operacion",
+    nameField: "cliente_nombre",
+    statusField: "estado",
+    amountField: "monto_operacion",
+    dateField: "fecha_operacion",
+    segmentField: "tipo_operacion",
+    segmentLabel: "Distribucion por tipo de operacion",
+    statusLabel: "Estados de operacion",
+    tableLabel: "Ultimas operaciones registradas",
+  },
 };
 
 const formatCurrency = (value) =>
-  new Intl.NumberFormat("es-ES", {
+  new Intl.NumberFormat("es-BO", {
     style: "currency",
-    currency: "USD",
+    currency: "BOB",
     maximumFractionDigits: 0,
-  }).format(value);
+  }).format(Number(value) || 0);
 
-const buildDashboardData = (tipo, period, refreshSeed) => {
-  const months = monthsByPeriod[period] || monthsByPeriod["6m"];
-  const seedBase = `${tipo}-${period}-${refreshSeed}`.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const rnd = createSeededRandom(seedBase);
-  const palette = colorSets[tipo];
+const formatDate = (value) => {
+  if (!value) return "Sin fecha";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Sin fecha";
+  return new Intl.DateTimeFormat("es-BO", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+};
 
-  const baseSeries = months.map((_, index) => {
-    const trend = 1 + index * 2 + Math.round(rnd() * 7);
-    return Math.max(5, trend);
-  });
+const parseDate = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
 
-  const statusLabelsByType = {
-    propiedades: ["Disponibles", "Reservadas", "Vendidas", "Alquiler"],
-    clientes: ["Nuevos", "En seguimiento", "Activos", "Inactivos"],
-    contratos: ["Borrador", "Activos", "Vencidos", "Cerrados"],
-    operaciones: ["Abiertas", "Cerradas", "Anuladas", "Pendientes"],
-  };
+const getDateRangeForPeriod = (period) => {
+  const today = new Date();
+  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-  const detailLabelsByType = {
-    propiedades: ["Casas premium", "Departamentos", "Locales", "Terrenos", "Oficinas"],
-    clientes: ["Canal web", "Referidos", "Campañas", "Orgánico", "Agentes"],
-    contratos: ["Venta", "Alquiler", "Anticrético", "Renovación", "Administración"],
-    operaciones: ["Venta", "Reserva", "Pago", "Cancelación", "Cierre"],
-  };
-
-  const rowLabelsByType = {
-    propiedades: ["P-210", "P-338", "P-452", "P-608", "P-771", "P-812"],
-    clientes: ["CL-102", "CL-204", "CL-318", "CL-455", "CL-509", "CL-633"],
-    contratos: ["CT-011", "CT-027", "CT-033", "CT-044", "CT-058", "CT-067"],
-    operaciones: ["OP-101", "OP-140", "OP-156", "OP-208", "OP-277", "OP-294"],
-  };
-
-  const statusLabels = statusLabelsByType[tipo];
-  const detailLabels = detailLabelsByType[tipo];
-  const rowLabels = rowLabelsByType[tipo];
-
-  const statusValues = statusLabels.map((_, index) => 6 + Math.round(rnd() * 14) + index * 2);
-  const detailValues = detailLabels.map((_, index) => 8 + Math.round(rnd() * 12) + index * 2);
-  const lineValues = baseSeries.map((value, index) => value + Math.round(rnd() * 4) + index);
-
-  const totals = lineValues.reduce((acc, value) => acc + value, 0);
-  const active = Math.max(1, Math.round(totals * (0.58 + rnd() * 0.18)));
-  const closed = Math.max(1, Math.round(totals * (0.21 + rnd() * 0.12)));
-  const pending = Math.max(1, totals - active - closed);
-
-  const trend = lineValues.map((value, index) => ({
-    month: months[index],
-    value,
-  }));
-
-  const rows = rowLabels.map((code, index) => {
-    const amount = 1800 + Math.round(rnd() * 12000) + index * 650;
+  if (period === "ytd") {
+    const start = new Date(today.getFullYear(), 0, 1);
     return {
-      codigo: code,
-      nombre: detailLabels[index % detailLabels.length],
-      estado: statusLabels[index % statusLabels.length],
-      monto: amount,
-      referencia: `${tipo.slice(0, 2).toUpperCase()}-${100 + index}`,
-      progreso: 35 + Math.round(rnd() * 60),
+      fecha_inicio: start.toISOString().slice(0, 10),
+      fecha_fin: end.toISOString().slice(0, 10),
     };
+  }
+
+  const months = period === "12m" ? 11 : 5;
+  const start = new Date(today.getFullYear(), today.getMonth() - months, 1);
+
+  return {
+    fecha_inicio: start.toISOString().slice(0, 10),
+    fecha_fin: end.toISOString().slice(0, 10),
+  };
+};
+
+const createCountMap = (items, getter) => {
+  const map = new Map();
+  items.forEach((item) => {
+    const key = getter(item) || "Sin datos";
+    map.set(key, (map.get(key) || 0) + 1);
   });
+  return [...map.entries()].sort((a, b) => b[1] - a[1]);
+};
+
+const normalizeRows = (rows, tipo) => {
+  const config = TYPE_CONFIG[tipo];
+  const amountField = config.amountField;
+  const maxAmount = Math.max(
+    ...rows.map((row) => Number(amountField ? row[amountField] : 0) || 0),
+    0,
+  );
+
+  return [...rows]
+    .sort((a, b) => {
+      const aDate = parseDate(a[config.dateField])?.getTime() || 0;
+      const bDate = parseDate(b[config.dateField])?.getTime() || 0;
+      return bDate - aDate;
+    })
+    .slice(0, 8)
+    .map((row) => {
+      const amount = Number(amountField ? row[amountField] : 0) || 0;
+      return {
+        codigo: row[config.codeField] || "Sin codigo",
+        nombre: row[config.nameField] || "Sin nombre",
+        estado: row[config.statusField] || "Sin estado",
+        monto: amount,
+        fecha: row[config.dateField] || null,
+        referencia: row[config.segmentField] || row.propiedad_codigo || row.moneda_codigo || "Sin referencia",
+        progreso: maxAmount > 0 ? Math.max(8, Math.round((amount / maxAmount) * 100)) : 0,
+      };
+    });
+};
+
+const buildDashboardData = (rows, tipo, period) => {
+  const config = TYPE_CONFIG[tipo];
+  const palette = colorSets[tipo];
+  const dateRange = getDateRangeForPeriod(period);
+  const start = parseDate(dateRange.fecha_inicio);
+  const end = parseDate(dateRange.fecha_fin);
+  const amountField = config.amountField;
+  const statusField = config.statusField;
+  const segmentField = config.segmentField;
+  const dateField = config.dateField;
+
+  const filteredRows = rows.filter((row) => {
+    const date = parseDate(row[dateField]);
+    if (!date || !start || !end) return true;
+    return date >= start && date <= end;
+  });
+
+  const totalAmount = filteredRows.reduce(
+    (acc, row) => acc + (Number(amountField ? row[amountField] : 0) || 0),
+    0,
+  );
+
+  const statusCounts = createCountMap(filteredRows, (row) => row[statusField]);
+  const segmentCounts = createCountMap(filteredRows, (row) => row[segmentField]);
+  const statusLabels = statusCounts.slice(0, 5).map(([label]) => label);
+  const statusValues = statusCounts.slice(0, 5).map(([, value]) => value);
+  const detailLabels = segmentCounts.slice(0, 6).map(([label]) => label);
+  const detailValues = segmentCounts.slice(0, 6).map(([, value]) => value);
+
+  const monthMap = new Map();
+  filteredRows.forEach((row) => {
+    const date = parseDate(row[dateField]);
+    if (!date) return;
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    monthMap.set(key, (monthMap.get(key) || 0) + 1);
+  });
+
+  const trend = [...monthMap.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([key, value]) => {
+      const [year, month] = key.split("-");
+      return {
+        month: `${MONTH_LABELS[Number(month) - 1]} ${year}`,
+        value,
+      };
+    });
+
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const recordsThisMonth = filteredRows.filter((row) => {
+    const date = parseDate(row[dateField]);
+    return date && date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+  }).length;
 
   const cards = [
     {
-      label: "Volumen total",
-      value: Math.max(10, totals),
-      suffix: "registros",
-      detail: "+18% vs. mes anterior",
+      label: "Registros totales",
+      value: filteredRows.length,
+      detail: `Periodo ${dateRange.fecha_inicio} a ${dateRange.fecha_fin}`,
     },
     {
-      label: "Activos",
-      value: Math.max(3, active),
-      suffix: "activos",
-      detail: "Crecimiento constante",
+      label: amountField ? "Monto acumulado" : "Con fecha registrada",
+      value: amountField ? formatCurrency(totalAmount) : filteredRows.filter((row) => parseDate(row[dateField])).length,
+      detail: amountField ? "Suma de montos visibles" : "Registros con fecha utilizable",
     },
     {
-      label: "Cerrados",
-      value: Math.max(2, closed),
-      suffix: "cerrados",
-      detail: "Conversión saludable",
+      label: "Estado dominante",
+      value: statusCounts[0]?.[0] || "Sin datos",
+      detail: `${statusCounts[0]?.[1] || 0} registros`,
     },
     {
-      label: "Pendientes",
-      value: Math.max(1, pending),
-      suffix: "por cerrar",
-      detail: "Seguimiento requerido",
+      label: "Altas este mes",
+      value: recordsThisMonth,
+      detail: "Registros fechados en el mes actual",
     },
   ];
 
   return {
-    months,
     palette,
+    cards,
+    rows: normalizeRows(filteredRows, tipo),
+    trend,
     statusLabels,
     statusValues,
     detailLabels,
     detailValues,
-    trend,
-    cards,
-    rows,
+    totalRows: filteredRows.length,
   };
 };
 
 const exportRowsToCsv = (rows) => {
-  const headers = ["Código", "Elemento", "Estado", "Monto", "Referencia", "Progreso"];
+  const headers = ["Codigo", "Elemento", "Estado", "Monto", "Referencia", "Participacion"];
   const csvRows = rows.map((row) => [row.codigo, row.nombre, row.estado, row.monto, row.referencia, row.progreso]);
   const csv = [headers, ...csvRows]
     .map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","))
@@ -204,7 +305,7 @@ const exportRowsToHtml = (tipo, rows, cards) => {
         <td>${row.codigo}</td>
         <td>${row.nombre}</td>
         <td>${row.estado}</td>
-        <td>${formatCurrency(row.monto)}</td>
+        <td>${row.monto ? formatCurrency(row.monto) : "-"}</td>
         <td>${row.referencia}</td>
         <td>${row.progreso}%</td>
       </tr>`,
@@ -239,12 +340,12 @@ const exportRowsToHtml = (tipo, rows, cards) => {
   </style>
 </head>
 <body>
-  <h1>Reporte mock de ${tipo}</h1>
-  <p>Generado desde el frontend con datos simulados.</p>
+  <h1>Reporte real de ${tipo}</h1>
+  <p>Generado desde el panel SuperAdmin con datos obtenidos del backend.</p>
   <div class="grid">${metricsHtml}</div>
   <table>
     <thead>
-      <tr><th>Código</th><th>Elemento</th><th>Estado</th><th>Monto</th><th>Referencia</th><th>Progreso</th></tr>
+      <tr><th>Codigo</th><th>Elemento</th><th>Estado</th><th>Monto</th><th>Referencia</th><th>Participacion</th></tr>
     </thead>
     <tbody>${rowsHtml}</tbody>
   </table>
@@ -254,121 +355,60 @@ const exportRowsToHtml = (tipo, rows, cards) => {
   return new Blob([html], { type: "text/html;charset=utf-8;" });
 };
 
-const exportRowsToPdf = (tipo, rows, cards) => {
-  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 40;
-
-  doc.setFillColor(15, 23, 42);
-  doc.rect(0, 0, pageWidth, 110, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.text(`Reporte mock de ${tipo}`, margin, 48);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.text("Dashboard estadístico generado con datos simulados desde el frontend", margin, 70);
-
-  let x = margin;
-  const cardTop = 140;
-  const cardWidth = 170;
-  const cardGap = 14;
-  cards.forEach((card, index) => {
-    const cardX = x + index * (cardWidth + cardGap);
-    doc.setFillColor(255, 255, 255);
-    doc.roundedRect(cardX, cardTop, cardWidth, 86, 14, 14, "F");
-    doc.setDrawColor(226, 232, 240);
-    doc.roundedRect(cardX, cardTop, cardWidth, 86, 14, 14, "S");
-    doc.setTextColor(71, 85, 105);
-    doc.setFontSize(9);
-    doc.text(card.label.toUpperCase(), cardX + 14, cardTop + 22);
-    doc.setTextColor(15, 23, 42);
-    doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
-    doc.text(String(card.value), cardX + 14, cardTop + 52);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(99, 102, 241);
-    doc.text(card.detail, cardX + 14, cardTop + 72, { maxWidth: cardWidth - 28 });
-  });
-
-  autoTable(doc, {
-    startY: 250,
-    head: [["Código", "Elemento", "Estado", "Monto", "Referencia", "Progreso"]],
-    body: rows.map((row) => [
-      row.codigo,
-      row.nombre,
-      row.estado,
-      formatCurrency(row.monto),
-      row.referencia,
-      `${row.progreso}%`,
-    ]),
-    styles: {
-      font: "helvetica",
-      fontSize: 9,
-      cellPadding: 8,
-      lineColor: [226, 232, 240],
-      lineWidth: 0.5,
-    },
-    headStyles: {
-      fillColor: [37, 99, 235],
-      textColor: 255,
-      fontStyle: "bold",
-    },
-    alternateRowStyles: {
-      fillColor: [248, 250, 252],
-    },
-    margin: { left: margin, right: margin },
-  });
-
-  return doc.output("blob");
+const downloadBlob = (blob, fileName) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 };
 
 export const SuperAdminStatsPage = () => {
   const [tipo, setTipo] = useState("propiedades");
   const [periodo, setPeriodo] = useState("6m");
   const [downloadFormat, setDownloadFormat] = useState("pdf");
-  const [refreshSeed, setRefreshSeed] = useState(1);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const dashboard = useMemo(
-    () => buildDashboardData(tipo, periodo, refreshSeed),
-    [tipo, periodo, refreshSeed],
-  );
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchReporteGlobal(tipo, getDateRangeForPeriod(periodo));
+        setRows(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setRows([]);
+        setError(err);
+        toast.error("No se pudieron cargar las estadisticas globales");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleGenerar = () => {
-    setRefreshSeed((value) => value + 1);
-    toast.success("Datoss regenerados");
-  };
-
-  const handleDescargar = () => {
-    const blob =
-      downloadFormat === "pdf"
-        ? exportRowsToPdf(tipo, dashboard.rows, dashboard.cards)
-        : downloadFormat === "excel"
-          ? exportRowsToCsv(dashboard.rows)
-          : exportRowsToHtml(tipo, dashboard.rows, dashboard.cards);
-
-    const extension = downloadFormat === "excel" ? "csv" : downloadFormat;
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = `reporte_mock_${tipo}.${extension}`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  };
+    loadData();
+  }, [tipo, periodo, refreshKey]);
 
   const selectedType = REPORT_TYPES.find((item) => item.key === tipo) ?? REPORT_TYPES[0];
+
+  const dashboard = useMemo(
+    () => buildDashboardData(rows, tipo, periodo),
+    [rows, tipo, periodo],
+  );
 
   const chartData = useMemo(
     () => ({
       doughnut: {
-        labels: dashboard.statusLabels,
+        labels: dashboard.statusLabels.length ? dashboard.statusLabels : ["Sin datos"],
         datasets: [
           {
-            data: dashboard.statusValues,
-            backgroundColor: dashboard.palette,
+            data: dashboard.statusValues.length ? dashboard.statusValues : [1],
+            backgroundColor: dashboard.statusValues.length ? dashboard.palette : ["#cbd5e1"],
             borderColor: "#ffffff",
             borderWidth: 4,
             hoverOffset: 10,
@@ -376,23 +416,25 @@ export const SuperAdminStatsPage = () => {
         ],
       },
       bar: {
-        labels: dashboard.detailLabels,
+        labels: dashboard.detailLabels.length ? dashboard.detailLabels : ["Sin datos"],
         datasets: [
           {
-            label: "Distribución",
-            data: dashboard.detailValues,
-            backgroundColor: dashboard.palette.map((color) => `${color}CC`),
+            label: "Distribucion",
+            data: dashboard.detailValues.length ? dashboard.detailValues : [0],
+            backgroundColor: dashboard.detailValues.length
+              ? dashboard.palette.map((color) => `${color}CC`)
+              : ["#cbd5e1"],
             borderRadius: 16,
             borderSkipped: false,
           },
         ],
       },
       line: {
-        labels: dashboard.months,
+        labels: dashboard.trend.length ? dashboard.trend.map((item) => item.month) : ["Sin datos"],
         datasets: [
           {
             label: "Tendencia",
-            data: dashboard.trend.map((item) => item.value),
+            data: dashboard.trend.length ? dashboard.trend.map((item) => item.value) : [0],
             borderColor: dashboard.palette[1],
             backgroundColor: `${dashboard.palette[1]}22`,
             pointBackgroundColor: dashboard.palette[0],
@@ -421,6 +463,51 @@ export const SuperAdminStatsPage = () => {
     },
   };
 
+  const handleGenerar = () => {
+    setRefreshKey((value) => value + 1);
+    toast.success("Estadisticas actualizadas");
+  };
+
+  const handleDescargar = async () => {
+    try {
+      const params = getDateRangeForPeriod(periodo);
+
+      if (downloadFormat === "pdf") {
+        const blob = await downloadReporteGlobalPdf(tipo, params);
+        downloadBlob(blob, `reporte_global_${tipo}.pdf`);
+        return;
+      }
+
+      const blob =
+        downloadFormat === "excel"
+          ? exportRowsToCsv(dashboard.rows)
+          : exportRowsToHtml(tipo, dashboard.rows, dashboard.cards);
+
+      const extension = downloadFormat === "excel" ? "csv" : "html";
+      downloadBlob(blob, `reporte_global_${tipo}.${extension}`);
+    } catch {
+      toast.error("No se pudo descargar el reporte");
+    }
+  };
+
+  if (loading && rows.length === 0) {
+    return (
+      <div className="rounded-3xl border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_24%),linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)] p-8 shadow-sm">
+        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-4 text-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-slate-200">
+            <LoaderCircle className="h-10 w-10 animate-spin text-cyan-600" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-slate-800">Cargando estadisticas globales</h2>
+            <p className="max-w-md text-sm text-slate-500">
+              Estamos consultando los datos reales del sistema para construir el panel de SuperAdmin.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_24%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.14),transparent_28%),linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)] p-4 rounded-3xl md:p-6">
       <header className={`relative overflow-hidden rounded-3xl border border-white/60 bg-linear-to-r ${selectedType.accent} shadow-[0_25px_80px_rgba(15,23,42,0.22)] text-white`}>
@@ -430,14 +517,14 @@ export const SuperAdminStatsPage = () => {
             <div className="max-w-2xl space-y-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] backdrop-blur">
                 <Sparkles className="h-3.5 w-3.5" />
-                Dashboard estadístico mock
+                Dashboard global en tiempo real
               </div>
               <h1 className="text-3xl md:text-4xl font-black tracking-tight flex items-center gap-3">
                 <FileText className="h-8 w-8 md:h-10 md:w-10" />
-                Estadísticos visuales para {selectedType.label}
+                Estadisticas visuales para {selectedType.label}
               </h1>
               <p className="text-sm md:text-base text-white/85 max-w-xl">
-                Métricas simuladas, gráficos atractivos y descarga de reporte desde el frontend sin depender del backend.
+                Resumen global construido con datos reales del backend para soporte de decisiones del SuperAdmin.
               </p>
             </div>
 
@@ -447,7 +534,7 @@ export const SuperAdminStatsPage = () => {
                 className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-900 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
               >
                 <RefreshCw className="h-4 w-4" />
-                Regenerar
+                Actualizar
               </button>
 
               <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/15 px-3 py-2">
@@ -477,7 +564,7 @@ export const SuperAdminStatsPage = () => {
             {dashboard.cards.map((card) => (
               <div key={card.label} className="rounded-2xl border border-white/15 bg-white/12 p-4 backdrop-blur-sm">
                 <p className="text-xs uppercase tracking-[0.18em] text-white/75">{card.label}</p>
-                <div className="mt-2 text-3xl font-black">{card.value}</div>
+                <div className="mt-2 text-2xl md:text-3xl font-black break-words">{card.value}</div>
                 <p className="mt-1 text-xs text-white/80">{card.detail}</p>
               </div>
             ))}
@@ -489,11 +576,11 @@ export const SuperAdminStatsPage = () => {
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:col-span-2">
           <div className="flex items-center justify-between gap-3 mb-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Tipo de análisis</p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Tipo de analisis</p>
               <h2 className="text-lg font-black text-slate-800">Selecciona una vista</h2>
             </div>
             <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-              Semilla {refreshSeed}
+              {dashboard.totalRows} registros
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -513,7 +600,7 @@ export const SuperAdminStatsPage = () => {
                   </div>
                   <div className="text-sm font-bold">{item.label}</div>
                   <p className={`mt-1 text-xs ${active ? "text-white/80" : "text-slate-500"}`}>
-                    Panel con métricas y tendencias mock.
+                    Vista consolidada con datos globales reales.
                   </p>
                 </button>
               );
@@ -540,77 +627,105 @@ export const SuperAdminStatsPage = () => {
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:col-span-1">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Estado visual</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Estado de carga</p>
           <div className="mt-4 space-y-3">
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-500">Ritmo de crecimiento</p>
+              <p className="text-xs text-slate-500">Sincronizacion</p>
               <div className="mt-2 flex items-end gap-2">
-                <span className="text-3xl font-black text-slate-900">+24%</span>
-                <span className="text-xs font-semibold text-emerald-600">+4.1% vs anterior</span>
+                <span className="text-2xl font-black text-slate-900">
+                  {loading ? "Cargando" : error ? "Error" : "Lista"}
+                </span>
               </div>
+              <span className={`text-xs font-semibold ${error ? "text-rose-600" : "text-emerald-600"}`}>
+                {error ? "Revisa la conexion o permisos" : "Datos recibidos desde backend"}
+              </span>
             </div>
             <div className="rounded-2xl bg-linear-to-r from-indigo-500 to-cyan-500 p-4 text-white shadow-lg">
               <p className="text-xs uppercase tracking-[0.18em] text-white/70">Cobertura</p>
-              <div className="mt-2 text-3xl font-black">97%</div>
-              <p className="mt-1 text-xs text-white/80">Datos mock listos para demo visual.</p>
+              <div className="mt-2 text-3xl font-black">{dashboard.totalRows}</div>
+              <p className="mt-1 text-xs text-white/80">Registros incluidos en el periodo seleccionado.</p>
             </div>
           </div>
         </div>
       </section>
 
+      {error && (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          No se pudieron cargar las estadisticas globales para {selectedType.label.toLowerCase()}.
+        </div>
+      )}
+
       <section className="grid gap-4 xl:grid-cols-3">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-1">
           <div className="mb-4">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Distribución</p>
-            <h3 className="text-lg font-black text-slate-800">Estados principales</h3>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Distribucion</p>
+            <h3 className="text-lg font-black text-slate-800">{TYPE_CONFIG[tipo].statusLabel}</h3>
           </div>
           <div className="h-80">
-            <Doughnut
-              data={chartData.doughnut}
-              options={{
-                ...chartOptions,
-                cutout: "68%",
-                plugins: { ...chartOptions.plugins, legend: { position: "bottom", labels: chartOptions.plugins.legend.labels } },
-              }}
-            />
+            {loading ? (
+              <div className="flex h-full items-center justify-center">
+                <LoaderCircle className="h-8 w-8 animate-spin text-slate-400" />
+              </div>
+            ) : (
+              <Doughnut
+                data={chartData.doughnut}
+                options={{
+                  ...chartOptions,
+                  cutout: "68%",
+                  plugins: { ...chartOptions.plugins, legend: { position: "bottom", labels: chartOptions.plugins.legend.labels } },
+                }}
+              />
+            )}
           </div>
         </div>
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-1">
           <div className="mb-4">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Impacto</p>
-            <h3 className="text-lg font-black text-slate-800">Segmentación por canal</h3>
+            <h3 className="text-lg font-black text-slate-800">{TYPE_CONFIG[tipo].segmentLabel}</h3>
           </div>
           <div className="h-80">
-            <Bar
-              data={chartData.bar}
-              options={{
-                ...chartOptions,
-                scales: {
-                  x: { grid: { display: false }, ticks: { color: "#64748b" } },
-                  y: { grid: { color: "rgba(148,163,184,.18)" }, ticks: { color: "#64748b" } },
-                },
-              }}
-            />
+            {loading ? (
+              <div className="flex h-full items-center justify-center">
+                <LoaderCircle className="h-8 w-8 animate-spin text-slate-400" />
+              </div>
+            ) : (
+              <Bar
+                data={chartData.bar}
+                options={{
+                  ...chartOptions,
+                  scales: {
+                    x: { grid: { display: false }, ticks: { color: "#64748b" } },
+                    y: { grid: { color: "rgba(148,163,184,.18)" }, ticks: { color: "#64748b" } },
+                  },
+                }}
+              />
+            )}
           </div>
         </div>
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-1">
           <div className="mb-4">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Tendencia</p>
-            <h3 className="text-lg font-black text-slate-800">Evolución mensual</h3>
+            <h3 className="text-lg font-black text-slate-800">Evolucion mensual</h3>
           </div>
           <div className="h-80">
-            <Line
-              data={chartData.line}
-              options={{
-                ...chartOptions,
-                scales: {
-                  x: { grid: { display: false }, ticks: { color: "#64748b" } },
-                  y: { grid: { color: "rgba(148,163,184,.18)" }, ticks: { color: "#64748b" } },
-                },
-              }}
-            />
+            {loading ? (
+              <div className="flex h-full items-center justify-center">
+                <LoaderCircle className="h-8 w-8 animate-spin text-slate-400" />
+              </div>
+            ) : (
+              <Line
+                data={chartData.line}
+                options={{
+                  ...chartOptions,
+                  scales: {
+                    x: { grid: { display: false }, ticks: { color: "#64748b" } },
+                    y: { grid: { color: "rgba(148,163,184,.18)" }, ticks: { color: "#64748b" } },
+                  },
+                }}
+              />
+            )}
           </div>
         </div>
       </section>
@@ -618,8 +733,8 @@ export const SuperAdminStatsPage = () => {
       <section className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Detalle mock</p>
-            <h3 className="text-lg font-black text-slate-800">Últimos registros simulados</h3>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Detalle real</p>
+            <h3 className="text-lg font-black text-slate-800">{TYPE_CONFIG[tipo].tableLabel}</h3>
           </div>
           <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
             {dashboard.rows.length} filas
@@ -630,39 +745,50 @@ export const SuperAdminStatsPage = () => {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-[0.16em] text-slate-500">
               <tr>
-                <th className="px-5 py-3">Código</th>
+                <th className="px-5 py-3">Codigo</th>
                 <th className="px-5 py-3">Elemento</th>
                 <th className="px-5 py-3">Estado</th>
                 <th className="px-5 py-3">Monto</th>
                 <th className="px-5 py-3">Referencia</th>
-                <th className="px-5 py-3">Progreso</th>
+                <th className="px-5 py-3">Participacion</th>
               </tr>
             </thead>
             <tbody>
-              {dashboard.rows.map((row, index) => (
-                <tr key={row.codigo} className={`${index % 2 === 0 ? "bg-white" : "bg-slate-50/50"} border-t border-slate-100`}>
-                  <td className="px-5 py-4 font-semibold text-slate-900">{row.codigo}</td>
-                  <td className="px-5 py-4 text-slate-600">{row.nombre}</td>
-                  <td className="px-5 py-4">
-                    <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                      {row.estado}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 font-semibold text-slate-800">{formatCurrency(row.monto)}</td>
-                  <td className="px-5 py-4 text-slate-600">{row.referencia}</td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-2 w-28 overflow-hidden rounded-full bg-slate-200">
-                        <div
-                          className="h-full rounded-full bg-linear-to-r from-cyan-500 via-blue-500 to-indigo-500"
-                          style={{ width: `${row.progreso}%` }}
-                        />
+              {dashboard.rows.length > 0 ? (
+                dashboard.rows.map((row, index) => (
+                  <tr key={`${row.codigo}-${index}`} className={`${index % 2 === 0 ? "bg-white" : "bg-slate-50/50"} border-t border-slate-100`}>
+                    <td className="px-5 py-4 font-semibold text-slate-900">{row.codigo}</td>
+                    <td className="px-5 py-4 text-slate-600">
+                      <div className="font-medium">{row.nombre}</div>
+                      <div className="text-xs text-slate-400">{formatDate(row.fecha)}</div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                        {row.estado}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 font-semibold text-slate-800">{row.monto ? formatCurrency(row.monto) : "-"}</td>
+                    <td className="px-5 py-4 text-slate-600">{row.referencia}</td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-2 w-28 overflow-hidden rounded-full bg-slate-200">
+                          <div
+                            className="h-full rounded-full bg-linear-to-r from-cyan-500 via-blue-500 to-indigo-500"
+                            style={{ width: `${row.progreso}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-semibold text-slate-500">{row.progreso}%</span>
                       </div>
-                      <span className="text-xs font-semibold text-slate-500">{row.progreso}%</span>
-                    </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="px-5 py-10 text-center text-slate-400">
+                    {loading ? "Cargando registros..." : "No hay datos para el periodo seleccionado."}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

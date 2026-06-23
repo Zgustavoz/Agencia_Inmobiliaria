@@ -7,10 +7,23 @@ import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+def env_as_bool(name, default=False):
+    value = config(name, default=default)
+    if isinstance(value, bool):
+        return value
+
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on", "dev", "debug", "local"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off", "prod", "production", "release"}:
+        return False
+    return bool(default)
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 SECRET_KEY = config('SECRET_KEY')
-DEBUG       = config('DEBUG', default=False, cast=bool)
+DEBUG       = env_as_bool('DEBUG', default=False)
 ALLOWED_HOSTS = ['*']
 
 # ALLOWED_HOSTS = [
@@ -145,7 +158,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES':      ('Bearer',),
     'AUTH_COOKIE':            'access_token',
     'AUTH_COOKIE_REFRESH':    'refresh_token',
-    'AUTH_COOKIE_SECURE':     config('AUTH_COOKIE_SECURE', default=False, cast=bool),
+    'AUTH_COOKIE_SECURE':     env_as_bool('AUTH_COOKIE_SECURE', default=False),
     'AUTH_COOKIE_HTTP_ONLY':  True,
     'AUTH_COOKIE_SAMESITE':   config('AUTH_COOKIE_SAMESITE', default='Lax'),
 }
