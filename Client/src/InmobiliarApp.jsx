@@ -1,5 +1,5 @@
 
-import { Navigate, Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { LoginPage } from "./App/auth/page/LoginPage";
 import { RegisterPage } from "./App/auth/page/RegisterPage";
 import { RegisterClientePage } from "./App/auth/page/RegisterClientePage";
@@ -25,6 +25,7 @@ import { HorariosConfigPage } from "./App/modulo-clientes-seguimiento/gestion-vi
 import { ClientesHistorialPage } from "./App/modulo-clientes-seguimiento/gestion-visitas/page/ClientesHistorialPage";
 import { VencimientosPage } from "./App/Gestion-administracion/gestion-vencimientos/page/VencimientosPage";
 import { ContratoPage } from "./App/Gestion-administracion-contratos/gestion-contrato/page/ContratoPage";
+import { ContratoDetailPage } from "./App/Gestion-administracion-contratos/gestion-contrato/page/ContratoDetailPage";
 import { EstadisticasPage } from "./App/Gestion-administracion/estadisticas/page/EstadisticasPage";
 
 // --- IMPORTACIONES SUPERADMIN ---
@@ -144,10 +145,19 @@ function InmobiliarApp() {
         />
 
         <Route
-          path="/dashboard/contratos"
+          path="contratos"
           element={
             <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Agente", "Auditor"]}>
               <ContratoPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="contratos/:id"
+          element={
+            <ProtectedRoute requiredRoles={["Administrador", "Supervisor", "Agente", "Auditor"]}>
+              <ContratoDetailPage />
             </ProtectedRoute>
           }
         />
