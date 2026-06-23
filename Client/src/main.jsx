@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './styles/fonts.css'
 import './index.css'
 import InmobiliarApp from './InmobiliarApp'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router'
 import {
   QueryClient,
   QueryClientProvider,
