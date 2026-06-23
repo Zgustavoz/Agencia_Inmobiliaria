@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mobile/src/features/contracts/presentation/pages/mis_contratos_screen.dart';
 import 'package:mobile/src/features/profile/presentation/pages/editar_perfil_screen.dart';
 import 'package:mobile/src/features/properties/logic/propiedad_provider.dart';
 import 'package:mobile/src/features/properties/presentation/property_card.dart';
@@ -463,7 +464,15 @@ class _DestacadosScreenState extends State<DestacadosScreen> {
             );
           }),
           //_menuItem(Icons.chat_bubble_outline, "Mensajes con Agentes", () {}),
-          //_menuItem(Icons.description_outlined, "Mis Contratos", () {}),
+          _menuItem(Icons.description_outlined, "Mis Contratos", () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MisContratosScreen(),
+              ),
+            );
+          }),
           const Spacer(),
           const Divider(),
           ListTile(

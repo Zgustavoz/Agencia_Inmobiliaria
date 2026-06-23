@@ -28,13 +28,19 @@ class UserProvider with ChangeNotifier {
     if (_token == null) return;
 
     final fcmToken = await NotificationService.getToken();
-    if (fcmToken == null) return;
+    if (fcmToken == null) {
+      print('No se obtuvo token FCM; no se registrara dispositivo.');
+      return;
+    }
 
     try {
+      final url = Uri.parse('${AppConfig.apiUrl}/gestion_usuarios/auth/fcm-token/');
+      print('Registrando token FCM en backend: $url');
       final response = await http.post(
-        Uri.parse('${AppConfig.apiUrl}/gestion_usuarios/auth/fcm-token/'),
+        url,
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': 'Bearer $_token',
         },
         body: jsonEncode({
@@ -46,7 +52,7 @@ class UserProvider with ChangeNotifier {
       if (response.statusCode == 201) {
         print('Dispositivo registrado en FCM backend exitosamente');
       } else {
-        print('Error al registrar dispositivo en FCM: ${response.body}');
+        print('Error al registrar dispositivo en FCM (${response.statusCode}): ${response.body}');
       }
     } catch (e) {
       print('Error de conexión al registrar FCM: $e');

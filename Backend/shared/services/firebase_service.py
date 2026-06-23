@@ -66,3 +66,25 @@ class FirebaseService:
                     print(f"DEBUG: Error en token {index}: {res.exception}")
         except Exception as e:
             print(f"Error enviando notificaciones push: {e}")
+
+    @staticmethod
+    def send_topic_notification(topic, title, body, data=None):
+        FirebaseService.initialize()
+        if not FirebaseService._initialized:
+            print("ERROR: Firebase no está inicializado.")
+            return
+
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title=title,
+                body=body,
+            ),
+            data=data or {},
+            topic=topic,
+        )
+
+        try:
+            response = messaging.send(message)
+            print(f"DEBUG: Firebase topic response: {response}")
+        except Exception as e:
+            print(f"Error enviando notificacion por topic: {e}")

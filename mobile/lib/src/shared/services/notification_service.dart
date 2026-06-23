@@ -27,6 +27,15 @@ class NotificationService {
         print('Usuario otorgó permiso para notificaciones');
       }
 
+      if (!kIsWeb) {
+        try {
+          await _firebaseMessaging.subscribeToTopic('clientes');
+          print('Suscrito al topic de contratos/clientes');
+        } catch (e) {
+          print('Error suscribiendo al topic clientes: $e');
+        }
+      }
+
       // 2. Configurar notificaciones locales (Solo para móviles)
       if (!kIsWeb) {
         const AndroidInitializationSettings initializationSettingsAndroid =
