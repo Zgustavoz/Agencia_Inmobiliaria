@@ -12,7 +12,12 @@ from modulo_contratos.models import Contrato
 from modulo_contratos.serializers import ContratoSerializer
 from modulo_contratos.serializers.reporte_contrato import ReporteContratoSerializer
 from shared.services.reportes_utils import filter_periodo, build_pdf_response
-
+from rest_framework.decorators import action
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+import urllib.request
+from datetime import datetime
 
 class ContratoViewSet(viewsets.ModelViewSet):
     queryset = Contrato.objects.all().order_by('-creado_en')
@@ -132,3 +137,4 @@ class ContratoViewSet(viewsets.ModelViewSet):
             )
 
         return Response(data)
+    

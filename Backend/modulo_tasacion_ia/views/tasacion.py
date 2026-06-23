@@ -64,36 +64,6 @@ class ChatTasacionViewSet(viewsets.ModelViewSet):
             instance.save()
 
         return Response(self.get_serializer(instance).data, status=201)
-        # # Esto nos dirá si Flutter realmente está enviando algo
-        # print("--- DATA CRUDA RECIBIDA ---")
-        # print(f"DATOS RECIBIDOS: {request.data}")
-        # print(f"POST Data: {request.POST}") # Aquí deberían salir los textos
-        # print(f"FILES Data: {request.FILES}") # Aquí deberían salir las imágenes
-        # try:
-        #     cliente = Cliente.objects.get(usuario=self.request.user)
-        # except Cliente.DoesNotExist:
-        #     return Response({"error": "No eres cliente"}, status=403)
-
-        # serializer = self.get_serializer(data=request.data)
-        # if not serializer.is_valid():
-        #     print(f"ERRORES DE VALIDACIÓN: {serializer.errors}")
-        #     return Response(serializer.errors, status=400)
-            
-        # # Al guardar, se sube a Cloudinary
-        # instance = serializer.save(cliente=cliente)
-        
-        # # FORZAR REFRESH: Esto asegura que 'instance' tenga las URLs de Cloudinary y el texto guardado
-        # instance.refresh_from_db() 
-        
-        # print(f"DEBUG DESPUES DE GUARDAR: {instance.mensaje_usuario}")
-
-        # try:
-        #     self.procesar_con_ia(instance)
-        # except Exception as e:
-        #     instance.respuesta_ia = f"Error: {str(e)}"
-        #     instance.save()
-
-        # return Response(self.get_serializer(instance).data, status=201)
 
     def procesar_con_ia(self, instance):
         # 1. Obtenemos la llave desde settings (decouple ya la cargó del .env)
